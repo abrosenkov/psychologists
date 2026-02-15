@@ -1,0 +1,43 @@
+{
+  "name": "psychologists",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "axios": "^1.12.2",
+    "clsx": "^2.1.1",
+    "debounce": "^2.2.0",
+    "formik": "^2.4.6",
+    "framer-motion": "^12.25.0",
+    "lucide-react": "^0.562.0",
+    "modern-normalize": "^3.0.1",
+    "next": "^16.1.1",
+    "normalize.css": "^8.0.1",
+    "react": "19.1.0",
+    "react-datepicker": "^9.1.0",
+    "react-dom": "19.1.0",
+    "react-hot-toast": "^2.6.0",
+    "react-paginate": "^8.3.0",
+    "use-debounce": "^10.0.6",
+    "yet-another-react-lightbox": "^3.28.0",
+    "yup": "^1.7.1",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "prettier": "^3.7.4",
+    "typescript": "^5"
+  }
+}
