@@ -91,7 +91,6 @@ h6 {
 @media screen and (min-width: 1440px) {
   .container {
   max-width: 1440px;
-  padding: 0 64px;
-
+  padding: 0 128px;
 }
 }

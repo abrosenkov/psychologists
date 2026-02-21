@@ -3,12 +3,12 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 16px 48px;
-  background-color: var(--color-coral);
+  padding: 10px 32px;
+  background-color: #54be96;
   width: 100%; 
-  max-width: 176px;
+  max-width: 156px;
   font-weight: 500;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.5;
   letter-spacing: -0.01em;
   color: #fff;
@@ -23,14 +23,13 @@
 
 .ctaButton:hover, 
 .ctaButton:focus {
-  background-color: #d84343;
+  background-color: #36a379;
 }
 
-@media screen and (max-width: 375px) {
+@media screen and (min-width: 1440px) {
   .ctaButton {
-  font-size: 14px;
-  padding: 10px 32px;
-  max-width: 156px;
-
+    font-size: 16px;
+    padding: 14px 40px;
+    max-width: 176px;
   }
 }

@@ -17,6 +17,12 @@
 //   },
 // };
 
+import css from "./page.module.css";
+
 export default function PsychologistsPage() {
-  return <div>PsychologistsPage</div>;
+  return (
+    <div className={css.psychologistsPage}>
+      <div className="container">PsychologistsPage</div>
+    </div>
+  );
 }
