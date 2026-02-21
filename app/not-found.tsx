@@ -29,15 +29,14 @@ export default function notFound() {
       <div className="container">
         <div className={css.content}>
           <h1 className={css.titleNotFound}>404</h1>
-          <h2 className={css.subtitleNotFound}>Lost in the wilderness?</h2>
+          <h2 className={css.subtitleNotFound}>Page not found</h2>
           <p className={css.descriptionNotFound}>
-            The campervan you are searching for might have started its journey
-            already or the link is simply broken. Don&apos;t let this stop your
-            adventure!
+            The page you are looking for doesn&apos;t exist or may have been
+            moved. Let&apos;s help you get back on track.
           </p>
 
-          <Button href="/catalog" className={css.backBtn}>
-            Return to Catalog
+          <Button href="/psychologists" className={css.backBtn}>
+            Go to Psychologists
           </Button>
         </div>
       </div>

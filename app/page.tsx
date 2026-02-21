@@ -21,5 +21,11 @@ import css from "./page.module.css";
 // };
 
 export default function Home() {
-  return <main className={css.main}>Home</main>;
+  return (
+    <main className={css.main}>
+      <div className={css.hero}>
+        <div className="container">Hero</div>
+      </div>
+    </main>
+  );
 }
