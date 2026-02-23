@@ -1,5 +1,29 @@
+
 .navigationList {
     display: flex;
-    direction: row;
-    gap: 8px;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.navigationItem .loginBtn{
+    border: 1px solid rgba(25, 26, 21, 0.2);
+    background-color: transparent;
+    color: #191a15;
+    max-width: 124px;
+    line-height: 1.25;
+    max-height: 48px;
+}
+
+.navigationItem .loginBtn:hover{
+    background-color: rgba(84, 190, 150, 0.2);
+}
+
+
+@media screen and (min-width: 1440px) {
+        .navigationList {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+    }
 }

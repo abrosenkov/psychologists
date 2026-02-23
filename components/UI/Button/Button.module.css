@@ -6,13 +6,13 @@
   padding: 10px 32px;
   background-color: #54be96;
   width: 100%; 
-  max-width: 156px;
+  max-width: 225px;
   font-weight: 500;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.25;
   letter-spacing: -0.01em;
   color: #fff;
-  border-radius: 200px;
+  border-radius: 30px;
   border: none;
   outline: none;
   cursor: pointer;
@@ -30,6 +30,6 @@
   .ctaButton {
     font-size: 16px;
     padding: 14px 40px;
-    max-width: 176px;
+    max-width: 225px;
   }
 }

@@ -142,6 +142,9 @@ export default function Header() {
             )}
           </ul>
         </nav>
+        <div className={css.authNavigationMobileWrapper}>
+          <AuthNavigation />
+        </div>
       </div>
     </div>
   );
