@@ -7,25 +7,37 @@
 .hero {
   width: 100%;
   display: flex;
-  padding: 194px 0 100px;
+  padding: 120px 0 50px;
   background: linear-gradient(135deg, #ffffff 0%, rgba(84, 190, 150, 0.2)100%);
+}
+
+.heroWrapper {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .title {
   font-weight: 600;
   font-size: 40px;
-  margin-bottom: 16px;
-  color: #f7f7f7;
-  line-height: 1;
+  margin-bottom: 20px;
+  color: #191a15;
+  line-height: 1.025;
+}
 
+.title span {
+  color: #54be96;
+  font-style: italic;
 }
 
 .description {
-  font-weight: 600;
-  font-size: 20px;
+  font-weight: 500;
+  font-size: 16px;
   line-height: 1.33;
   margin-bottom: 40px;
-  color: #f7f7f7;
+  letter-spacing: -0.02em;
+  color: #191a15;
 }
 
 .ctaButton {
@@ -33,9 +45,9 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 14px 40px;
+  padding: 18px 50px;
   background-color: #54be96;
-  max-width: 225px;
+  max-width: 235px;
   font-weight: 500;
   font-size: 16px;
   letter-spacing: -0.01em;
@@ -57,11 +69,86 @@
   text-align: center;
 }
 
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+}
+
+.imageBox {
+  max-width: 464px;
+  max-height: 526px;
+  position: relative;
+  z-index: 10;
+  border-radius: 10px;
+}
+
+.heroBtn {
+  gap: 18px;
+  max-width: 235px;
+  height: 50px;
+  font-size: 18px;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+}
+
+.imageInfo {
+  display: flex;
+  width: 90%;
+  flex-direction: row;
+  align-items: center;
   gap: 16px;
+  position: absolute;
+  z-index: 20;
+  bottom: 35px;
+  padding: 15px;
+  border-radius: 20px;
+  background-color: #54be96;
+}
+
+.infoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 13px;
+  background-color: #fbfbfb;
+}
+
+.feCheck {
+  fill: #54be96;
+}
+
+.infoWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infotitle {
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(251, 251, 251, 0.5);
+}
+
+.infoCount {
+  font-weight: 700;
+  font-size: 24px;
+  color: #fbfbfb;
 }
 
 .titleNotFound {
@@ -75,6 +162,7 @@
 .subtitleNotFound {
   font-size: 32px;
   color: #101828;
+  margin-bottom:20px;
 }
 
 .descriptionNotFound {
@@ -89,7 +177,6 @@
   padding: 16px 40px;
   background-color: #54be96;
   color: #f7f7f7;
-
   border-radius: 200px;
   font-weight: 500;
   text-decoration: none;
@@ -102,14 +189,42 @@
 
 @media screen and (min-width: 1440px) {
 
+  .hero {
+    padding: 96px 0 100px;
+  }
+
+  .contentWrapper {
+  align-items: start;
+  max-width: 595px;
+}
+
   .title {
   font-weight: 600;
-  font-size: 48px;
+  font-size: 80px;
 }
 
 .description {
-  font-size: 24px;
-  line-height: 1.33;
-  color: #f7f7f7;
+  font-size: 18px;
+  max-width: 510px;
+}
+
+.heroBtn {
+  gap: 18px;
+  max-width: 235px;
+  height: 60px;
+  font-size: 20px;
+}
+
+.heroWrapper {
+  gap: 0;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.imageInfo {
+  bottom: 75px;
+  left: -100px;
+  padding: 32px;
 }
 }
