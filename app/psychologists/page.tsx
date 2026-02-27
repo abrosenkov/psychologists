@@ -17,12 +17,51 @@
 //   },
 // };
 
+
 import css from "./page.module.css";
 
-export default function PsychologistsPage() {
+import { ref, get } from "firebase/database";
+import { db } from "@/lib/firebase";
+import Link from "next/link";
+
+async function getPsychologists() {
+  const snapshot = await get(ref(db, "psychologists"));
+  if (!snapshot.exists()) return [];
+
+  const data = snapshot.val();
+
+  return Object.entries(data).map(([key, value]) => ({
+    id: key,
+    ...value,
+  }));
+}
+
+export default async function PsychologistsPage({ searchParams }) {
+  const params = await searchParams;
+
+  const limit = Number(params?.limit ?? 3);
+
+  const psychologists = await getPsychologists();
+  const visible = psychologists.slice(0, limit);
+
   return (
     <div className={css.psychologistsPage}>
-      <div className="container">PsychologistsPage</div>
+      <h1>Psychologists</h1>
+
+      {visible.map((psy) => (
+        <div key={psy.id}>
+          <h3>{psy.name}</h3>
+          <p>{psy.specialization}</p>
+        </div>
+      ))}
+
+      {limit < psychologists.length && (
+        <Link
+          href={`/psychologists?limit=${limit + 3}`}
+        >
+          Load more
+        </Link>
+      )}
     </div>
   );
 }
