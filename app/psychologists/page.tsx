@@ -19,10 +19,58 @@
 
 import css from "./page.module.css";
 
-export default function PsychologistsPage() {
+import { ref, get } from "firebase/database";
+import { db } from "@/lib/firebase";
+import Link from "next/link";
+import SortDropdown from "@/components/SortDropdown/SortDropdown";
+
+interface Psychologist {
+  id: string;
+  name: string;
+  specialization: string;
+  [key: string]: unknown;
+}
+
+async function getPsychologists(): Promise<Psychologist[]> {
+  const snapshot = await get(ref(db, "psychologists"));
+  if (!snapshot.exists()) return [];
+
+  const data = snapshot.val();
+
+  return Object.entries(data).map(([key, value]) => ({
+    id: key,
+    ...(value as Record<string, unknown>),
+  })) as Psychologist[];
+}
+
+export default async function PsychologistsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[]>>;
+}) {
+  const params = await searchParams;
+
+  const limit = Number(params?.limit ?? 3);
+
+  const psychologists = await getPsychologists();
+  const visible = psychologists.slice(0, limit);
+
   return (
     <div className={css.psychologistsPage}>
-      <div className="container">PsychologistsPage</div>
+      <h1>Psychologists</h1>
+
+      <SortDropdown />
+
+      {visible.map((psy) => (
+        <div key={psy.id}>
+          <h3>{psy.name}</h3>
+          <p>{psy.specialization}</p>
+        </div>
+      ))}
+
+      {limit < psychologists.length && (
+        <Link href={`/psychologists?limit=${limit + 3}`}>Load more</Link>
+      )}
     </div>
   );
 }
