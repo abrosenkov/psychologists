@@ -1,17 +1,42 @@
+"use client";
+
 import css from "./AuthNavigation.module.css";
 import { Button } from "../UI/Button/Button";
 
-export default function AuthNavigation() {
+interface AuthNavigationProps {
+  onLoginClick: () => void;
+  onRegisterClick: () => void;
+  onCloseMobMenu?: () => void;
+}
+
+export default function AuthNavigation({
+  onLoginClick,
+  onRegisterClick,
+  onCloseMobMenu,
+}: AuthNavigationProps) {
   return (
     <ul className={css.navigationList}>
       <li className={css.navigationItem}>
-        <Button className={css.loginBtn} href="/sign-in">
+        <Button
+          onClick={() => {
+            onLoginClick();
+            onCloseMobMenu?.();
+          }}
+          className={css.loginBtn}
+        >
           Log In
         </Button>
       </li>
 
       <li className={css.navigationItem}>
-        <Button href="/registration">Registration</Button>
+        <Button
+          onClick={() => {
+            onRegisterClick();
+            onCloseMobMenu?.();
+          }}
+        >
+          Registration
+        </Button>
       </li>
     </ul>
   );

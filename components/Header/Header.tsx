@@ -6,6 +6,9 @@ import clsx from "clsx";
 import css from "./Header.module.css";
 import { useEffect, useState } from "react";
 import AuthNavigation from "../AuthNavigation/AuthNavigation";
+import Modal from "../Modal/Modal";
+import RegisterForm from "../RegisterForm/RegisterForm";
+import LoginForm from "../LoginForm/LoginForm";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
@@ -14,10 +17,11 @@ const NAV_LINKS = [
 
 export default function Header() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -26,7 +30,7 @@ export default function Header() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isMobileMenuOpen]);
 
   return (
     <div className={css.headerWrapper}>
@@ -38,11 +42,11 @@ export default function Header() {
             </p>
           </Link>
 
-          {isOpen ? (
+          {isMobileMenuOpen ? (
             <button
               className={css.closeMenuButton}
               aria-label="Close Mobile Menu"
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               <svg className={css.iconCloseMenu}>
                 <use href="/sprite.svg#close-menu" />
@@ -51,8 +55,8 @@ export default function Header() {
           ) : (
             <button
               className={css.mobileMenuButton}
-              aria-expanded={isOpen}
-              onClick={() => setIsOpen(true)}
+              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Open Mobile Menu"
             >
               <svg className={css.iconMobileMenu}>
@@ -97,7 +101,10 @@ export default function Header() {
             </ul>
           </nav>
           <div className={css.authNavigationWrapper}>
-            <AuthNavigation />
+            <AuthNavigation
+              onLoginClick={() => setAuthMode("login")}
+              onRegisterClick={() => setAuthMode("register")}
+            />
           </div>
         </div>
       </header>
@@ -105,7 +112,7 @@ export default function Header() {
       <div
         className={clsx(
           css.mobileNavigationWapper,
-          isOpen ? css.activeMenu : null
+          isMobileMenuOpen ? css.activeMenu : null
         )}
       >
         <nav className={css.mobileMenu} aria-label="Mobile Navigation">
@@ -117,7 +124,7 @@ export default function Header() {
                 <li key={href}>
                   <Link
                     href={href}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={clsx(css.link, isActive && css.active)}
                     aria-current={isActive ? "page" : undefined}
                   >
@@ -143,9 +150,22 @@ export default function Header() {
           </ul>
         </nav>
         <div className={css.authNavigationMobileWrapper}>
-          <AuthNavigation />
+          <AuthNavigation
+            onLoginClick={() => setAuthMode("login")}
+            onRegisterClick={() => setAuthMode("register")}
+            onCloseMobMenu={() => setIsMobileMenuOpen(false)}
+          />
         </div>
       </div>
+      <Modal isOpen={!!authMode} onCloseModal={() => setAuthMode(null)}>
+        {authMode === "login" && (
+          <LoginForm onSuccess={() => setAuthMode(null)} />
+        )}
+
+        {authMode === "register" && (
+          <RegisterForm onSuccess={() => setAuthMode(null)} />
+        )}
+      </Modal>
     </div>
   );
 }
