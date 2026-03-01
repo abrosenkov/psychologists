@@ -19,3 +19,24 @@
   width: 100%;
   position: relative;
 }
+
+
+.closeModalButton {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    top: 20px;
+    right: 20px;
+    transition: scale 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.iconCloseMenu {
+    width: 32px;;
+    height: 32px;
+    
+}
+
+.closeModalButton:hover {
+    scale: 1.05;
+}

@@ -37,7 +37,7 @@ export default function Home() {
               a guide in your own life with the help of our experienced
               psychologists.
             </p>
-            <Button className={css.heroBtn}>
+            <Button href="/psychologists" className={css.heroBtn}>
               Get started
               <svg
                 width="14"

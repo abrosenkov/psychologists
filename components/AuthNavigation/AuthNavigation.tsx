@@ -6,19 +6,21 @@ import { Button } from "../UI/Button/Button";
 interface AuthNavigationProps {
   onLoginClick: () => void;
   onRegisterClick: () => void;
+  onCloseMobMenu?: () => void;
 }
 
 export default function AuthNavigation({
   onLoginClick,
   onRegisterClick,
+  onCloseMobMenu,
 }: AuthNavigationProps) {
   return (
     <ul className={css.navigationList}>
       <li className={css.navigationItem}>
         <Button
           onClick={() => {
-            console.log("LOGIN CLICK");
             onLoginClick();
+            onCloseMobMenu?.();
           }}
           className={css.loginBtn}
         >
@@ -27,7 +29,14 @@ export default function AuthNavigation({
       </li>
 
       <li className={css.navigationItem}>
-        <Button onClick={onRegisterClick}>Registration</Button>
+        <Button
+          onClick={() => {
+            onRegisterClick();
+            onCloseMobMenu?.();
+          }}
+        >
+          Registration
+        </Button>
       </li>
     </ul>
   );

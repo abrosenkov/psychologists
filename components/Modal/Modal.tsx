@@ -44,7 +44,18 @@ export default function Modal({ isOpen, onCloseModal, children }: ModalProps) {
       role="dialog"
       aria-modal="true"
     >
-      <div className={css.modal}>{children}</div>
+      <div className={css.modal}>
+        <button
+          className={css.closeModalButton}
+          aria-label="Close Modal"
+          onClick={onCloseModal}
+        >
+          <svg className={css.iconCloseMenu}>
+            <use href="/sprite.svg#close-menu" />
+          </svg>
+        </button>
+        {children}
+      </div>
     </div>,
     document.body
   );

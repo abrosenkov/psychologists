@@ -153,6 +153,7 @@ export default function Header() {
           <AuthNavigation
             onLoginClick={() => setAuthMode("login")}
             onRegisterClick={() => setAuthMode("register")}
+            onCloseMobMenu={() => setIsMobileMenuOpen(false)}
           />
         </div>
       </div>
