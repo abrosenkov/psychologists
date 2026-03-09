@@ -9,6 +9,10 @@ import AuthNavigation from "../AuthNavigation/AuthNavigation";
 import Modal from "../Modal/Modal";
 import RegisterForm from "../RegisterForm/RegisterForm";
 import LoginForm from "../LoginForm/LoginForm";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Button } from "../UI/Button/Button";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
@@ -19,6 +23,16 @@ export default function Header() {
   const pathname = usePathname();
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -82,29 +96,52 @@ export default function Header() {
                   </li>
                 );
               })}
-              {pathname !== "/" && (
-                <li>
-                  <Link
-                    href="/favorites"
-                    className={clsx(
-                      css.link,
-                      pathname === "/favorites" && css.active
-                    )}
-                    aria-current={
-                      pathname === "/favorites" ? "page" : undefined
-                    }
-                  >
-                    Favorites
-                  </Link>
-                </li>
-              )}
+              {loading
+                ? null
+                : user && (
+                    <li>
+                      <Link
+                        href="/favorites"
+                        className={clsx(
+                          css.link,
+                          pathname === "/favorites" && css.active
+                        )}
+                        aria-current={
+                          pathname === "/favorites" ? "page" : undefined
+                        }
+                      >
+                        Favorites
+                      </Link>
+                    </li>
+                  )}
             </ul>
           </nav>
           <div className={css.authNavigationWrapper}>
-            <AuthNavigation
-              onLoginClick={() => setAuthMode("login")}
-              onRegisterClick={() => setAuthMode("register")}
-            />
+            {loading ? null : user ? (
+              <div className={css.userBlock}>
+                <div className={css.userInfo}>
+                  <div className={css.userAvatar}>
+                    {user.displayName?.[0]?.toUpperCase() || "U"}
+                  </div>
+                  <span className={css.userName}>
+                    {user.displayName || "User"}
+                  </span>
+                </div>
+
+                <Button
+                  type="button"
+                  className={css.logoutBtn}
+                  onClick={handleLogout}
+                >
+                  Log out
+                </Button>
+              </div>
+            ) : (
+              <AuthNavigation
+                onLoginClick={() => setAuthMode("login")}
+                onRegisterClick={() => setAuthMode("register")}
+              />
+            )}
           </div>
         </div>
       </header>
@@ -133,28 +170,52 @@ export default function Header() {
                 </li>
               );
             })}
-            {pathname !== "/" && (
-              <li>
-                <Link
-                  href="/favorites"
-                  className={clsx(
-                    css.link,
-                    pathname === "/favorites" && css.active
-                  )}
-                  aria-current={pathname === "/favorites" ? "page" : undefined}
-                >
-                  Favorites
-                </Link>
-              </li>
-            )}
+            {loading
+              ? null
+              : user && (
+                  <li>
+                    <Link
+                      href="/favorites"
+                      className={clsx(
+                        css.link,
+                        pathname === "/favorites" && css.active
+                      )}
+                      aria-current={
+                        pathname === "/favorites" ? "page" : undefined
+                      }
+                    >
+                      Favorites
+                    </Link>
+                  </li>
+                )}
           </ul>
         </nav>
         <div className={css.authNavigationMobileWrapper}>
-          <AuthNavigation
-            onLoginClick={() => setAuthMode("login")}
-            onRegisterClick={() => setAuthMode("register")}
-            onCloseMobMenu={() => setIsMobileMenuOpen(false)}
-          />
+          {loading ? null : user ? (
+            <div className={css.userBlockMobile}>
+              <div className={css.userInfo}>
+                <div className={css.userAvatar}>
+                  {user.displayName?.[0]?.toUpperCase() || "U"}
+                </div>
+                <span className={css.userName}>
+                  {user.displayName || "User"}
+                </span>
+              </div>
+
+              <Button
+                type="button"
+                className={css.logoutBtn}
+                onClick={handleLogout}
+              >
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <AuthNavigation
+              onLoginClick={() => setAuthMode("login")}
+              onRegisterClick={() => setAuthMode("register")}
+            />
+          )}
         </div>
       </div>
       <Modal isOpen={!!authMode} onCloseModal={() => setAuthMode(null)}>
