@@ -6,6 +6,8 @@ import css from "./LoginForm.module.css";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../UI/Button/Button";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -21,6 +23,21 @@ const LoginSchema = Yup.object({
 export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleLogin = async (values: { email: string; password: string }) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      console.log("User logged in:", userCredential.user);
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  };
+
   return (
     <div className={css.wrapper}>
       <h2 className={css.title}>Log In</h2>
@@ -33,9 +50,15 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       <Formik
         initialValues={{ email: "", password: "" }}
         validationSchema={LoginSchema}
-        onSubmit={(values) => {
-          console.log(values);
-          onSuccess();
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            await handleLogin(values);
+            onSuccess();
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setSubmitting(false);
+          }
         }}
       >
         {() => (
