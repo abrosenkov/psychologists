@@ -6,9 +6,14 @@ import css from "./RegistrationForm.module.css";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../UI/Button/Button";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  AuthError,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { getDatabase, ref, set } from "firebase/database";
+import toast from "react-hot-toast";
 
 interface RegistrationFormProps {
   onSuccess: () => void;
@@ -27,30 +32,6 @@ const RegistrationSchema = Yup.object({
 export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleRegistration = async (values: {
-    name: string;
-    email: string;
-    password: string;
-  }) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-      await updateProfile(userCredential.user, { displayName: values.name });
-      const db = getDatabase();
-      await set(ref(db, `users/${userCredential.user.uid}`), {
-        name: values.name,
-        email: values.email,
-        createdAt: Date.now(),
-      });
-    } catch (error) {
-      console.error("Error during registration:", error);
-      throw error;
-    }
-  };
-
   return (
     <div className={css.wrapper}>
       <h2 className={css.title}>Registration</h2>
@@ -65,11 +46,37 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
         validationSchema={RegistrationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            await handleRegistration(values);
+            const userCredential = await createUserWithEmailAndPassword(
+              auth,
+              values.email,
+              values.password
+            );
+
+            await updateProfile(userCredential.user, {
+              displayName: values.name,
+            });
+
+            const db = getDatabase();
+
+            await set(ref(db, `users/${userCredential.user.uid}`), {
+              name: values.name,
+              email: values.email,
+              createdAt: Date.now(),
+            });
+
+            toast.success("Account created successfully 🎉");
             onSuccess();
           } catch (error) {
-            console.error("Error during registration:", error);
-            throw error;
+            const authError = error as AuthError;
+
+            const errorMap: Record<string, string> = {
+              "auth/email-already-in-use": "This email is already registered",
+              "auth/invalid-email": "Invalid email address",
+              "auth/weak-password": "Password should be at least 8 characters",
+              "auth/too-many-requests": "Too many attempts. Try later",
+            };
+
+            toast.error(errorMap[authError.code] || "Registration failed");
           } finally {
             setSubmitting(false);
           }
@@ -91,6 +98,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
                   className={css.error}
                 />
               </div>
+
               <div className={css.fieldWrapper}>
                 <Field
                   name="email"
@@ -113,6 +121,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
                     placeholder="Password"
                     className={css.input}
                   />
+
                   <button
                     type="button"
                     className={css.eyeButton}
@@ -129,6 +138,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
                 />
               </div>
             </div>
+
             <Button
               type="submit"
               className={css.submitBtn}

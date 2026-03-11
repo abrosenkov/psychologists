@@ -6,11 +6,13 @@ import css from "./LoginForm.module.css";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../UI/Button/Button";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, AuthError } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import toast from "react-hot-toast";
 
 interface LoginFormProps {
   onSuccess: () => void;
+  onLogout?: () => void;
 }
 
 const LoginSchema = Yup.object({
@@ -22,21 +24,6 @@ const LoginSchema = Yup.object({
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleLogin = async (values: { email: string; password: string }) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-
-      console.log("User logged in:", userCredential.user);
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
-    }
-  };
 
   return (
     <div className={css.wrapper}>
@@ -52,16 +39,30 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         validationSchema={LoginSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            await handleLogin(values);
+            await signInWithEmailAndPassword(
+              auth,
+              values.email,
+              values.password
+            );
+
+            toast.success("Welcome back!");
             onSuccess();
           } catch (error) {
-            console.error(error);
+            const authError = error as AuthError;
+
+            const errorMap: Record<string, string> = {
+              "auth/invalid-credential": "Wrong email or password",
+              "auth/user-not-found": "User not found",
+              "auth/too-many-requests": "Too many attempts. Try later",
+            };
+
+            toast.error(errorMap[authError.code] || "Login failed");
           } finally {
             setSubmitting(false);
           }
         }}
       >
-        {() => (
+        {({ isSubmitting }) => (
           <Form className={css.form}>
             <div className={css.fieldsWrapper}>
               <div className={css.fieldWrapper}>
@@ -86,6 +87,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                     placeholder="Password"
                     className={css.input}
                   />
+
                   <button
                     type="button"
                     className={css.eyeButton}
@@ -102,8 +104,13 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 />
               </div>
             </div>
-            <Button type="submit" className={css.submitBtn}>
-              Log In
+
+            <Button
+              type="submit"
+              className={css.submitBtn}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Logging in..." : "Log In"}
             </Button>
           </Form>
         )}
