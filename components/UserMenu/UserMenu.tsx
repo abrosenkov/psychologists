@@ -24,10 +24,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
       toast.success("Logged out successfully 👋");
 
-      if (onLogout) {
-        onLogout();
-      }
-    } catch (error) {
+      onLogout();
+    } catch {
       toast.error("Failed to log out. Try again.");
     } finally {
       setIsLoggingOut(false);
@@ -46,7 +44,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       </div>
 
       <Button type="button" className={css.logoutBtn} onClick={handleLogout}>
-        Log out
+        {isLoggingOut ? "Logging out..." : "Log out"}
       </Button>
     </div>
   );
