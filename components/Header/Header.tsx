@@ -10,9 +10,8 @@ import Modal from "../Modal/Modal";
 import RegisterForm from "../RegisterForm/RegisterForm";
 import LoginForm from "../LoginForm/LoginForm";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { Button } from "../UI/Button/Button";
+import UserMenu from "../UserMenu/UserMenu";
+import AuthSkeleton from "../AuthSkeleton/AuthSkeleton";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
@@ -26,14 +25,6 @@ export default function Header() {
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -45,6 +36,10 @@ export default function Header() {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <div className={css.headerWrapper}>
@@ -117,25 +112,10 @@ export default function Header() {
             </ul>
           </nav>
           <div className={css.authNavigationWrapper}>
-            {loading ? null : user ? (
-              <div className={css.userBlock}>
-                <div className={css.userInfo}>
-                  <div className={css.userAvatar}>
-                    {user.displayName?.[0]?.toUpperCase() || "U"}
-                  </div>
-                  <span className={css.userName}>
-                    {user.displayName || "User"}
-                  </span>
-                </div>
-
-                <Button
-                  type="button"
-                  className={css.logoutBtn}
-                  onClick={handleLogout}
-                >
-                  Log out
-                </Button>
-              </div>
+            {loading ? (
+              <AuthSkeleton />
+            ) : user ? (
+              <UserMenu onLogout={closeMobileMenu} />
             ) : (
               <AuthNavigation
                 onLoginClick={() => setAuthMode("login")}
@@ -191,25 +171,10 @@ export default function Header() {
           </ul>
         </nav>
         <div className={css.authNavigationMobileWrapper}>
-          {loading ? null : user ? (
-            <div className={css.userBlockMobile}>
-              <div className={css.userInfo}>
-                <div className={css.userAvatar}>
-                  {user.displayName?.[0]?.toUpperCase() || "U"}
-                </div>
-                <span className={css.userName}>
-                  {user.displayName || "User"}
-                </span>
-              </div>
-
-              <Button
-                type="button"
-                className={css.logoutBtn}
-                onClick={handleLogout}
-              >
-                Log out
-              </Button>
-            </div>
+          {loading ? (
+            <AuthSkeleton />
+          ) : user ? (
+            <UserMenu onLogout={closeMobileMenu} />
           ) : (
             <AuthNavigation
               onLoginClick={() => setAuthMode("login")}
@@ -220,11 +185,21 @@ export default function Header() {
       </div>
       <Modal isOpen={!!authMode} onCloseModal={() => setAuthMode(null)}>
         {authMode === "login" && (
-          <LoginForm onSuccess={() => setAuthMode(null)} />
+          <LoginForm
+            onSuccess={() => {
+              setAuthMode(null);
+              closeMobileMenu();
+            }}
+          />
         )}
 
         {authMode === "register" && (
-          <RegisterForm onSuccess={() => setAuthMode(null)} />
+          <RegisterForm
+            onSuccess={() => {
+              setAuthMode(null);
+              closeMobileMenu();
+            }}
+          />
         )}
       </Modal>
     </div>

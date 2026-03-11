@@ -1,0 +1,60 @@
+.userBlock {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.userBlockMobile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #54be96;
+  color: #fbfbfb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.userName {
+  font-weight: 500;
+    font-size: 16px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #191a15;
+}
+
+.userBlock .logoutBtn {
+  width: 100%;
+  height: 48px;
+  padding: 14px 39px;
+  border-radius: 30px;
+  border: 1px solid rgba(25, 26, 21, 0.2);
+  background-color: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  color: #191a15;
+  cursor: pointer;
+  transition: border-color 200ms ease-in-out, background-color 200ms ease-in-out, color 200ms ease-in-out;
+}
+
+.userBlock .logoutBtn:hover,
+.userBlock .logoutBtn:focus {
+  background-color: #54be96;
+  border-color: #54be96;
+  color: #fbfbfb;
+}
