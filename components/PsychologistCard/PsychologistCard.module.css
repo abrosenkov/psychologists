@@ -1,0 +1,15 @@
+.card {
+    background-color: #fbfbfb;
+}
+
+
+.shortText {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fullText {
+  display: block;
+}
