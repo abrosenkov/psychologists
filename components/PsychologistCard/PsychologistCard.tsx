@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import clsx from "clsx";
 import css from "./PsychologistCard.module.css";
 import Image from "next/image";
 
@@ -17,15 +18,30 @@ interface Psychologist {
   about: string;
 }
 
+interface PsychologistCardProps {
+  psychologist: Psychologist;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+}
+
 export default function PsychologistCard({
   psychologist,
-}: {
-  psychologist: Psychologist;
-}) {
+  isFavorite,
+  onToggleFavorite,
+}: PsychologistCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <div className={css.card}>
+      <button
+        type="button"
+        className={clsx(css.favoriteButton, isFavorite && css.favoriteActive)}
+        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        onClick={onToggleFavorite}
+      >
+        {isFavorite ? "♥" : "♡"}
+      </button>
+
       <Image
         src={psychologist.avatar_url}
         alt={psychologist.name}
