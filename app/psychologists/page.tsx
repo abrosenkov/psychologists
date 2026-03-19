@@ -1,38 +1,27 @@
-// export const metadata: Metadata = {
-//   title: "Catalog | TravelTrucks",
-//   description:
-//     "Explore our wide range of campervans. Filter by equipment, type, and location to find the perfect vehicle for your next travel adventure.",
-//   keywords: [
-//     "campervan catalog",
-//     "rent campervan",
-//     "campervan filters",
-//     "van life",
-//     "TravelTrucks models",
-//   ],
-//   openGraph: {
-//     title: "Campervan Catalog | TravelTrucks",
-//     description: "Find your dream campervan in our extensive catalog.",
-//     type: "website",
-//     url: "hhttps://campers-el18.vercel.app/catalog",
-//   },
-// };
-
 import css from "./page.module.css";
-
 import { ref, get } from "firebase/database";
 import { db } from "@/lib/firebase";
-import Link from "next/link";
 import SortDropdown from "@/components/SortDropdown/SortDropdown";
+import PsychologistsList from "@/components/PsychologistsList/PsychologistsList";
+import clsx from "clsx";
 
 interface Psychologist {
   id: string;
   name: string;
   specialization: string;
+  avatar_url: string;
+  experience: number;
+  license: string;
+  rating: number;
+  price_per_hour: number;
+  initial_consultation: string;
+  about: string;
   [key: string]: unknown;
 }
 
 async function getPsychologists(): Promise<Psychologist[]> {
   const snapshot = await get(ref(db, "psychologists"));
+
   if (!snapshot.exists()) return [];
 
   const data = snapshot.val();
@@ -46,31 +35,61 @@ async function getPsychologists(): Promise<Psychologist[]> {
 export default async function PsychologistsPage({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[]>>;
+  searchParams: Promise<{
+    sort?: string;
+    price?: string;
+    rating?: string;
+  }>;
 }) {
   const params = await searchParams;
-
-  const limit = Number(params?.limit ?? 3);
-
   const psychologists = await getPsychologists();
-  const visible = psychologists.slice(0, limit);
+
+  const sort = params?.sort || "name-asc";
+  const price = params?.price;
+  const rating = params?.rating;
+
+  let filtered = [...psychologists];
+
+  if (price === "lt10") {
+    filtered = filtered.filter((p) => p.price_per_hour < 10);
+  }
+
+  if (price === "gt10") {
+    filtered = filtered.filter((p) => p.price_per_hour >= 10);
+  }
+
+  if (rating === "popular") {
+    filtered = filtered.filter((p) => p.rating >= 4.5);
+  }
+
+  if (rating === "not-popular") {
+    filtered = filtered.filter((p) => p.rating < 4.5);
+  }
+
+  const sorted = [...filtered];
+
+  switch (sort) {
+    case "name-asc":
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+
+    case "name-desc":
+      sorted.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+
+    default:
+      break;
+  }
 
   return (
     <div className={css.psychologistsPage}>
-      <h1>Psychologists</h1>
-
-      <SortDropdown />
-
-      {visible.map((psy) => (
-        <div key={psy.id}>
-          <h3>{psy.name}</h3>
-          <p>{psy.specialization}</p>
-        </div>
-      ))}
-
-      {limit < psychologists.length && (
-        <Link href={`/psychologists?limit=${limit + 3}`}>Load more</Link>
-      )}
+      <div className={clsx("container", css.psychologistsContainer)}>
+        <SortDropdown />
+        <PsychologistsList
+          key={`${sort}-${price ?? "none"}-${rating ?? "none"}`}
+          psychologists={sorted}
+        />
+      </div>
     </div>
   );
 }

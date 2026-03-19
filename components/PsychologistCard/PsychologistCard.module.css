@@ -1,0 +1,36 @@
+.card {
+  position: relative;
+  background-color: #fbfbfb;
+}
+
+.favoriteButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  color: #8a8a8a;
+  transition: color 200ms ease;
+}
+
+.favoriteButton:hover {
+  color: #ff6b6b;
+}
+
+.favoriteActive {
+  color: #ff6b6b;
+}
+
+.shortText {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fullText {
+  display: block;
+}

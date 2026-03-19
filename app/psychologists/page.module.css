@@ -1,9 +1,18 @@
 .psychologistsPage {
   padding-top: 150px;
+  padding-bottom: 100px;
   display: flex;
   flex-direction: column;
+  flex: 1;
   gap: 20px;
   align-items: flex-start;
+  background-color: #f3f3f3;
+}
+
+.psychologistsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .sidebar {
