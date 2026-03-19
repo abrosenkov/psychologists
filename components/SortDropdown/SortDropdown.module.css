@@ -1,0 +1,72 @@
+.wrapper {
+  position: relative;
+  width: 226px;
+  font-family: sans-serif;
+}
+
+.labelTitle {
+  display: block;
+  font-size: 14px;
+  color: #8a8a89;
+  margin-bottom: 8px;
+}
+
+.selectHeader {
+  background-color: #54be96; /* Цвет из макета */
+  color: white;
+  padding: 14px 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.activeHeader {
+  background-color: #48a984;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.arrowRotate {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 12px 0;
+  margin: 0;
+  list-style: none;
+  z-index: 100;
+}
+
+.option {
+  padding: 10px 24px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #ccc; /* Светлый текст для неактивных */
+  transition: all 0.2s;
+}
+
+.option:hover {
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.option.selected {
+  color: #191a15; /* Черный для выбранного */
+  font-weight: 500;
+}

@@ -32,15 +32,49 @@ async function getPsychologists(): Promise<Psychologist[]> {
   })) as Psychologist[];
 }
 
-export default async function PsychologistsPage() {
+export default async function PsychologistsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string }>;
+}) {
+  const params = await searchParams;
   const psychologists = await getPsychologists();
+  const sort = params?.sort || "name-asc";
+
+  const sorted = [...psychologists];
+
+  switch (sort) {
+    case "name-asc":
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+
+    case "name-desc":
+      sorted.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+
+    case "price-asc":
+      sorted.sort((a, b) => a.price_per_hour - b.price_per_hour);
+      break;
+
+    case "price-desc":
+      sorted.sort((a, b) => b.price_per_hour - a.price_per_hour);
+      break;
+
+    case "rating-asc":
+      sorted.sort((a, b) => a.rating - b.rating);
+      break;
+
+    case "rating-desc":
+      sorted.sort((a, b) => b.rating - a.rating);
+      break;
+  }
 
   return (
     <div className={css.psychologistsPage}>
       <div className={clsx("container", css.psychologistsContainer)}>
         <SortDropdown />
 
-        <PsychologistsList psychologists={psychologists} />
+        <PsychologistsList key={sort} psychologists={sorted} />
       </div>
     </div>
   );
