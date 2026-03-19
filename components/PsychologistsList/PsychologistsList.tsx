@@ -90,6 +90,10 @@ export default function PsychologistsList({
     setVisibleCount((prev) => prev + STEP);
   };
 
+  if (psychologists.length === 0) {
+    return <p className={css.empty}>No psychologists found</p>;
+  }
+
   return (
     <div className={css.list}>
       {visible.map((psychologist) => (

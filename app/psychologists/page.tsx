@@ -35,13 +35,38 @@ async function getPsychologists(): Promise<Psychologist[]> {
 export default async function PsychologistsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string }>;
+  searchParams: Promise<{
+    sort?: string;
+    price?: string;
+    rating?: string;
+  }>;
 }) {
   const params = await searchParams;
   const psychologists = await getPsychologists();
-  const sort = params?.sort || "name-asc";
 
-  const sorted = [...psychologists];
+  const sort = params?.sort || "name-asc";
+  const price = params?.price;
+  const rating = params?.rating;
+
+  let filtered = [...psychologists];
+
+  if (price === "lt10") {
+    filtered = filtered.filter((p) => p.price_per_hour < 10);
+  }
+
+  if (price === "gt10") {
+    filtered = filtered.filter((p) => p.price_per_hour >= 10);
+  }
+
+  if (rating === "popular") {
+    filtered = filtered.filter((p) => p.rating >= 4.5);
+  }
+
+  if (rating === "not-popular") {
+    filtered = filtered.filter((p) => p.rating < 4.5);
+  }
+
+  const sorted = [...filtered];
 
   switch (sort) {
     case "name-asc":
@@ -52,20 +77,7 @@ export default async function PsychologistsPage({
       sorted.sort((a, b) => b.name.localeCompare(a.name));
       break;
 
-    case "price-asc":
-      sorted.sort((a, b) => a.price_per_hour - b.price_per_hour);
-      break;
-
-    case "price-desc":
-      sorted.sort((a, b) => b.price_per_hour - a.price_per_hour);
-      break;
-
-    case "rating-asc":
-      sorted.sort((a, b) => a.rating - b.rating);
-      break;
-
-    case "rating-desc":
-      sorted.sort((a, b) => b.rating - a.rating);
+    default:
       break;
   }
 
@@ -73,8 +85,10 @@ export default async function PsychologistsPage({
     <div className={css.psychologistsPage}>
       <div className={clsx("container", css.psychologistsContainer)}>
         <SortDropdown />
-
-        <PsychologistsList key={sort} psychologists={sorted} />
+        <PsychologistsList
+          key={`${sort}-${price ?? "none"}-${rating ?? "none"}`}
+          psychologists={sorted}
+        />
       </div>
     </div>
   );
