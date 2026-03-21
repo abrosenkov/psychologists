@@ -18,6 +18,11 @@
   text-decoration: none;
 }
 
+.logoLink {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .logo {
   font-size: 20px;
   line-height: 1.2;
@@ -109,6 +114,8 @@ gap: 20px;
   border: none;
   background-color: transparent;
   cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .iconCloseMenu {
@@ -129,6 +136,8 @@ gap: 20px;
   flex-direction: column;
   align-items: center;
   transition: color 200ms ease-in-out;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .link::after {

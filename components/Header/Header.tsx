@@ -45,7 +45,7 @@ export default function Header() {
     <div className={css.headerWrapper}>
       <header className={css.header}>
         <div className={`${css.navWrapper} container`}>
-          <Link href="/" aria-label="Home">
+          <Link className={css.logoLink} href="/" aria-label="Home">
             <p className={css.logo}>
               <span>psychologists.</span>services
             </p>
@@ -156,6 +156,7 @@ export default function Header() {
                   <li>
                     <Link
                       href="/favorites"
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className={clsx(
                         css.link,
                         pathname === "/favorites" && css.active
