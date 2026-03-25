@@ -1,27 +1,92 @@
 .card {
+  display: flex;
+  flex-direction: row;
   position: relative;
   background-color: #fbfbfb;
+  border-radius: 24px;
+  padding: 24px;
+  gap: 24px;
+}
+
+.avatar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(84, 190, 150, 0.2);
+  border-radius: 30px;
+  width: 120px;
+  height: 120px;
+}
+
+.avatarImage {
+  border-radius: 15px;
+}
+
+.metaInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 28px;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+
+.meta {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #191a15;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.starIcon {
+  color: #ffc531;
 }
 
 .favoriteButton {
-  position: absolute;
-  top: 16px;
-  right: 16px;
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 20px;
   line-height: 1;
-  color: #8a8a8a;
+  color: #191a15;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
   transition: color 200ms ease;
 }
 
 .favoriteButton:hover {
-  color: #ff6b6b;
+  color: #54be96;
 }
 
 .favoriteActive {
-  color: #ff6b6b;
+  color: #54be96;
+}
+
+.nameInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.nameSubTitle {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #8a8a89;
+}
+
+.name {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1;
+  color: #191a15;
 }
 
 .shortText {

@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint",
-  "format": "prettier --write ."
-},
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "format": "prettier --write ."
+  },
   "dependencies": {
     "@tanstack/react-query": "^5.90.2",
     "axios": "^1.12.2",
@@ -25,6 +25,7 @@
     "react-datepicker": "^9.1.0",
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
+    "react-icons": "^5.6.0",
     "react-paginate": "^8.3.0",
     "use-debounce": "^10.0.6",
     "yet-another-react-lightbox": "^3.28.0",

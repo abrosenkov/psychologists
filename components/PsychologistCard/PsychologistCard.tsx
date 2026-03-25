@@ -4,6 +4,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import css from "./PsychologistCard.module.css";
 import Image from "next/image";
+import { FaHeart, FaStar, FaRegHeart } from "react-icons/fa";
 
 interface Psychologist {
   id: string;
@@ -33,28 +34,35 @@ export default function PsychologistCard({
 
   return (
     <div className={css.card}>
-      <button
-        type="button"
-        className={clsx(css.favoriteButton, isFavorite && css.favoriteActive)}
-        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        onClick={onToggleFavorite}
-      >
-        {isFavorite ? "♥" : "♡"}
-      </button>
-
-      <Image
-        src={psychologist.avatar_url}
-        alt={psychologist.name}
-        width={96}
-        height={96}
-      />
+      <div className={css.metaInfo}>
+        <div className={css.meta}>
+          <FaStar className={css.starIcon} size={16} /> Rating:{" "}
+          {psychologist.rating} | Price / 1 hour:{" "}
+          <span>${psychologist.price_per_hour}</span>
+        </div>
+        <button
+          type="button"
+          className={clsx(css.favoriteButton, isFavorite && css.favoriteActive)}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          onClick={onToggleFavorite}
+        >
+          {isFavorite ? <FaHeart size={26} /> : <FaRegHeart size={26} />}
+        </button>
+      </div>
+      <div className={css.avatar}>
+        <Image
+          className={css.avatarImage}
+          src={psychologist.avatar_url}
+          alt={psychologist.name}
+          width={96}
+          height={96}
+        />
+      </div>
 
       <div className={css.info}>
-        <h3>{psychologist.name}</h3>
-
-        <div className={css.meta}>
-          ⭐ Rating: {psychologist.rating} | Price / 1 hour:{" "}
-          {psychologist.price_per_hour}$
+        <div className={css.nameInfo}>
+          <p className={css.nameSubTitle}>Psychologist</p>
+          <h3 className={css.name}>{psychologist.name}</h3>
         </div>
 
         <div className={css.tags}>
