@@ -122,9 +122,7 @@ export default function FavoritesPage() {
         {isLoading ? (
           <p className={css.message}>Loading favorites...</p>
         ) : favoritePsychologists.length === 0 ? (
-          <p className={css.message}>
-            You have no favorite psychologists yet.
-          </p>
+          <p className={css.message}>You have no favorite psychologists yet.</p>
         ) : (
           <div className={css.list}>
             {favoritePsychologists.map((psychologist) => (
@@ -141,4 +139,3 @@ export default function FavoritesPage() {
     </div>
   );
 }
-

@@ -8,8 +8,12 @@
   gap: 24px;
 }
 
-.avatar {
+.avatarWrapper {
+  position: relative;
   flex: 0 0 auto;
+}
+
+.avatar {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,6 +25,30 @@
 
 .avatarImage {
   border-radius: 15px;
+  object-fit: cover;
+}
+
+.onlineBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  background-color: #38cd3e;
+  border: 2px solid #fbfbfb;
+  border-radius: 50%;
+}
+
+.info {
+  flex-grow: 1;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 24px;
 }
 
 .metaInfo {
@@ -28,9 +56,6 @@
   flex-direction: row;
   align-items: center;
   gap: 28px;
-  position: absolute;
-  top: 24px;
-  right: 24px;
 }
 
 .meta {
@@ -40,20 +65,180 @@
   color: #191a15;
   display: flex;
   align-items: center;
-  flex-direction: row;
+  gap: 16px;
+}
+
+.metaRating {
+  display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.metaSeparator {
+  color: rgba(25, 26, 21, 0.2);
+}
+
+.priceValue {
+  color: #38cd3e;
 }
 
 .starIcon {
   color: #ffc531;
 }
 
+.nameInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nameSubTitle {
+  font-weight: 500;
+  font-size: 16px;
+  color: #8a8a89;
+}
+
+.name {
+  font-weight: 500;
+  font-size: 24px;
+  color: #191a15;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 4px;
+  margin-bottom: 24px;
+}
+
+.tag {
+  padding: 8px 16px;
+  background: #f3f3f3;
+  border-radius: 24px;
+  font-size: 16px;
+  color: #191a15;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.tag span {
+  color: #8a8a89;
+}
+
+.aboutText {
+  font-weight: 400;
+  font-size: 16px;
+  color: rgba(25, 26, 21, 0.5);
+  line-height: 1.5;
+}
+
+.readMore {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  color: #191a15;
+  font-size: 16px;
+  margin-top: 14px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expandedContent {
+  margin-top: 48px;
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.reviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reviewHeader {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.reviewAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(84, 190, 150, 0.2);
+  color: #54be96;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.reviewInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reviewerName {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.25;
+  color: #191a15;
+}
+
+.reviewRating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.revievRating span {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.28571;
+  color: #191a15;
+}
+
+.reviewText {
+  color: rgba(25, 26, 21, 0.5);
+  line-height: 1.25;
+}
+
+.appointmentBtn {
+  background: #54be96;
+  color: white;
+  padding: 14px 40px;
+  border-radius: 30px;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.appointmentBtn:hover {
+  background: #36a379;
+}
+
 .favoriteButton {
+  width: 26px;
+  height: 26px;
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 20px;
-  line-height: 1;
   color: #191a15;
   outline: none;
   -webkit-tap-highlight-color: transparent;
@@ -66,36 +251,4 @@
 
 .favoriteActive {
   color: #54be96;
-}
-
-.nameInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.nameSubTitle {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #8a8a89;
-}
-
-.name {
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 1;
-  color: #191a15;
-}
-
-.shortText {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.fullText {
-  display: block;
 }
