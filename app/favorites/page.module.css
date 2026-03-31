@@ -1,6 +1,12 @@
 .favoritesPage {
-  padding-top: 32px;
-  padding-bottom: 32px;
+  padding-top: 150px;
+  padding-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 20px;
+  align-items: flex-start;
+  background-color: #f3f3f3;
 }
 
 .favoritesContainer {
@@ -20,8 +26,8 @@
 }
 
 .list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 

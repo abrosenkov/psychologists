@@ -25,6 +25,7 @@ async function getPsychologists(): Promise<Psychologist[]> {
   if (!snapshot.exists()) return [];
 
   const data = snapshot.val();
+  console.log(data[0]);
 
   return Object.entries(data).map(([key, value]) => ({
     id: key,
