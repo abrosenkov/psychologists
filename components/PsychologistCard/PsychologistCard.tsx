@@ -6,26 +6,7 @@ import css from "./PsychologistCard.module.css";
 import Image from "next/image";
 import { FaHeart, FaStar, FaRegHeart } from "react-icons/fa";
 import { Button } from "../UI/Button/Button";
-
-interface Review {
-  reviewer: string;
-  rating: number;
-  comment: string;
-}
-
-interface Psychologist {
-  id: string;
-  name: string;
-  avatar_url: string;
-  specialization: string;
-  experience: string;
-  license: string;
-  rating: number;
-  price_per_hour: number;
-  initial_consultation: string;
-  about: string;
-  reviews: Review[];
-}
+import { Psychologist } from "@/types/psychologist";
 
 interface PsychologistCardProps {
   psychologist: Psychologist;
@@ -100,7 +81,7 @@ export default function PsychologistCard({
             <span>Specialization:</span> {psychologist.specialization}
           </div>
           <div className={css.tag}>
-            <span>Initial_consultation:</span>
+            <span>Initial_consultation:</span>{" "}
             {psychologist.initial_consultation}
           </div>
         </div>

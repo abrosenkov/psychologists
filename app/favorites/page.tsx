@@ -1,140 +1,79 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
 import css from "./page.module.css";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { ref, get } from "firebase/database";
 import { db } from "@/lib/firebase";
-import { get, ref } from "firebase/database";
-import PsychologistCard from "@/components/PsychologistCard/PsychologistCard";
 import clsx from "clsx";
-import { Button } from "@/components/UI/Button/Button";
-import toast from "react-hot-toast";
+import FavoritesWrapper from "@/components/FavoritesWrapper/FavoritesWrapper";
+import SortDropdown from "@/components/SortDropdown/SortDropdown";
+import { Psychologist } from "@/types/psychologist";
 
-interface Psychologist {
-  id: string;
-  name: string;
-  specialization: string;
-  avatar_url: string;
-  experience: number;
-  license: string;
-  rating: number;
-  price_per_hour: number;
-  initial_consultation: string;
-  about: string;
+async function getPsychologists(): Promise<Psychologist[]> {
+  const snapshot = await get(ref(db, "psychologists"));
+
+  if (!snapshot.exists()) return [];
+
+  const data = snapshot.val();
+
+  return Object.entries(data).map(([key, value]) => ({
+    id: key,
+    ...(value as Record<string, unknown>),
+  })) as Psychologist[];
 }
 
-export default function FavoritesPage() {
-  const user = useAuthStore((state) => state.user);
-  const [psychologists, setPsychologists] = useState<Psychologist[]>([]);
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default async function FavoritesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    sort?: string;
+    price?: string;
+    rating?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const psychologists = await getPsychologists();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
+  const sort = params?.sort || "name-asc";
+  const price = params?.price;
+  const rating = params?.rating;
 
-      try {
-        const favoritesSnapshot = await get(ref(db, `favorites/${user.uid}`));
-        const psychologistsSnapshot = await get(ref(db, "psychologists"));
+  let filtered = [...psychologists];
 
-        if (favoritesSnapshot.exists()) {
-          const favoritesData = favoritesSnapshot.val() as Record<
-            string,
-            unknown
-          >;
-          setFavoriteIds(Object.keys(favoritesData));
-        }
+  if (price === "lt10") {
+    filtered = filtered.filter((p) => p.price_per_hour < 10);
+  }
 
-        if (psychologistsSnapshot.exists()) {
-          const data = psychologistsSnapshot.val() as Record<
-            string,
-            Record<string, unknown>
-          >;
+  if (price === "gt10") {
+    filtered = filtered.filter((p) => p.price_per_hour >= 10);
+  }
 
-          const list: Psychologist[] = Object.entries(data).map(
-            ([key, value]) =>
-              ({
-                id: key,
-                ...(value as Record<string, unknown>),
-              }) as Psychologist
-          );
+  if (rating === "popular") {
+    filtered = filtered.filter((p) => p.rating >= 4.5);
+  }
 
-          setPsychologists(list);
-        }
-      } catch {
-        toast.error("Failed to load favorites. Try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  if (rating === "not-popular") {
+    filtered = filtered.filter((p) => p.rating < 4.5);
+  }
 
-    fetchData();
-  }, [user]);
+  const sorted = [...filtered];
 
-  const favoritePsychologists = useMemo(
-    () => psychologists.filter((p) => favoriteIds.includes(p.id)),
-    [psychologists, favoriteIds]
-  );
+  switch (sort) {
+    case "name-asc":
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+      break;
 
-  const handleToggleFavorite = async (psychologistId: string) => {
-    if (!user) {
-      return;
-    }
-
-    const favoriteRef = ref(db, `favorites/${user.uid}/${psychologistId}`);
-    const isFavorite = favoriteIds.includes(psychologistId);
-
-    try {
-      if (isFavorite) {
-        await import("firebase/database").then(({ remove }) =>
-          remove(favoriteRef)
-        );
-        setFavoriteIds((prev) => prev.filter((id) => id !== psychologistId));
-        toast.success("Removed from favorites.");
-      }
-    } catch {
-      toast.error("Failed to update favorites. Try again.");
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className={css.favoritesPage}>
-        <div className={clsx("container", css.favoritesContainer)}>
-          <h1 className={css.title}>Favorites</h1>
-          <p className={css.message}>
-            This page is available only for authorized users.
-          </p>
-          <Button href="/psychologists">Go to psychologists</Button>
-        </div>
-      </div>
-    );
+    case "name-desc":
+      sorted.sort((a, b) => b.name.localeCompare(a.name));
+      break;
   }
 
   return (
     <div className={css.favoritesPage}>
       <div className={clsx("container", css.favoritesContainer)}>
-        <h1 className={css.title}>Favorites</h1>
+        <SortDropdown />
 
-        {isLoading ? (
-          <p className={css.message}>Loading favorites...</p>
-        ) : favoritePsychologists.length === 0 ? (
-          <p className={css.message}>You have no favorite psychologists yet.</p>
-        ) : (
-          <div className={css.list}>
-            {favoritePsychologists.map((psychologist) => (
-              <PsychologistCard
-                key={psychologist.id}
-                psychologist={psychologist}
-                isFavorite={true}
-                onToggleFavorite={() => handleToggleFavorite(psychologist.id)}
-              />
-            ))}
-          </div>
-        )}
+        <FavoritesWrapper
+          key={`${sort}-${price ?? "none"}-${rating ?? "none"}`}
+          psychologists={sorted}
+        />
       </div>
     </div>
   );
