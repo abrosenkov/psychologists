@@ -2,22 +2,10 @@ import css from "./page.module.css";
 import { ref, get } from "firebase/database";
 import { db } from "@/lib/firebase";
 import SortDropdown from "@/components/SortDropdown/SortDropdown";
-import PsychologistsList from "@/components/PsychologistsList/PsychologistsList";
-import clsx from "clsx";
 
-interface Psychologist {
-  id: string;
-  name: string;
-  specialization: string;
-  avatar_url: string;
-  experience: number;
-  license: string;
-  rating: number;
-  price_per_hour: number;
-  initial_consultation: string;
-  about: string;
-  [key: string]: unknown;
-}
+import clsx from "clsx";
+import PsychologistsListWrapper from "@/components/PsychologistsListWrapper/PsychologistsListWrapper";
+import { Psychologist } from "@/types/psychologist";
 
 async function getPsychologists(): Promise<Psychologist[]> {
   const snapshot = await get(ref(db, "psychologists"));
@@ -25,7 +13,6 @@ async function getPsychologists(): Promise<Psychologist[]> {
   if (!snapshot.exists()) return [];
 
   const data = snapshot.val();
-  console.log(data[0]);
 
   return Object.entries(data).map(([key, value]) => ({
     id: key,
@@ -77,16 +64,14 @@ export default async function PsychologistsPage({
     case "name-desc":
       sorted.sort((a, b) => b.name.localeCompare(a.name));
       break;
-
-    default:
-      break;
   }
 
   return (
     <div className={css.psychologistsPage}>
       <div className={clsx("container", css.psychologistsContainer)}>
         <SortDropdown />
-        <PsychologistsList
+
+        <PsychologistsListWrapper
           key={`${sort}-${price ?? "none"}-${rating ?? "none"}`}
           psychologists={sorted}
         />
