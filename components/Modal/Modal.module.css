@@ -1,3 +1,4 @@
+
 .backdrop {
   position: fixed;
   top: 0;
@@ -5,11 +6,14 @@
   width: 100%;
   height: 100%;
   background-color: rgba(25, 26, 21, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 20px 0;
 }
+
 
 .modal {
   background-color: #fbfbfb;
@@ -18,6 +22,7 @@
   max-width: 96%;
   width: 100%;
   position: relative;
+  margin: auto; 
 }
 
 

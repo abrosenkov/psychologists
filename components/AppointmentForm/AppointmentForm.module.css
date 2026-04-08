@@ -1,0 +1,189 @@
+.wrapper {
+  width: 100%;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #191a15;
+  margin-bottom: 20px;
+}
+
+.text {
+  color: rgba(25, 26, 21, 0.5);
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+
+.psychologist {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  object-fit: cover;
+}
+
+.label {
+  font-size: 12px;
+  color: #8a8a89;
+  margin-bottom: 4px;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #191a15;
+}
+
+.fieldBox {
+  position: relative;
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(25, 26, 21, 0.1);
+  font-size: 16px;
+  color: #191a15;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus, .textarea:focus {
+  border-color: #54be96;
+}
+
+.textarea {
+  min-height: 116px;
+  resize: none;
+}
+
+.timePicker {
+  position: relative;
+  width: 100%;
+}
+
+.timeInputWrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.clockIcon {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #191a15;
+  pointer-events: none;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0px 20px 69px 0px rgba(0, 0, 0, 0.07);
+  width: 150px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.dropdownTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #191a15;
+  margin-bottom: 16px;
+}
+
+.timeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeItem {
+  font-size: 16px;
+  color: rgba(25, 26, 21, 0.3);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.timeItem:hover {
+  color: #191a15;
+}
+
+
+.dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+  background: rgba(25, 26, 21, 0.05);
+  border-radius: 12px;
+}
+
+
+.error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.submit {
+  margin-top: 24px;
+  background: #54be96;
+  color: #ffffff;
+  padding: 16px;
+  border-radius: 30px;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.submit:hover {
+  background: #36a379;
+}
+
+.submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.timeItemDisabled {
+  color: #ccc !important;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.timeItemDisabled:hover {
+  color: #ccc !important;
+  background: transparent !important;
+}

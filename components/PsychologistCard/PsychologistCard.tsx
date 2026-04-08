@@ -7,6 +7,8 @@ import Image from "next/image";
 import { FaHeart, FaStar, FaRegHeart } from "react-icons/fa";
 import { Button } from "../UI/Button/Button";
 import { Psychologist } from "@/types/psychologist";
+import AppointmentForm from "../AppointmentForm/AppointmentForm";
+import Modal from "../Modal/Modal";
 
 interface PsychologistCardProps {
   psychologist: Psychologist;
@@ -20,6 +22,7 @@ export default function PsychologistCard({
   onToggleFavorite,
 }: PsychologistCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className={css.card}>
@@ -117,9 +120,16 @@ export default function PsychologistCard({
               })}
             </div>
 
-            <Button className={css.appointmentBtn} type="button">
+            <Button
+              onClick={() => setIsOpen(true)}
+              className={css.appointmentBtn}
+              type="button"
+            >
               Make an appointment
             </Button>
+            <Modal isOpen={isOpen} onCloseModal={() => setIsOpen(false)}>
+              <AppointmentForm onClose={() => setIsOpen(false)} psychologist={psychologist} />
+            </Modal>
           </div>
         )}
       </div>

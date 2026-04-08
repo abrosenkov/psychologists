@@ -50,6 +50,10 @@ export default function FavoritesWrapper({
     [psychologists, favoriteIds]
   );
 
+  if (isLoading) {
+    return null;
+  }
+
   const handleToggleFavorite = async (id: string) => {
     if (!user) return;
 
