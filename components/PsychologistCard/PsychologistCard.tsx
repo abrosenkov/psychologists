@@ -128,7 +128,7 @@ export default function PsychologistCard({
               Make an appointment
             </Button>
             <Modal isOpen={isOpen} onCloseModal={() => setIsOpen(false)}>
-              <AppointmentForm psychologist={psychologist} />
+              <AppointmentForm onClose={() => setIsOpen(false)} psychologist={psychologist} />
             </Modal>
           </div>
         )}
