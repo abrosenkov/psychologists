@@ -11,14 +11,16 @@ interface Draft {
   name: string;
   email: string;
   phone: string;
-  time: string; // Добавили время в черновик
+  time: string;
   comment: string;
 }
 
 interface AppointmentState {
   appointments: Appointment[];
   draft: Draft;
+
   addAppointment: (app: Appointment) => void;
+  setAppointments: (apps: Appointment[]) => void;
   setDraft: (draft: Partial<Draft>) => void;
 }
 
@@ -26,11 +28,21 @@ export const useAppointmentStore = create<AppointmentState>()(
   persist(
     (set) => ({
       appointments: [],
-      // Изначальное состояние (тайм пустой, чтобы сработал placeholder)
-      draft: { name: "", email: "", phone: "+380", time: "", comment: "" }, 
-      addAppointment: (app) => set((s) => ({ appointments: [...s.appointments, app] })),
-      setDraft: (newDraft) => set((s) => ({ draft: { ...s.draft, ...newDraft } })),
+      draft: { name: "", email: "", phone: "+380", time: "", comment: "" },
+      
+      addAppointment: (app) => 
+        set((s) => ({ appointments: [...s.appointments, app] })),
+
+      setAppointments: (apps) => 
+        set({ appointments: apps }),
+
+      setDraft: (newDraft) => 
+        set((s) => ({ draft: { ...s.draft, ...newDraft } })),
     }),
-    { name: "appointments-storage" }
+    { 
+        name: "appointments-storage",
+        
+      partialize: (state) => ({ draft: state.draft }), 
+    }
   )
 );

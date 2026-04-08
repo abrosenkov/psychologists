@@ -81,7 +81,7 @@ export default function AppointmentForm({
   onClose: () => void;
 }) {
   const user = useAuthStore((s) => s.user);
-  const { appointments, addAppointment, draft, setDraft } =
+  const { appointments, addAppointment, setAppointments, draft, setDraft } =
     useAppointmentStore();
 
   const [isTimeOpen, setIsTimeOpen] = useState(false);
@@ -94,11 +94,11 @@ export default function AppointmentForm({
       setIsLoadingSlots(true);
       try {
         const busyData = await getBusySlots(psychologist.id);
-        busyData.forEach((slot) =>
-          addAppointment({
+        setAppointments(
+          busyData.map((slot) => ({
             ...slot,
             psychologistId: psychologist.id,
-          })
+          }))
         );
       } catch (error) {
         console.error("Failed to load slots:", error);
@@ -108,7 +108,7 @@ export default function AppointmentForm({
     };
 
     fetchSlots();
-  }, [psychologist.id, addAppointment]);
+  }, [psychologist.id, setAppointments]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -177,7 +177,13 @@ export default function AppointmentForm({
   return (
     <div className={css.wrapper}>
       <Formik
-        initialValues={draft}
+        initialValues={{
+          name: draft.name || user?.displayName || "",
+          email: draft.email || user?.email || "",
+          phone: draft.phone || "+380",
+          time: draft.time || "",
+          comment: draft.comment || "",
+        }}
         enableReinitialize={true}
         validationSchema={schema}
         onSubmit={handleSubmit}
@@ -190,10 +196,7 @@ export default function AppointmentForm({
               Make an appointment with a psychologist
             </h2>
             <p className={css.text}>
-              You are on the verge of changing your life for the better. Fill
-              out the short form below to book your personal appointment with a
-              professional psychologist. We guarantee confidentiality and
-              respect for your privacy.
+              You are on the verge of changing your life for the better...
             </p>
 
             <div className={css.psychologist}>
@@ -257,12 +260,10 @@ export default function AppointmentForm({
                               css.timeItem,
                               isBusy && css.timeItemDisabled
                             )}
-                            onClick={() => {
-                              if (!isBusy) {
-                                setFieldValue("time", t);
-                                setIsTimeOpen(false);
-                              }
-                            }}
+                            onClick={() =>
+                              !isBusy &&
+                              (setFieldValue("time", t), setIsTimeOpen(false))
+                            }
                           >
                             {t}
                           </div>
