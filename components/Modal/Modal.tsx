@@ -38,16 +38,17 @@ export default function Modal({ isOpen, onCloseModal, children }: ModalProps) {
   if (!isOpen) return null;
 
   return createPortal(
-    <div
-      className={css.backdrop}
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className={css.modal}>
+    <div className={css.backdrop} onClick={handleBackdropClick}>
+      <div
+        className={css.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Modal dialog"
+      >
         <button
+          type="button"
           className={css.closeModalButton}
-          aria-label="Close Modal"
+          aria-label="Close modal"
           onClick={onCloseModal}
         >
           <svg className={css.iconCloseMenu}>

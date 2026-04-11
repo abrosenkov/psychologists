@@ -2,6 +2,11 @@ import css from "./page.module.css";
 import { ref, get } from "firebase/database";
 import { db } from "@/lib/firebase";
 import SortDropdown from "@/components/SortDropdown/SortDropdown";
+import {
+  filterPsychologists,
+  sortKeyForListing,
+  sortPsychologists,
+} from "@/lib/psychologistFilters";
 
 import clsx from "clsx";
 import PsychologistsListWrapper from "@/components/PsychologistsListWrapper/PsychologistsListWrapper";
@@ -32,39 +37,13 @@ export default async function PsychologistsPage({
   const params = await searchParams;
   const psychologists = await getPsychologists();
 
-  const sort = params?.sort || "name-asc";
+  const sortFromUrl = params?.sort || "name-asc";
   const price = params?.price;
   const rating = params?.rating;
 
-  let filtered = [...psychologists];
-
-  if (price === "lt10") {
-    filtered = filtered.filter((p) => p.price_per_hour < 10);
-  }
-
-  if (price === "gt10") {
-    filtered = filtered.filter((p) => p.price_per_hour >= 10);
-  }
-
-  if (rating === "popular") {
-    filtered = filtered.filter((p) => p.rating >= 4.5);
-  }
-
-  if (rating === "not-popular") {
-    filtered = filtered.filter((p) => p.rating < 4.5);
-  }
-
-  const sorted = [...filtered];
-
-  switch (sort) {
-    case "name-asc":
-      sorted.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-
-    case "name-desc":
-      sorted.sort((a, b) => b.name.localeCompare(a.name));
-      break;
-  }
+  const filtered = filterPsychologists(psychologists, { price, rating });
+  const listSortKey = sortKeyForListing(sortFromUrl, rating);
+  const sorted = sortPsychologists(filtered, listSortKey);
 
   return (
     <div className={css.psychologistsPage}>
@@ -72,7 +51,7 @@ export default async function PsychologistsPage({
         <SortDropdown />
 
         <PsychologistsListWrapper
-          key={`${sort}-${price ?? "none"}-${rating ?? "none"}`}
+          key={`${listSortKey}-${price ?? "none"}-${rating ?? "none"}`}
           psychologists={sorted}
         />
       </div>

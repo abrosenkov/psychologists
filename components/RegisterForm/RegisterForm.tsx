@@ -11,8 +11,8 @@ import {
   updateProfile,
   AuthError,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { getDatabase, ref, set } from "firebase/database";
+import { auth, db } from "@/lib/firebase";
+import { ref, set } from "firebase/database";
 import toast from "react-hot-toast";
 
 interface RegistrationFormProps {
@@ -55,8 +55,6 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
             await updateProfile(userCredential.user, {
               displayName: values.name,
             });
-
-            const db = getDatabase();
 
             await set(ref(db, `users/${userCredential.user.uid}`), {
               name: values.name,

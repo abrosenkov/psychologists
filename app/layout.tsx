@@ -1,5 +1,6 @@
 import "normalize.css";
 import "./globals.css";
+import type { Metadata } from "next";
 import TanStackProvider from "../components/TanStackProvider/TanStackProvider";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -13,27 +14,33 @@ const inter = Inter({
   display: "swap",
 });
 
-// export const metadata: Metadata = {
-//   metadataBase: new URL("https://campers-el18.vercel.app"),
-//   title: "TravelTrucks",
-//   description:
-//     "TravelTrucks — camper rental service that helps you find and book the perfect camper for your next journey. Explore, compare, and travel freely.",
-//   openGraph: {
-//     title: "TravelTrucks",
-//     description:
-//       "TravelTrucks — camper rental service for comfortable and unforgettable trips. Browse available campers, check features, and book with ease.",
-//     url: "https://campers-el18.vercel.app",
-//     siteName: "TravelTrucks",
-//     images: [
-//       {
-//         url: "/hero/hero-bg.webp",
-//         width: 1200,
-//         height: 630,
-//         alt: "TravelTrucks camper rental",
-//       },
-//     ],
-//   },
-// };
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Psychologists — find your specialist",
+    template: "%s | Psychologists",
+  },
+  description:
+    "Choose a psychologist: filters by price and rating, favorites, and booking a consultation.",
+  openGraph: {
+    type: "website",
+    siteName: "Psychologists",
+    title: "Psychologists",
+    description:
+      "Find an experienced psychologist, compare specialists, and book a session.",
+    images: [
+      {
+        url: "/hero/hero.webp",
+        width: 464,
+        height: 526,
+        alt: "Psychologists platform",
+      },
+    ],
+  },
+};
 
 export default function RootLayout({
   children,
@@ -41,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <body className={inter.variable}>
         <TanStackProvider>
           <AuthListener />
