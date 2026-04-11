@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { User } from "firebase/auth";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { db } from "@/lib/firebase";
 import { onValue, ref, remove, set } from "firebase/database";
@@ -8,20 +9,16 @@ import toast from "react-hot-toast";
 import PsychologistsList from "../PsychologistsList/PsychologistsList";
 import { Psychologist } from "@/types/psychologist";
 
-export default function PsychologistsListWrapper({
+function PsychologistsListWithFavorites({
+  user,
   psychologists,
 }: {
+  user: User;
   psychologists: Psychologist[];
 }) {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    if (!user) {
-      setFavoriteIds([]);
-      return;
-    }
-
     const favoritesRef = ref(db, `favorites/${user.uid}`);
 
     const unsubscribe = onValue(
@@ -40,14 +37,9 @@ export default function PsychologistsListWrapper({
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user.uid]);
 
   const handleToggleFavorite = async (id: string) => {
-    if (!user) {
-      toast.error("Login first");
-      return;
-    }
-
     const favoriteRef = ref(db, `favorites/${user.uid}/${id}`);
     const isFavorite = favoriteIds.includes(id);
 
@@ -69,6 +61,36 @@ export default function PsychologistsListWrapper({
       psychologists={psychologists}
       favoriteIds={favoriteIds}
       onToggleFavorite={handleToggleFavorite}
+    />
+  );
+}
+
+export default function PsychologistsListWrapper({
+  psychologists,
+}: {
+  psychologists: Psychologist[];
+}) {
+  const user = useAuthStore((state) => state.user);
+
+  const handleGuestToggle = () => {
+    toast.error("Login first");
+  };
+
+  if (!user) {
+    return (
+      <PsychologistsList
+        psychologists={psychologists}
+        favoriteIds={[]}
+        onToggleFavorite={handleGuestToggle}
+      />
+    );
+  }
+
+  return (
+    <PsychologistsListWithFavorites
+      key={user.uid}
+      user={user}
+      psychologists={psychologists}
     />
   );
 }

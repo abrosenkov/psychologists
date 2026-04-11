@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useRef, useEffect, useId } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import styles from "./SortDropdown.module.css";
 
 const options = [
@@ -12,11 +12,13 @@ const options = [
   { type: "rating", value: "popular", label: "Popular" },
   { type: "rating", value: "not-popular", label: "Not popular" },
   { type: "reset", value: "all", label: "Show all" },
-];
+] as const;
 
 export default function SortDropdown() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const listId = useId();
 
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -24,6 +26,14 @@ export default function SortDropdown() {
   const currentSort = searchParams.get("sort");
   const currentPrice = searchParams.get("price");
   const currentRating = searchParams.get("rating");
+
+  const nameSortValue = currentSort || "name-asc";
+  const effectiveSortKey =
+    currentRating === "popular"
+      ? "rating-desc"
+      : currentRating === "not-popular"
+        ? "rating-asc"
+        : nameSortValue;
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -38,37 +48,52 @@ export default function SortDropdown() {
 
   const handleSelect = (option: (typeof options)[number]) => {
     const params = new URLSearchParams(searchParams.toString());
-    const limit = searchParams.get("limit") || "3";
 
-    params.delete("sort");
-    params.delete("price");
-    params.delete("rating");
-
-    if (option.type !== "reset") {
+    if (option.type === "reset") {
+      params.delete("sort");
+      params.delete("price");
+      params.delete("rating");
+    } else {
       params.set(option.type, option.value);
     }
 
-    params.set("limit", limit);
-
-    router.replace(`?${params.toString()}`, { scroll: false });
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
     setIsOpen(false);
   };
 
-  const activeOption =
-    options.find((o) => o.type === "price" && o.value === currentPrice) ||
-    options.find((o) => o.type === "rating" && o.value === currentRating) ||
-    options.find((o) => o.type === "sort" && o.value === currentSort) ||
-    options.find((o) => o.type === "sort" && o.value === "name-asc");
+  const nameSortLabel =
+    options.find((o) => o.type === "sort" && o.value === nameSortValue)?.label ??
+    "A to Z";
+  const priceLabel = options.find(
+    (o) => o.type === "price" && o.value === currentPrice
+  )?.label;
 
-  const selectedLabel = activeOption?.label || "Filters";
+  const selectedParts: string[] = [];
+  if (priceLabel) selectedParts.push(priceLabel);
+  if (currentRating === "popular") {
+    selectedParts.push("Popular");
+  } else if (currentRating === "not-popular") {
+    selectedParts.push("Not popular");
+  } else {
+    selectedParts.push(nameSortLabel);
+  }
+  const selectedLabel = selectedParts.join(" · ");
 
   return (
     <div className={styles.wrapper} ref={rootRef}>
       <span className={styles.labelTitle}>Filters</span>
 
-      <div
+      <button
+        type="button"
         className={styles.selectHeader}
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-controls={listId}
+        aria-label={`Filters, current: ${selectedLabel}`}
       >
         {selectedLabel}
         <span className={`${styles.arrow} ${isOpen ? styles.arrowRotate : ""}`}>
@@ -82,23 +107,27 @@ export default function SortDropdown() {
             />
           </svg>
         </span>
-      </div>
+      </button>
 
-      <ul className={`${styles.dropdown} ${isOpen ? styles.dropdownVisible : ""}`}>
+      <ul
+        id={listId}
+        role="listbox"
+        aria-label="Filter options"
+        className={`${styles.dropdown} ${isOpen ? styles.dropdownVisible : ""}`}
+      >
         {options.map((opt) => {
           const isActive =
-            (opt.type === "sort" && opt.value === currentSort) ||
-            (opt.type === "price" && opt.value === currentPrice) ||
-            (opt.type === "rating" && opt.value === currentRating) ||
-            (!currentSort &&
-              !currentPrice &&
+            (opt.type === "sort" &&
               !currentRating &&
-              opt.type === "sort" &&
-              opt.value === "name-asc");
+              opt.value === effectiveSortKey) ||
+            (opt.type === "price" && opt.value === currentPrice) ||
+            (opt.type === "rating" && opt.value === currentRating);
 
           return (
             <li
               key={`${opt.type}-${opt.value}`}
+              role="option"
+              aria-selected={isActive}
               className={`${styles.option} ${isActive ? styles.selected : ""}`}
               onClick={() => handleSelect(opt)}
             >

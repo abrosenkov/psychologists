@@ -16,19 +16,22 @@
 
 
 .selectHeader {
+  font-family: inherit;
   font-weight: 500;
   font-size: 16px;
   line-height: 1.25;
   color: #fbfbfb;
   background-color: #54be96;
   padding: 14px 18px;
+  border: none;
   border-radius: 14px;
   width: 226px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.2s ease, transform 0.1s active;
+  text-align: left;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .arrow {

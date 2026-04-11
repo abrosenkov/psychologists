@@ -1,8 +1,13 @@
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import {
+  initializeApp,
+  getApps,
+  type FirebaseApp,
+  type FirebaseOptions,
+} from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getDatabase, type Database } from "firebase/database";
 
-const firebaseConfig = {
+const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
@@ -13,7 +18,8 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const app: FirebaseApp =
+  getApps().length > 0 ? getApps()[0]! : initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
-export const db = getDatabase(app);
+export const auth: Auth = getAuth(app);
+export const db: Database = getDatabase(app);
