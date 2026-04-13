@@ -52,25 +52,25 @@ const AutoSave = ({
 };
 
 const TIMES = [
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
+  "09  :  00",
+  "09  :  30",
+  "10  :  00",
+  "10  :  30",
+  "11  :  00",
+  "11  :  30",
+  "12  :  00",
+  "12  :  30",
+  "13  :  00",
+  "13  :  30",
+  "14  :  00",
+  "14  :  30",
+  "15  :  00",
+  "15  :  30",
+  "16  :  00",
+  "16  :  30",
+  "17  :  00",
+  "17  :  30",
+  "18  :  00",
 ];
 
 export default function AppointmentForm({
@@ -196,7 +196,10 @@ export default function AppointmentForm({
               Make an appointment with a psychologist
             </h2>
             <p className={css.text}>
-              You are on the verge of changing your life for the better...
+              You are on the verge of changing your life for the better. Fill
+              out the short form below to book your personal appointment with a
+              professional psychologist. We guarantee confidentiality and
+              respect for your privacy.
             </p>
 
             <div className={css.psychologist}>
@@ -213,88 +216,96 @@ export default function AppointmentForm({
               </div>
             </div>
 
-            <div className={css.fieldBox}>
-              <Field name="name" placeholder="Name" className={css.input} />
-              <ErrorMessage name="name" component="div" className={css.error} />
-            </div>
-
-            <div className={css.row}>
+            <div className={css.fieldsWrapper}>
               <div className={css.fieldBox}>
-                <Field name="phone" className={css.input} />
+                <Field name="name" placeholder="Name" className={css.input} />
                 <ErrorMessage
-                  name="phone"
+                  name="name"
                   component="div"
                   className={css.error}
                 />
               </div>
 
-              <div className={css.timePicker} ref={dropdownRef}>
-                <div
-                  className={css.timeInputWrapper}
-                  onClick={() => !isLoadingSlots && setIsTimeOpen(!isTimeOpen)}
-                >
-                  <Field
-                    name="time"
-                    placeholder={isLoadingSlots ? "Loading..." : "00:00"}
-                    readOnly
-                    className={css.input}
+              <div className={css.timeEmail}>
+                <div className={css.fieldBox}>
+                  <Field name="phone" className={css.input} />
+                  <ErrorMessage
+                    name="phone"
+                    component="div"
+                    className={css.error}
                   />
-                  <LuClock className={css.clockIcon} />
                 </div>
 
-                {isTimeOpen && (
-                  <div className={css.dropdown}>
-                    <p className={css.dropdownTitle}>Meeting time</p>
-                    <div className={css.timeList}>
-                      {TIMES.map((t) => {
-                        const isBusy = appointments.some(
-                          (a) =>
-                            a.psychologistId === psychologist.id &&
-                            a.time === t &&
-                            a.date === currentDate
-                        );
-                        return (
-                          <div
-                            key={t}
-                            className={clsx(
-                              css.timeItem,
-                              isBusy && css.timeItemDisabled
-                            )}
-                            onClick={() =>
-                              !isBusy &&
-                              (setFieldValue("time", t), setIsTimeOpen(false))
-                            }
-                          >
-                            {t}
-                          </div>
-                        );
-                      })}
-                    </div>
+                <div className={css.timePicker} ref={dropdownRef}>
+                  <div
+                    className={css.timeInputWrapper}
+                    onClick={() =>
+                      !isLoadingSlots && setIsTimeOpen(!isTimeOpen)
+                    }
+                  >
+                    <Field
+                      name="time"
+                      placeholder={isLoadingSlots ? "Loading..." : "00:00"}
+                      readOnly
+                      className={css.input}
+                    />
+                    <LuClock className={css.clockIcon} />
                   </div>
-                )}
+
+                  {isTimeOpen && (
+                    <div className={css.dropdown}>
+                      <p className={css.dropdownTitle}>Meeting time</p>
+                      <div className={css.timeList}>
+                        {TIMES.map((t) => {
+                          const isBusy = appointments.some(
+                            (a) =>
+                              a.psychologistId === psychologist.id &&
+                              a.time === t &&
+                              a.date === currentDate
+                          );
+                          return (
+                            <div
+                              key={t}
+                              className={clsx(
+                                css.timeItem,
+                                isBusy && css.timeItemDisabled
+                              )}
+                              onClick={() =>
+                                !isBusy &&
+                                (setFieldValue("time", t), setIsTimeOpen(false))
+                              }
+                            >
+                              {t}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  <ErrorMessage
+                    name="time"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+              </div>
+
+              <div className={css.fieldBox}>
+                <Field name="email" placeholder="Email" className={css.input} />
                 <ErrorMessage
-                  name="time"
+                  name="email"
                   component="div"
                   className={css.error}
                 />
               </div>
-            </div>
 
-            <div className={css.fieldBox}>
-              <Field name="email" placeholder="Email" className={css.input} />
-              <ErrorMessage
-                name="email"
-                component="div"
-                className={css.error}
+              <Field
+                as="textarea"
+                name="comment"
+                placeholder="Comment"
+                className={css.textarea}
               />
             </div>
-
-            <Field
-              as="textarea"
-              name="comment"
-              placeholder="Comment"
-              className={css.textarea}
-            />
 
             <button
               type="submit"

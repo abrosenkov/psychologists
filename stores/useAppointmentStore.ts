@@ -22,13 +22,16 @@ interface AppointmentState {
   addAppointment: (app: Appointment) => void;
   setAppointments: (apps: Appointment[]) => void;
   setDraft: (draft: Partial<Draft>) => void;
+  clearDraft: () => void;
 }
+
+const initialDraft: Draft = { name: "", email: "", phone: "+380", time: "", comment: "" };
 
 export const useAppointmentStore = create<AppointmentState>()(
   persist(
     (set) => ({
       appointments: [],
-      draft: { name: "", email: "", phone: "+380", time: "", comment: "" },
+      draft: initialDraft,
       
       addAppointment: (app) => 
         set((s) => ({ appointments: [...s.appointments, app] })),
@@ -38,7 +41,11 @@ export const useAppointmentStore = create<AppointmentState>()(
 
       setDraft: (newDraft) => 
         set((s) => ({ draft: { ...s.draft, ...newDraft } })),
+
+      clearDraft: () =>
+        set({ draft: initialDraft }),
     }),
+    
     { 
         name: "appointments-storage",
         

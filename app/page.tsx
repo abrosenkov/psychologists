@@ -2,6 +2,37 @@ import { Button } from "@/components/UI/Button/Button";
 import Image from "next/image";
 import css from "./page.module.css";
 import clsx from "clsx";
+import { FaQuestion } from "react-icons/fa6";
+import { HiUsers } from "react-icons/hi2";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Psychologists Services | Find Your Specialist",
+  description:
+    "Browse professional psychologists, read reviews, save favorites, and book appointments online. Find the right specialist for your needs.",
+  keywords: [
+    "psychologist",
+    "therapy",
+    "mental health",
+    "online psychologist",
+    "book psychologist",
+    "psychologists services",
+  ],
+  openGraph: {
+    title: "Psychologists Services | Find Your Specialist",
+    description:
+      "Browse trusted psychologists, save favorites, and book appointments online.",
+    type: "website",
+    images: [
+      {
+        url: "/hero/hero-bg.webp",
+        width: 1200,
+        height: 630,
+        alt: "Psychologists Services",
+      },
+    ],
+  },
+};
 
 export default function Home() {
   return (
@@ -34,6 +65,12 @@ export default function Home() {
             </Button>
           </div>
           <div className={css.imageBox}>
+            <div className={clsx(css.imgIcon, css.usersIcon)}>
+              <HiUsers size={20} />
+            </div>
+            <div className={clsx(css.imgIcon, css.questionIcon)}>
+              <FaQuestion size={20} />
+            </div>
             <Image
               className={css.image}
               width={464}
