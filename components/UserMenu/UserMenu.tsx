@@ -8,6 +8,7 @@ import { auth } from "@/lib/firebase";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useAppointmentStore } from "@/stores/useAppointmentStore";
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -18,16 +19,24 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
+  const clearDraft = useAppointmentStore((state) => state.clearDraft);
+  const logout = useAuthStore((state) => state.logout);
+
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
 
       await signOut(auth);
+
+      logout();
+
+      clearDraft();
+      localStorage.removeItem("appointments-storage");
+
+      onLogout();
       router.push("/");
 
       toast.success("Logged out successfully 👋");
-
-      onLogout();
     } catch {
       toast.error("Failed to log out. Try again.");
     } finally {
