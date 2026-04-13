@@ -27,14 +27,6 @@ export default function SortDropdown() {
   const currentPrice = searchParams.get("price");
   const currentRating = searchParams.get("rating");
 
-  const nameSortValue = currentSort || "name-asc";
-  const effectiveSortKey =
-    currentRating === "popular"
-      ? "rating-desc"
-      : currentRating === "not-popular"
-        ? "rating-asc"
-        : nameSortValue;
-
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
@@ -43,7 +35,10 @@ export default function SortDropdown() {
     };
 
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
   }, []);
 
   const handleSelect = (option: (typeof options)[number]) => {
@@ -54,33 +49,44 @@ export default function SortDropdown() {
       params.delete("price");
       params.delete("rating");
     } else {
+      params.delete("sort");
+      params.delete("price");
+      params.delete("rating");
+
       params.set(option.type, option.value);
     }
 
     const query = params.toString();
+
     router.replace(query ? `${pathname}?${query}` : pathname, {
       scroll: false,
     });
+
     setIsOpen(false);
   };
 
-  const nameSortLabel =
-    options.find((o) => o.type === "sort" && o.value === nameSortValue)?.label ??
-    "A to Z";
+  const selectedParts: string[] = [];
+
   const priceLabel = options.find(
     (o) => o.type === "price" && o.value === currentPrice
   )?.label;
 
-  const selectedParts: string[] = [];
   if (priceLabel) selectedParts.push(priceLabel);
+
   if (currentRating === "popular") {
     selectedParts.push("Popular");
   } else if (currentRating === "not-popular") {
     selectedParts.push("Not popular");
-  } else {
-    selectedParts.push(nameSortLabel);
+  } else if (currentSort) {
+    selectedParts.push(
+      options.find((o) => o.type === "sort" && o.value === currentSort)
+        ?.label || "A to Z"
+    );
   }
-  const selectedLabel = selectedParts.join(" · ");
+
+  const selectedLabel = selectedParts.length
+    ? selectedParts.join(" · ")
+    : "A to Z";
 
   return (
     <div className={styles.wrapper} ref={rootRef}>
@@ -96,6 +102,7 @@ export default function SortDropdown() {
         aria-label={`Filters, current: ${selectedLabel}`}
       >
         {selectedLabel}
+
         <span className={`${styles.arrow} ${isOpen ? styles.arrowRotate : ""}`}>
           <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
             <path
@@ -117,9 +124,7 @@ export default function SortDropdown() {
       >
         {options.map((opt) => {
           const isActive =
-            (opt.type === "sort" &&
-              !currentRating &&
-              opt.value === effectiveSortKey) ||
+            (opt.type === "sort" && opt.value === currentSort) ||
             (opt.type === "price" && opt.value === currentPrice) ||
             (opt.type === "rating" && opt.value === currentRating);
 

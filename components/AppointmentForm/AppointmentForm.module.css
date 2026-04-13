@@ -5,7 +5,6 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .title {
@@ -49,14 +48,21 @@
   color: #191a15;
 }
 
+.fieldsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .fieldBox {
   position: relative;
   width: 100%;
 }
 
-.row {
+.timeEmail {
   display: flex;
   gap: 8px;
+  flex-direction: column;
 }
 
 .input, .textarea {
@@ -77,6 +83,10 @@
 .textarea {
   min-height: 116px;
   resize: none;
+}
+
+.textarea::placeholder {
+  color: #191a15;
 }
 
 .timePicker {
@@ -123,6 +133,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  text-align: center;
 }
 
 .timeItem {
@@ -186,4 +197,10 @@
 .timeItemDisabled:hover {
   color: #ccc !important;
   background: transparent !important;
+}
+
+@media screen and (min-width: 768px) {
+  .timeEmail {
+  flex-direction: row;
+}
 }

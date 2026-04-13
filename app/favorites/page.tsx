@@ -11,6 +11,36 @@ import {
 } from "@/lib/psychologistFilters";
 import { Psychologist } from "@/types/psychologist";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Favorites | Saved Psychologists",
+  description:
+    "View your saved psychologists, compare specialists, sort profiles, and quickly book an appointment with your preferred expert.",
+  keywords: [
+    "favorite psychologists",
+    "saved specialists",
+    "therapy favorites",
+    "book psychologist",
+    "mental health specialists",
+    "psychologists services",
+  ],
+  openGraph: {
+    title: "Favorites | Saved Psychologists",
+    description:
+      "Access your saved psychologists and choose the right specialist anytime.",
+    type: "website",
+    images: [
+      {
+        url: "/hero/hero-bg.webp",
+        width: 1200,
+        height: 630,
+        alt: "Favorite Psychologists",
+      },
+    ],
+  },
+};
+
 async function getPsychologists(): Promise<Psychologist[]> {
   const snapshot = await get(ref(db, "psychologists"));
 

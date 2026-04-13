@@ -83,11 +83,36 @@
 }
 
 .imageBox {
-  max-width: 464px;
-  max-height: 526px;
   position: relative;
   z-index: 10;
   border-radius: 10px;
+}
+
+.imgIcon {
+  color: #fbfbfb;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  position: absolute;
+}
+
+.questionIcon {
+  top: 185px;
+  left: -12px;
+  background: #4535af;
+  transform: rotate(-15deg);
+}
+
+.usersIcon {
+  width: 48px;
+  height: 48px;
+  background: #fbc75e;
+  transform: rotate(15deg);
+  top: 38px;
+  right: -10px;
 }
 
 .heroBtn {
@@ -107,13 +132,14 @@
 
 .imageInfo {
   display: flex;
-  width: 90%;
+  width: 95%;
   flex-direction: row;
   align-items: center;
   gap: 16px;
   position: absolute;
   z-index: 20;
   bottom: 35px;
+  left: 2.5%;
   padding: 15px;
   border-radius: 20px;
   background-color: #54be96;
@@ -187,6 +213,13 @@
   background-color: #36a379;
 }
 
+@media screen and (min-width: 768px) {
+  .imageInfo {
+    bottom: 80px;
+    padding: 32px;
+  }
+}
+
 @media screen and (min-width: 1440px) {
 
   .hero {
@@ -226,5 +259,13 @@
   bottom: 75px;
   left: -100px;
   padding: 32px;
+}
+
+.questionIcon {
+  left: -32px;
+}
+
+.usersIcon {
+  right: -38px;
 }
 }
