@@ -7,6 +7,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../UI/Button/Button";
 import { signInWithEmailAndPassword, AuthError } from "firebase/auth";
+import { db } from "@/lib/firebase";
+import { ref, get, set, update } from "firebase/database";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 
@@ -39,11 +41,27 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         validationSchema={LoginSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            await signInWithEmailAndPassword(
+            const cred = await signInWithEmailAndPassword(
               auth,
               values.email,
               values.password
             );
+
+            const uid = cred.user.uid;
+            const userRef = ref(db, `users/${uid}`);
+            const snapshot = await get(userRef);
+            const data = snapshot.val();
+
+            if (!snapshot.exists()) {
+              await set(userRef, {
+                email: cred.user.email,
+                role: "user",
+              });
+            } else if (!data?.role) {
+              await update(userRef, {
+                role: "user",
+              });
+            }
 
             toast.success("Welcome back!");
             onSuccess();
