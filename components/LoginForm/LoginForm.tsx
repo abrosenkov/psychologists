@@ -7,14 +7,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../UI/Button/Button";
 import { signInWithEmailAndPassword, AuthError } from "firebase/auth";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { ref, get, set, update } from "firebase/database";
-import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface LoginFormProps {
   onSuccess: () => void;
-  onLogout?: () => void;
 }
 
 const LoginSchema = Yup.object({
@@ -26,6 +25,9 @@ const LoginSchema = Yup.object({
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const setUser = useAuthStore((state) => state.setUser);
+  const setRole = useAuthStore((state) => state.setRole);
 
   return (
     <div className={css.wrapper}>
@@ -54,7 +56,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
             if (!snapshot.exists()) {
               await set(userRef, {
-                email: cred.user.email,
+                email: cred.user.email || "",
                 role: "user",
               });
             } else if (!data?.role) {
@@ -62,6 +64,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 role: "user",
               });
             }
+
+            const freshSnapshot = await get(userRef);
+            const userData = freshSnapshot.val();
+
+            setUser(cred.user);
+            setRole(userData?.role || "user");
 
             toast.success("Welcome back!");
             onSuccess();

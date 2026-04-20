@@ -2,19 +2,36 @@
 
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { ref, get } from "firebase/database";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function AuthListener() {
   const setUser = useAuthStore((state) => state.setUser);
+  const setRole = useAuthStore((state) => state.setRole);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        logout();
+        return;
+      }
+
       setUser(user);
+
+      try {
+        const snapshot = await get(ref(db, `users/${user.uid}`));
+        const data = snapshot.val();
+
+        setRole(data?.role || "user");
+      } catch {
+        setRole("user");
+      }
     });
 
     return () => unsubscribe();
-  }, [setUser]);
+  }, [setUser, setRole, logout]);
 
   return null;
 }
