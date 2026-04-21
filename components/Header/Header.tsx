@@ -24,6 +24,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
+  const role = useAuthStore((state) => state.role);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -109,6 +110,20 @@ export default function Header() {
                       </Link>
                     </li>
                   )}
+              {!loading && user && role === "admin" && (
+                <li>
+                  <Link
+                    href="/admin"
+                    className={clsx(
+                      css.link,
+                      pathname === "/admin" && css.active
+                    )}
+                    aria-current={pathname === "/admin" ? "page" : undefined}
+                  >
+                    Admin
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
           <div className={css.authNavigationWrapper}>
@@ -169,6 +184,16 @@ export default function Header() {
                     </Link>
                   </li>
                 )}
+            {!loading && user && role === "admin" && (
+              <Link
+                href="/admin"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={clsx(css.link, pathname === "/admin" && css.active)}
+                aria-current={pathname === "/admin" ? "page" : undefined}
+              >
+                Admin
+              </Link>
+            )}
           </ul>
         </nav>
         <div className={css.authNavigationMobileWrapper}>
