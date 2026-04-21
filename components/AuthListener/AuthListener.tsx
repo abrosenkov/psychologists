@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 export default function AuthListener() {
   const setUser = useAuthStore((state) => state.setUser);
   const setRole = useAuthStore((state) => state.setRole);
+  const setLoading = useAuthStore((state) => state.setLoading);
   const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
@@ -18,20 +19,22 @@ export default function AuthListener() {
         return;
       }
 
-      setUser(user);
-
       try {
+        setUser(user);
+
         const snapshot = await get(ref(db, `users/${user.uid}`));
         const data = snapshot.val();
 
         setRole(data?.role || "user");
       } catch {
         setRole("user");
+      } finally {
+        setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, [setUser, setRole, logout]);
+  }, [setUser, setRole, setLoading, logout]);
 
   return null;
 }
