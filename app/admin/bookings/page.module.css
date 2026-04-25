@@ -1,0 +1,215 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.topbar h1 {
+  font-size: 40px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.topbar p {
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* FILTERS */
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px;
+  border-radius: 14px;
+  background: #f8f9fa;
+  border: 1px solid #ececec;
+}
+
+.filterBtn,
+.activeFilter {
+  border: none;
+  background: transparent;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  transition: 0.2s ease;
+  text-transform: capitalize;
+}
+
+.filterBtn:hover {
+  background: #eef0f2;
+}
+
+.activeFilter {
+  background: #54be96;
+  color: #ffffff;
+}
+
+/* LIST */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CARD */
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid #ececec;
+  background: #ffffff;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.headerRow h3 {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.comment {
+  color: #374151;
+  line-height: 1.45;
+}
+
+/* ACTIONS */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.confirmBtn,
+.cancelBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.confirmBtn {
+  background: #54be96;
+  color: white;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.cancelBtn {
+  background: #ef4444;
+  color: white;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.confirmBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* STATUS */
+
+.pending,
+.confirmed,
+.cancelled {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.pending {
+  background: #fff7ed;
+  color: #f59e0b;
+}
+
+.confirmed {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.cancelled {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+/* MOBILE */
+
+@media screen and (max-width: 768px) {
+  .topbar h1 {
+    font-size: 34px;
+  }
+
+  .card {
+    flex-direction: column;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    flex-direction: row;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .confirmBtn,
+  .cancelBtn {
+    flex: 1;
+  }
+}
