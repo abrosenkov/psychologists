@@ -6,6 +6,7 @@ import {
   sortKeyForListing,
   sortPsychologists,
 } from "./psychologistFilters";
+import { calculateReviewsRating } from "./reviewRatingCore";
 import type { Psychologist } from "@/types/psychologist";
 
 const base: Psychologist = {
@@ -44,6 +45,21 @@ describe("getPsychologistRating", () => {
       ],
     } as Psychologist;
     expect(getPsychologistRating(p)).toBe(4.5);
+  });
+
+  it("uses reviews average from Firebase review records", () => {
+    const p = {
+      ...base,
+      id: "d",
+      name: "Dana",
+      rating: undefined as unknown as number,
+      reviews: {
+        r1: { reviewer: "x", comment: "", rating: 5 },
+        r2: { reviewer: "y", comment: "", rating: 3 },
+      },
+    } as Psychologist;
+
+    expect(getPsychologistRating(p)).toBe(4);
   });
 });
 
@@ -106,5 +122,25 @@ describe("sortPsychologists", () => {
 
   it("sorts by rating low to high", () => {
     expect(sortPsychologists([a, b], "rating-asc").map((p) => p.id)).toEqual(["b", "a"]);
+  });
+});
+
+describe("calculateReviewsRating", () => {
+  it("recalculates rating from non-rejected review records", () => {
+    expect(
+      calculateReviewsRating({
+        pending: { userName: "A", rating: 5, status: "pending" },
+        approved: { userName: "B", rating: 4, status: "approved" },
+        rejected: { userName: "C", rating: 1, status: "rejected" },
+      })
+    ).toBe(4.5);
+  });
+
+  it("returns null when every review is rejected", () => {
+    expect(
+      calculateReviewsRating({
+        rejected: { userName: "C", rating: 1, status: "rejected" },
+      })
+    ).toBeNull();
   });
 });

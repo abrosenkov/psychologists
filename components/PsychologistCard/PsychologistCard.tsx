@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import clsx from "clsx";
 import css from "./PsychologistCard.module.css";
 import Image from "next/image";
@@ -9,6 +9,10 @@ import { Button } from "../UI/Button/Button";
 import { Psychologist } from "@/types/psychologist";
 import AppointmentForm from "../AppointmentForm/AppointmentForm";
 import Modal from "../Modal/Modal";
+import { push, ref, set } from "firebase/database";
+import { db } from "@/lib/firebase";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { recalculatePsychologistRating } from "@/lib/reviewRating";
 
 interface PsychologistCardProps {
   psychologist: Psychologist;
@@ -23,6 +27,46 @@ export default function PsychologistCard({
 }: PsychologistCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+
+  const [reviewForm, setReviewForm] = useState({
+    rating: "5",
+    comment: "",
+  });
+
+  const user = useAuthStore((state) => state.user);
+
+  const handleReviewSubmit = async () => {
+    const reviewRef = push(ref(db, `psychologists/${psychologist.id}/reviews`));
+
+    await set(reviewRef, {
+      userName: user?.displayName || user?.email || "Anonymous",
+      rating: Number(reviewForm.rating),
+      text: reviewForm.comment,
+      status: "pending",
+      createdAt: Date.now(),
+    });
+
+    await recalculatePsychologistRating(psychologist.id);
+
+    setReviewForm({
+      rating: "5",
+      comment: "",
+    });
+
+    setIsReviewOpen(false);
+  };
+
+  const approvedReviews = useMemo(
+    () =>
+      psychologist.reviews
+        ? Object.values(psychologist.reviews).filter(
+            (review) => review.status === "approved" || !review.status
+          )
+        : [],
+    [psychologist.reviews]
+  );
 
   return (
     <div className={css.card}>
@@ -98,8 +142,10 @@ export default function PsychologistCard({
         ) : (
           <div className={css.expandedContent}>
             <div className={css.reviewsList}>
-              {psychologist.reviews?.map((review, index) => {
-                const authorName = review.reviewer || "Guest";
+              {approvedReviews.map((review, index) => {
+                const authorName =
+                  review.userName || review.reviewer || "Guest";
+                const reviewText = review.text || review.comment || "";
                 return (
                   <div key={index} className={css.reviewItem}>
                     <div className={css.reviewHeader}>
@@ -114,7 +160,7 @@ export default function PsychologistCard({
                         </div>
                       </div>
                     </div>
-                    <p className={css.reviewText}>{review.comment}</p>
+                    <p className={css.reviewText}>{reviewText}</p>
                   </div>
                 );
               })}
@@ -127,8 +173,55 @@ export default function PsychologistCard({
             >
               Make an appointment
             </Button>
+            <Button
+              onClick={() => setIsReviewOpen(true)}
+              className={css.reviewBtn}
+              type="button"
+            >
+              Leave review
+            </Button>
             <Modal isOpen={isOpen} onCloseModal={() => setIsOpen(false)}>
-              <AppointmentForm onClose={() => setIsOpen(false)} psychologist={psychologist} />
+              <AppointmentForm
+                onClose={() => setIsOpen(false)}
+                psychologist={psychologist}
+              />
+            </Modal>
+            <Modal
+              isOpen={isReviewOpen}
+              onCloseModal={() => setIsReviewOpen(false)}
+            >
+              <div className={css.reviewModal}>
+                <h2>Leave review</h2>
+
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={reviewForm.rating}
+                  onChange={(e) =>
+                    setReviewForm({
+                      ...reviewForm,
+                      rating: e.target.value,
+                    })
+                  }
+                  placeholder="Rating"
+                />
+
+                <textarea
+                  placeholder="Your review"
+                  value={reviewForm.comment}
+                  onChange={(e) =>
+                    setReviewForm({
+                      ...reviewForm,
+                      comment: e.target.value,
+                    })
+                  }
+                />
+
+                <Button onClick={handleReviewSubmit} type="button">
+                  Submit
+                </Button>
+              </div>
             </Modal>
           </div>
         )}

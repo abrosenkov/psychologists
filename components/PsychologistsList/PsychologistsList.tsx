@@ -3,7 +3,7 @@
 import { Button } from "../UI/Button/Button";
 import PsychologistCard from "../PsychologistCard/PsychologistCard";
 import css from "./PsychologistsList.module.css";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Psychologist } from "@/types/psychologist";
 
 const STEP = 3;
@@ -22,6 +22,7 @@ export default function PsychologistsList({
   const [visibleCount, setVisibleCount] = useState(STEP);
 
   const visible = psychologists.slice(0, visibleCount);
+  const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
   if (psychologists.length === 0) {
     return <p className={css.empty}>No psychologists found</p>;
@@ -33,7 +34,7 @@ export default function PsychologistsList({
         <PsychologistCard
           key={psychologist.id}
           psychologist={psychologist}
-          isFavorite={favoriteIds.includes(psychologist.id)}
+          isFavorite={favoriteIdSet.has(psychologist.id)}
           onToggleFavorite={() => onToggleFavorite?.(psychologist.id)}
         />
       ))}

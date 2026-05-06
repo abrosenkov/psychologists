@@ -260,6 +260,40 @@
   color: #54be96;
 }
 
+.reviewBtn {
+  margin-top: 12px;
+  background: transparent;
+  color: #54be96;
+  border: 1px solid #54be96;
+  transition: 0.2s ease;
+  height: 48px;
+}
+
+.reviewBtn:hover {
+  background: #54be96;
+  color: #ffffff;
+}
+
+.reviewModal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 420px;
+}
+
+.reviewModal input,
+.reviewModal textarea {
+  width: 100%;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.reviewModal textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
 
 
 @media screen and (min-width: 768px) {
@@ -269,6 +303,10 @@
 
   .meta {
     gap: 16px;
+  }
+
+  .reviewBtn {
+    margin-left: 20px;
   }
 }
 
