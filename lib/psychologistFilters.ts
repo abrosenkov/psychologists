@@ -1,4 +1,4 @@
-import type { Psychologist } from "@/types/psychologist";
+import type { Psychologist, Review } from "@/types/psychologist";
 
 /** Parses numbers from Firebase (strings, comma decimals). */
 export function parseNumber(value: unknown): number | null {
@@ -17,11 +17,17 @@ export function getPsychologistRating(p: Psychologist): number | null {
   if (direct !== null) return direct;
 
   const reviews = p.reviews;
-  if (!Array.isArray(reviews) || reviews.length === 0) return null;
+  if (!reviews) return null;
+
+  const reviewList: Review[] = Array.isArray(reviews)
+    ? reviews
+    : Object.values(reviews);
+
+  if (reviewList.length === 0) return null;
 
   let sum = 0;
   let count = 0;
-  for (const r of reviews) {
+  for (const r of reviewList) {
     const x = parseNumber(r.rating);
     if (x !== null) {
       sum += x;
@@ -89,7 +95,10 @@ function compareByRating(
   return a.name.localeCompare(b.name);
 }
 
-export function sortPsychologists(psychologists: Psychologist[], sort: string): Psychologist[] {
+export function sortPsychologists(
+  psychologists: Psychologist[],
+  sort: string
+): Psychologist[] {
   const sorted = [...psychologists];
 
   switch (sort) {

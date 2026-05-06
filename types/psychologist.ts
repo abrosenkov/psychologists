@@ -1,3 +1,13 @@
+export interface Review {
+  userName?: string;
+  reviewer?: string;
+  rating: number;
+  text?: string;
+  comment?: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt?: number;
+}
+
 export interface Psychologist {
   id: string;
   name: string;
@@ -9,9 +19,5 @@ export interface Psychologist {
   price_per_hour: number;
   initial_consultation: string;
   about: string;
-  reviews: {
-    reviewer: string;
-    comment: string;
-    rating: number;
-  }[];
+  reviews?: Record<string, Review>;
 }

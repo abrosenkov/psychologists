@@ -76,8 +76,10 @@ export default function AdminPage() {
   return (
     <div className={css.wrapper}>
       <div className={css.topbar}>
-        <h1>Dashboard</h1>
-        <p>Admin statistics overview</p>
+        <div>
+          <h1>Dashboard</h1>
+          <p>Admin statistics overview</p>
+        </div>
       </div>
 
       <div className={css.grid}>

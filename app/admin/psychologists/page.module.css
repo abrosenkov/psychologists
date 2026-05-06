@@ -1,45 +1,165 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  
+  gap: 28px;
 }
-
 .topbar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
 }
-
+.topbar h1 {
+  font-size: 40px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.topbar p {
+  color: #6b7280;
+  font-size: 16px;
+}
+.addBtn,
+.saveBtn {
+  border: none;
+  background: #54be96;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.addBtn:hover,
+.saveBtn:hover {
+  opacity: 0.92;
+}
 .table {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
-
 .row {
-  display: grid;
-  grid-template-columns: 2fr 120px 100px 120px;
-  gap: 16px;
+  display: flex;
   align-items: center;
-  padding: 18px;
+  gap: 20px;
+  padding: 18px 20px;
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: 18px;
+  background: #ffffff;
 }
-
-.deleteBtn {
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.main strong {
+  font-size: 18px;
+}
+.main p {
+  color: #6b7280;
+  font-size: 14px;
+}
+.price,
+.rating {
+  min-width: 90px;
+  font-weight: 600;
+  color: #191a15;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+}
+.editBtn,
+.deleteBtn,
+.cancelBtn {
   border: none;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
 }
-
-.deleteBtn:hover {
-  opacity: 0.8;
+.editBtn {
+  background: #eef2ff;
+  color: #4338ca;
 }
-
+.deleteBtn,
+.cancelBtn {
+  background: #fef2f2;
+  color: #ef4444;
+}
+.editBtn:hover,
+.deleteBtn:hover,
+.cancelBtn:hover {
+  opacity: 0.9;
+} /* MODAL */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 100;
+}
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal h2 {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+.modal input {
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.modal input:focus {
+  outline: none;
+  border-color: #54be96;
+}
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.modalActions button {
+  flex: 1;
+}
 @media screen and (max-width: 768px) {
+  .topbar h1 {
+    font-size: 34px;
+  }
   .row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .price,
+  .rating {
+    min-width: unset;
+  }
+  .actions {
+    width: 100%;
+  }
+  .actions button {
+    flex: 1;
+  }
+  .modal {
+    padding: 20px;
+  }
+  .modalActions {
+    flex-direction: column;
   }
 }

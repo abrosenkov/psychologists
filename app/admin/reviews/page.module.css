@@ -1,0 +1,152 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.topbar h1 {
+  font-size: 40px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.topbar p {
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px;
+  border: 1px solid #ececec;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.headerRow h3 {
+  font-size: 22px;
+}
+
+.text {
+  color: #374151;
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 130px;
+}
+
+.approveBtn,
+.rejectBtn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.approveBtn {
+  background: #54be96;
+  color: white;
+}
+
+.rejectBtn {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.approveBtn:hover:not(:disabled),
+.rejectBtn:hover {
+  opacity: 0.92;
+}
+
+.approveBtn:disabled,
+.rejectBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pending,
+.approved,
+.rejected {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.pending {
+  background: #fff7ed;
+  color: #f59e0b;
+}
+
+.approved {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.rejected {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+@media screen and (max-width: 768px) {
+  .topbar h1 {
+    font-size: 34px;
+  }
+
+  .card {
+    flex-direction: column;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    flex-direction: row;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .approveBtn,
+  .rejectBtn {
+    flex: 1;
+  }
+}
