@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
+  width: 100%;
 }
 
 .topbar {
@@ -34,6 +35,7 @@
   border-radius: 14px;
   background: #f8f9fa;
   border: 1px solid #ececec;
+  max-width: 100%;
 }
 
 .filterBtn,
@@ -84,6 +86,7 @@
 
 .info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -99,6 +102,7 @@
 .headerRow h3 {
   font-size: 24px;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .meta {
@@ -107,11 +111,17 @@
   gap: 14px;
   color: #6b7280;
   font-size: 15px;
+  min-width: 0;
+}
+
+.meta span {
+  overflow-wrap: anywhere;
 }
 
 .comment {
   color: #374151;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 /* ACTIONS */
@@ -193,8 +203,36 @@
     font-size: 34px;
   }
 
+  .topbar {
+    align-items: stretch;
+  }
+
+  .filters {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filterBtn,
+  .activeFilter {
+    flex: 0 0 auto;
+  }
+
+  .card {
+    gap: 18px;
+  }
+}
+
+@media screen and (max-width: 767px) {
   .card {
     flex-direction: column;
+    padding: 18px;
+    border-radius: 16px;
   }
 
   .headerRow {
@@ -211,5 +249,15 @@
   .confirmBtn,
   .cancelBtn {
     flex: 1;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .topbar h1 {
+    font-size: 30px;
+  }
+
+  .actions {
+    flex-direction: column;
   }
 }

@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
+import Loader from "@/components/Loader/Loader";
 import css from "./admin-layout.module.css";
 
 export default function AdminLayout({
@@ -25,7 +26,11 @@ export default function AdminLayout({
   }, [loading, user, role, router]);
 
   if (loading) {
-    return <div className={css.loading}>Loading...</div>;
+    return (
+      <div className={css.loading}>
+        <Loader />
+      </div>
+    );
   }
 
   if (!user || role !== "admin") {

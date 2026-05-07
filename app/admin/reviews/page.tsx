@@ -5,6 +5,7 @@ import { db } from "@/lib/firebase";
 import { get, ref, update } from "firebase/database";
 import css from "./page.module.css";
 import { recalculatePsychologistRating } from "@/lib/reviewRating";
+import Loader from "@/components/Loader/Loader";
 
 interface ReviewItem {
   id: string;
@@ -84,7 +85,7 @@ export default function AdminReviewsPage() {
   };
 
   if (loading) {
-    return <p>Loading reviews...</p>;
+    return <Loader />;
   }
 
   return (
