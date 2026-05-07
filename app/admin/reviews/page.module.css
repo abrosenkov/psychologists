@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
+  width: 100%;
 }
 
 .topbar {
@@ -32,6 +33,7 @@
 .card {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 24px;
   padding: 22px;
   border: 1px solid #ececec;
@@ -41,6 +43,7 @@
 
 .info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -55,11 +58,13 @@
 
 .headerRow h3 {
   font-size: 22px;
+  overflow-wrap: anywhere;
 }
 
 .text {
   color: #374151;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .actions {
@@ -131,7 +136,15 @@
   }
 
   .card {
+    gap: 18px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .card {
     flex-direction: column;
+    padding: 18px;
+    border-radius: 16px;
   }
 
   .headerRow {
@@ -148,5 +161,15 @@
   .approveBtn,
   .rejectBtn {
     flex: 1;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .topbar h1 {
+    font-size: 30px;
+  }
+
+  .actions {
+    flex-direction: column;
   }
 }

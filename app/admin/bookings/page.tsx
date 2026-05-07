@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { get, ref, update } from "firebase/database";
+import Loader from "@/components/Loader/Loader";
 import css from "./page.module.css";
 
 interface Booking {
@@ -79,7 +80,7 @@ export default function AdminBookingsPage() {
       : items.filter((item) => (item.status || "pending") === filter);
 
   if (loading) {
-    return <p>Loading bookings...</p>;
+    return <Loader />;
   }
 
   return (

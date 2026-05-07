@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { ref, get, remove, push, set, update } from "firebase/database";
+import Loader from "@/components/Loader/Loader";
 import css from "./page.module.css";
 
 interface Psychologist {
@@ -123,7 +124,7 @@ export default function AdminPsychologistsPage() {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loader />;
   }
 
   return (

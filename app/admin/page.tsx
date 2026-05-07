@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { get, ref } from "firebase/database";
+import Loader from "@/components/Loader/Loader";
 import css from "./page.module.css";
 
 interface Stats {
@@ -70,7 +71,7 @@ export default function AdminPage() {
   };
 
   if (loading) {
-    return <p>Loading dashboard...</p>;
+    return <Loader />;
   }
 
   return (
