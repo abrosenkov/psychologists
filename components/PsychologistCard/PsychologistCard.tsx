@@ -1,9 +1,10 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import css from "./PsychologistCard.module.css";
-import Image from "next/image";
 import { FaHeart, FaStar, FaRegHeart } from "react-icons/fa";
 import { Button } from "../UI/Button/Button";
 import { Psychologist } from "@/types/psychologist";
@@ -13,11 +14,34 @@ import { push, ref, set } from "firebase/database";
 import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { recalculatePsychologistRating } from "@/lib/reviewRating";
+import { getPsychologistRating } from "@/lib/psychologistFilters";
 
 interface PsychologistCardProps {
   psychologist: Psychologist;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+}
+
+function AvatarImage({ psychologist }: { psychologist: Psychologist }) {
+  const normalizedSrc = psychologist.avatar_url?.trim() || "";
+  const [failedSrc, setFailedSrc] = useState("");
+
+  if (!normalizedSrc || failedSrc === normalizedSrc) {
+    return (
+      <div className={css.avatarPlaceholder}>
+        {(psychologist.name.charAt(0) || "?").toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      className={css.avatarImage}
+      src={normalizedSrc}
+      alt={psychologist.name}
+      onError={() => setFailedSrc(normalizedSrc)}
+    />
+  );
 }
 
 export default function PsychologistCard({
@@ -36,6 +60,7 @@ export default function PsychologistCard({
   });
 
   const user = useAuthStore((state) => state.user);
+  const rating = getPsychologistRating(psychologist) ?? 0;
 
   const handleReviewSubmit = async () => {
     const reviewRef = push(ref(db, `psychologists/${psychologist.id}/reviews`));
@@ -72,13 +97,7 @@ export default function PsychologistCard({
     <div className={css.card}>
       <div className={css.avatarWrapper}>
         <div className={css.avatar}>
-          <Image
-            className={css.avatarImage}
-            src={psychologist.avatar_url}
-            alt={psychologist.name}
-            width={96}
-            height={96}
-          />
+          <AvatarImage psychologist={psychologist} />
           <div className={css.onlineBadge}></div>
         </div>
       </div>
@@ -94,7 +113,7 @@ export default function PsychologistCard({
             <div className={css.meta}>
               <div className={css.metaRating}>
                 <FaStar className={css.starIcon} size={16} />
-                <span>Rating: {psychologist.rating}</span>
+                <span>Rating: {rating}</span>
               </div>
               <span className={css.metaSeparator}>|</span>
               <div className={css.metaPrice}>

@@ -11,30 +11,31 @@ export function parseNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Top-level `rating` or average of `reviews[].rating` if missing/invalid. */
+/** Average of non-rejected reviews, with top-level `rating` as legacy fallback. */
 export function getPsychologistRating(p: Psychologist): number | null {
-  const direct = parseNumber(p.rating);
-  if (direct !== null) return direct;
-
   const reviews = p.reviews;
-  if (!reviews) return null;
 
-  const reviewList: Review[] = Array.isArray(reviews)
-    ? reviews
-    : Object.values(reviews);
+  if (reviews) {
+    const reviewList: Review[] = Array.isArray(reviews)
+      ? reviews
+      : Object.values(reviews);
 
-  if (reviewList.length === 0) return null;
+    let sum = 0;
+    let count = 0;
+    for (const r of reviewList) {
+      if (r.status === "rejected") continue;
 
-  let sum = 0;
-  let count = 0;
-  for (const r of reviewList) {
-    const x = parseNumber(r.rating);
-    if (x !== null) {
-      sum += x;
-      count += 1;
+      const x = parseNumber(r.rating);
+      if (x !== null) {
+        sum += x;
+        count += 1;
+      }
     }
+
+    if (count > 0) return Math.round((sum / count) * 10) / 10;
   }
-  return count > 0 ? sum / count : null;
+
+  return parseNumber(p.rating);
 }
 
 export function getPsychologistPrice(p: Psychologist): number | null {

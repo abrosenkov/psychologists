@@ -1,32 +1,113 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useEffect, useState } from "react";
+import {
+  Formik,
+  Form,
+  Field,
+  ErrorMessage,
+  useFormikContext,
+  type FormikHelpers,
+} from "formik";
+import * as Yup from "yup";
 import { db } from "@/lib/firebase";
-import { ref, get, remove, push, set, update } from "firebase/database";
+import {
+  ref as databaseRef,
+  get,
+  remove,
+  push,
+  set,
+  update,
+} from "firebase/database";
+import toast from "react-hot-toast";
 import Loader from "@/components/Loader/Loader";
+import { getPsychologistRating } from "@/lib/psychologistFilters";
+import {
+  initialPsychologistFormDraft,
+  usePsychologistFormStore,
+  type PsychologistFormDraft,
+} from "@/stores/usePsychologistFormStore";
+import type { Psychologist } from "@/types/psychologist";
 import css from "./page.module.css";
 
-interface Psychologist {
-  id: string;
-  name: string;
-  avatar_url: string;
-  price_per_hour: number;
-  rating: number;
-  specialization: string;
-}
+const psychologistSchema = Yup.object({
+  name: Yup.string()
+    .trim()
+    .min(2, "Minimum 2 characters")
+    .required("Name is required"),
+  specialization: Yup.string()
+    .trim()
+    .min(2, "Minimum 2 characters")
+    .required("Specialization is required"),
+  avatar_url: Yup.string().trim().url("Invalid image URL"),
+  price_per_hour: Yup.number()
+    .typeError("Price must be a number")
+    .min(0, "Price cannot be negative")
+    .required("Price is required"),
+});
 
-interface FormState {
-  name: string;
-  specialization: string;
-  price_per_hour: string;
-  rating: string;
-}
+const AutoSave = ({
+  disabled,
+  onSave,
+}: {
+  disabled: boolean;
+  onSave: (values: PsychologistFormDraft) => void;
+}) => {
+  const { values } = useFormikContext<PsychologistFormDraft>();
 
-const initialForm: FormState = {
-  name: "",
-  specialization: "",
-  price_per_hour: "",
-  rating: "",
+  useEffect(() => {
+    if (!disabled) onSave(values);
+  }, [disabled, onSave, values]);
+
+  return null;
+};
+
+const AvatarImage = ({
+  src,
+  alt,
+  className,
+  fallbackClassName,
+}: {
+  src?: string;
+  alt: string;
+  className: string;
+  fallbackClassName: string;
+}) => {
+  const normalizedSrc = src?.trim() || "";
+  const [failedSrc, setFailedSrc] = useState("");
+
+  if (!normalizedSrc || failedSrc === normalizedSrc) {
+    return (
+      <div className={fallbackClassName}>
+        {(alt.charAt(0) || "?").toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      className={className}
+      src={normalizedSrc}
+      alt={alt}
+      onError={() => setFailedSrc(normalizedSrc)}
+    />
+  );
+};
+
+const ValidationToast = () => {
+  const { errors, isValid, submitCount } =
+    useFormikContext<PsychologistFormDraft>();
+
+  useEffect(() => {
+    if (submitCount === 0 || isValid) return;
+
+    const firstError = Object.values(errors)[0];
+    if (firstError) toast.error(String(firstError));
+  }, [errors, isValid, submitCount]);
+
+  return null;
 };
 
 export default function AdminPsychologistsPage() {
@@ -36,7 +117,7 @@ export default function AdminPsychologistsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [form, setForm] = useState<FormState>(initialForm);
+  const { draft, setDraft, clearDraft } = usePsychologistFormStore();
 
   useEffect(() => {
     loadPsychologists();
@@ -44,7 +125,7 @@ export default function AdminPsychologistsPage() {
 
   const loadPsychologists = async () => {
     try {
-      const snapshot = await get(ref(db, "psychologists"));
+      const snapshot = await get(databaseRef(db, "psychologists"));
 
       if (!snapshot.exists()) {
         setItems([]);
@@ -59,6 +140,8 @@ export default function AdminPsychologistsPage() {
       }));
 
       setItems(list);
+    } catch {
+      toast.error("Failed to load psychologists.");
     } finally {
       setLoading(false);
     }
@@ -66,51 +149,52 @@ export default function AdminPsychologistsPage() {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm(initialForm);
     setIsOpen(true);
   };
 
   const openEdit = (psychologist: Psychologist) => {
     setEditingId(psychologist.id);
-
-    setForm({
-      name: psychologist.name,
-      specialization: psychologist.specialization,
-      price_per_hour: String(psychologist.price_per_hour),
-      rating: String(psychologist.rating),
-    });
-
     setIsOpen(true);
   };
 
   const closeModal = () => {
     setIsOpen(false);
     setEditingId(null);
-    setForm(initialForm);
   };
 
-  const handleSave = async () => {
-    if (!form.name.trim() || !form.specialization.trim()) {
-      return;
+  const handleSave = async (
+    values: PsychologistFormDraft,
+    { setSubmitting }: FormikHelpers<PsychologistFormDraft>
+  ) => {
+    try {
+      const payload = {
+        name: values.name.trim(),
+        avatar_url: values.avatar_url.trim(),
+        specialization: values.specialization.trim(),
+        price_per_hour: Number(values.price_per_hour),
+      };
+
+      if (editingId) {
+        await update(databaseRef(db, `psychologists/${editingId}`), payload);
+        toast.success("Psychologist updated.");
+      } else {
+        const newRef = push(databaseRef(db, "psychologists"));
+
+        await set(newRef, {
+          ...payload,
+          rating: 0,
+        });
+        clearDraft();
+        toast.success("Psychologist created.");
+      }
+
+      closeModal();
+      loadPsychologists();
+    } catch {
+      toast.error("Failed to save psychologist.");
+    } finally {
+      setSubmitting(false);
     }
-
-    const payload = {
-      name: form.name.trim(),
-      specialization: form.specialization.trim(),
-      price_per_hour: Number(form.price_per_hour) || 0,
-      rating: Number(form.rating) || 0,
-    };
-
-    if (editingId) {
-      await update(ref(db, `psychologists/${editingId}`), payload);
-    } else {
-      const newRef = push(ref(db, "psychologists"));
-
-      await set(newRef, payload);
-    }
-
-    closeModal();
-    loadPsychologists();
   };
 
   const handleDelete = async (id: string) => {
@@ -118,14 +202,31 @@ export default function AdminPsychologistsPage() {
 
     if (!confirmed) return;
 
-    await remove(ref(db, `psychologists/${id}`));
-
-    setItems((prev) => prev.filter((item) => item.id !== id));
+    try {
+      await remove(databaseRef(db, `psychologists/${id}`));
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Psychologist deleted.");
+    } catch {
+      toast.error("Failed to delete psychologist.");
+    }
   };
 
   if (loading) {
     return <Loader />;
   }
+
+  const editingItem = items.find((item) => item.id === editingId);
+  const initialValues: PsychologistFormDraft = editingItem
+    ? {
+        name: editingItem.name,
+        avatar_url: editingItem.avatar_url || "",
+        specialization: editingItem.specialization,
+        price_per_hour: String(editingItem.price_per_hour),
+      }
+    : {
+        ...initialPsychologistFormDraft,
+        ...draft,
+      };
 
   return (
     <div className={css.wrapper}>
@@ -144,14 +245,27 @@ export default function AdminPsychologistsPage() {
         {items.map((item) => (
           <div key={item.id} className={css.row}>
             <div className={css.main}>
-              <strong>{item.name}</strong>
+              <div className={css.person}>
+                <AvatarImage
+                  className={css.avatar}
+                  fallbackClassName={css.avatarPlaceholder}
+                  src={item.avatar_url}
+                  alt={item.name}
+                />
 
-              <p>{item.specialization}</p>
+                <div>
+                  <strong>{item.name}</strong>
+
+                  <p>{item.specialization}</p>
+                </div>
+              </div>
             </div>
 
             <div className={css.price}>${item.price_per_hour}</div>
 
-            <div className={css.rating}>⭐ {item.rating}</div>
+            <div className={css.rating}>
+              ⭐ {getPsychologistRating(item) ?? 0}
+            </div>
 
             <div className={css.actions}>
               <button className={css.editBtn} onClick={() => openEdit(item)}>
@@ -171,63 +285,90 @@ export default function AdminPsychologistsPage() {
 
       {isOpen && (
         <div className={css.overlay}>
-          <div className={css.modal}>
-            <h2>{editingId ? "Edit psychologist" : "Add psychologist"}</h2>
+          <Formik
+            key={editingId || "create"}
+            initialValues={initialValues}
+            enableReinitialize
+            validationSchema={psychologistSchema}
+            onSubmit={handleSave}
+          >
+            {({ isSubmitting, values }) => (
+              <Form className={css.modal}>
+                <AutoSave disabled={Boolean(editingId)} onSave={setDraft} />
+                <ValidationToast />
 
-            <input
-              placeholder="Name"
-              value={form.name}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  name: e.target.value,
-                })
-              }
-            />
+                <h2>{editingId ? "Edit psychologist" : "Add psychologist"}</h2>
 
-            <input
-              placeholder="Specialization"
-              value={form.specialization}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  specialization: e.target.value,
-                })
-              }
-            />
+                <div className={css.fieldWrapper}>
+                  <Field name="name" placeholder="Name" />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
 
-            <input
-              placeholder="Price"
-              value={form.price_per_hour}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  price_per_hour: e.target.value,
-                })
-              }
-            />
+                <div className={css.fieldWrapper}>
+                  <label className={css.fieldLabel} htmlFor="avatar_url">
+                    Image URL
+                  </label>
+                  <Field
+                    id="avatar_url"
+                    name="avatar_url"
+                    placeholder="https://example.com/photo.jpg"
+                  />
+                  <ErrorMessage
+                    name="avatar_url"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
 
-            <input
-              placeholder="Rating"
-              value={form.rating}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  rating: e.target.value,
-                })
-              }
-            />
+                <AvatarImage
+                  className={css.preview}
+                  fallbackClassName={css.previewPlaceholder}
+                  src={values.avatar_url}
+                  alt={values.name || "Psychologist"}
+                />
 
-            <div className={css.modalActions}>
-              <button onClick={handleSave} className={css.saveBtn}>
-                Save
-              </button>
+                <div className={css.fieldWrapper}>
+                  <Field name="specialization" placeholder="Specialization" />
+                  <ErrorMessage
+                    name="specialization"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
 
-              <button onClick={closeModal} className={css.cancelBtn}>
-                Cancel
-              </button>
-            </div>
-          </div>
+                <div className={css.fieldWrapper}>
+                  <Field name="price_per_hour" placeholder="Price" />
+                  <ErrorMessage
+                    name="price_per_hour"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+
+                <div className={css.modalActions}>
+                  <button
+                    type="submit"
+                    className={css.saveBtn}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Saving..." : "Save"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className={css.cancelBtn}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
         </div>
       )}
     </div>

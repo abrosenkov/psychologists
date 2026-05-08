@@ -56,6 +56,30 @@
   flex-direction: column;
   gap: 6px;
 }
+.person {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.avatar,
+.avatarPlaceholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  flex: 0 0 52px;
+}
+.avatar {
+  object-fit: cover;
+}
+.avatarPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+}
 .main strong {
   font-size: 18px;
 }
@@ -136,6 +160,50 @@
   outline: none;
   border-color: #54be96;
 }
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldLabel {
+  color: #191a15;
+  font-size: 14px;
+  font-weight: 600;
+}
+.error {
+  color: #ef4444;
+  font-size: 12px;
+}
+.fileField {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #191a15;
+  font-size: 14px;
+  font-weight: 600;
+}
+.fileField input {
+  height: auto;
+  padding: 12px;
+}
+.preview,
+.previewPlaceholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+.preview {
+  object-fit: cover;
+}
+.previewPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  color: #6b7280;
+  font-weight: 500;
+}
 .modalActions {
   display: flex;
   gap: 10px;
@@ -143,6 +211,10 @@
 }
 .modalActions button {
   flex: 1;
+}
+.modalActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 @media screen and (max-width: 768px) {
   .topbar h1 {

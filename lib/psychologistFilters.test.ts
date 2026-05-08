@@ -23,8 +23,20 @@ const base: Psychologist = {
   reviews: [],
 };
 
-const a: Psychologist = { ...base, id: "a", name: "Anna", rating: 4.8, price_per_hour: 5 };
-const b: Psychologist = { ...base, id: "b", name: "Zoe", rating: 4.0, price_per_hour: 12 };
+const a: Psychologist = {
+  ...base,
+  id: "a",
+  name: "Anna",
+  rating: 4.8,
+  price_per_hour: 5,
+};
+const b: Psychologist = {
+  ...base,
+  id: "b",
+  name: "Zoe",
+  rating: 4.0,
+  price_per_hour: 12,
+};
 
 describe("parseNumber", () => {
   it("parses comma decimals", () => {
@@ -33,6 +45,19 @@ describe("parseNumber", () => {
 });
 
 describe("getPsychologistRating", () => {
+  it("uses reviews average before legacy top-level rating", () => {
+    const p = {
+      ...base,
+      rating: 5,
+      reviews: {
+        r1: { reviewer: "x", comment: "", rating: 3, status: "approved" },
+        r2: { reviewer: "y", comment: "", rating: 4, status: "pending" },
+      },
+    } as Psychologist;
+
+    expect(getPsychologistRating(p)).toBe(3.5);
+  });
+
   it("uses reviews average when top-level rating is missing", () => {
     const p = {
       ...base,
@@ -61,6 +86,19 @@ describe("getPsychologistRating", () => {
 
     expect(getPsychologistRating(p)).toBe(4);
   });
+
+  it("ignores rejected reviews", () => {
+    const p = {
+      ...base,
+      rating: 5,
+      reviews: {
+        approved: { reviewer: "x", comment: "", rating: 4, status: "approved" },
+        rejected: { reviewer: "y", comment: "", rating: 1, status: "rejected" },
+      },
+    } as Psychologist;
+
+    expect(getPsychologistRating(p)).toBe(4);
+  });
 });
 
 describe("filterPsychologists", () => {
@@ -80,10 +118,9 @@ describe("filterPsychologists", () => {
       rating: undefined as unknown as number,
       reviews: [],
     } as Psychologist;
-    expect(filterPsychologists([a, b, noRating], { rating: "not-popular" })).toEqual([
-      b,
-      noRating,
-    ]);
+    expect(
+      filterPsychologists([a, b, noRating], { rating: "not-popular" })
+    ).toEqual([b, noRating]);
   });
 });
 
@@ -117,7 +154,9 @@ describe("sortPsychologists", () => {
   });
 
   it("sorts by rating high to low", () => {
-    expect(sortPsychologists([b, a], "rating-desc").map((p) => p.id)).toEqual(["a", "b"]);
+    expect(sortPsychologists([b, a], "rating-desc").map((p) => p.id)).toEqual(
+      ["a", "b"]
+    );
   });
 
   it("sorts by rating low to high", () => {
