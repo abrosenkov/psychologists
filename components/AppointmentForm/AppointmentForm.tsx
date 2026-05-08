@@ -1,7 +1,8 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import {
   Formik,
   Form,
@@ -72,6 +73,28 @@ const TIMES = [
   "17  :  30",
   "18  :  00",
 ];
+
+function PsychologistAvatar({ psychologist }: { psychologist: Psychologist }) {
+  const normalizedSrc = psychologist.avatar_url?.trim() || "";
+  const [failedSrc, setFailedSrc] = useState("");
+
+  if (!normalizedSrc || failedSrc === normalizedSrc) {
+    return (
+      <div className={css.avatarPlaceholder}>
+        {(psychologist.name.charAt(0) || "?").toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={normalizedSrc}
+      alt={psychologist.name}
+      className={css.avatar}
+      onError={() => setFailedSrc(normalizedSrc)}
+    />
+  );
+}
 
 export default function AppointmentForm({
   psychologist,
@@ -203,13 +226,7 @@ export default function AppointmentForm({
             </p>
 
             <div className={css.psychologist}>
-              <Image
-                src={psychologist.avatar_url}
-                alt={psychologist.name}
-                className={css.avatar}
-                width={44}
-                height={44}
-              />
+              <PsychologistAvatar psychologist={psychologist} />
               <div>
                 <p className={css.label}>Your psychologist</p>
                 <p className={css.name}>{psychologist.name}</p>
