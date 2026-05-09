@@ -15,6 +15,7 @@ import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { recalculatePsychologistRating } from "@/lib/reviewRating";
 import { getPsychologistRating } from "@/lib/psychologistFilters";
+import toast from "react-hot-toast";
 
 interface PsychologistCardProps {
   psychologist: Psychologist;
@@ -61,6 +62,15 @@ export default function PsychologistCard({
 
   const user = useAuthStore((state) => state.user);
   const rating = getPsychologistRating(psychologist) ?? 0;
+
+  const handleAppointmentOpen = () => {
+    if (!user) {
+      toast.error("Please log in or register to book an appointment.");
+      return;
+    }
+
+    setIsOpen(true);
+  };
 
   const handleReviewSubmit = async () => {
     const reviewRef = push(ref(db, `psychologists/${psychologist.id}/reviews`));
@@ -186,7 +196,7 @@ export default function PsychologistCard({
             </div>
 
             <Button
-              onClick={() => setIsOpen(true)}
+              onClick={handleAppointmentOpen}
               className={css.appointmentBtn}
               type="button"
             >

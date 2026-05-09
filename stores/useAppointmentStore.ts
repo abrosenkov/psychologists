@@ -11,6 +11,7 @@ interface Draft {
   name: string;
   email: string;
   phone: string;
+  date: string;
   time: string;
   comment: string;
 }
@@ -25,7 +26,14 @@ interface AppointmentState {
   clearDraft: () => void;
 }
 
-const initialDraft: Draft = { name: "", email: "", phone: "+380", time: "", comment: "" };
+const initialDraft: Draft = {
+  name: "",
+  email: "",
+  phone: "+380",
+  date: "",
+  time: "",
+  comment: "",
+};
 
 export const useAppointmentStore = create<AppointmentState>()(
   persist(

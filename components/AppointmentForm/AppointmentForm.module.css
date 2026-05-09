@@ -92,6 +92,12 @@
   border-color: #54be96;
 }
 
+.input:disabled {
+  color: rgba(25, 26, 21, 0.45);
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
 .textarea {
   min-height: 116px;
   resize: none;
@@ -104,6 +110,15 @@
 .timePicker {
   position: relative;
   width: 100%;
+}
+
+.closedNotice {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .timeInputWrapper {
