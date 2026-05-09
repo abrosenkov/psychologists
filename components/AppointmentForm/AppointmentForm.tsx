@@ -18,7 +18,15 @@ import { LuClock } from "react-icons/lu";
 
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppointmentStore } from "@/stores/useAppointmentStore";
-import { createAppointment, getBusySlots } from "@/lib/appointments";
+import {
+  createAppointment,
+  getAvailability,
+  getBusySlots,
+  normalizeTime,
+  TIMES,
+  timeKey,
+  type Availability,
+} from "@/lib/appointments";
 import { Psychologist } from "@/types/psychologist";
 import css from "./AppointmentForm.module.css";
 
@@ -26,6 +34,7 @@ interface AppointmentFormValues {
   name: string;
   email: string;
   phone: string;
+  date: string;
   time: string;
   comment: string;
 }
@@ -36,6 +45,7 @@ const schema = Yup.object({
   phone: Yup.string()
     .matches(/^\+380\d{9}$/, "Format: +380XXXXXXXXX")
     .required("Phone is required"),
+  date: Yup.string().required("Date is required"),
   time: Yup.string().required("Time is required"),
   comment: Yup.string().max(500, "Too long"),
 });
@@ -51,28 +61,6 @@ const AutoSave = ({
   }, [values, onSave]);
   return null;
 };
-
-const TIMES = [
-  "09  :  00",
-  "09  :  30",
-  "10  :  00",
-  "10  :  30",
-  "11  :  00",
-  "11  :  30",
-  "12  :  00",
-  "12  :  30",
-  "13  :  00",
-  "13  :  30",
-  "14  :  00",
-  "14  :  30",
-  "15  :  00",
-  "15  :  30",
-  "16  :  00",
-  "16  :  30",
-  "17  :  00",
-  "17  :  30",
-  "18  :  00",
-];
 
 function PsychologistAvatar({ psychologist }: { psychologist: Psychologist }) {
   const normalizedSrc = psychologist.avatar_url?.trim() || "";
@@ -96,6 +84,11 @@ function PsychologistAvatar({ psychologist }: { psychologist: Psychologist }) {
   );
 }
 
+const initialAvailability: Availability = {
+  closedDays: {},
+  closedSlots: {},
+};
+
 export default function AppointmentForm({
   psychologist,
   onClose,
@@ -109,6 +102,8 @@ export default function AppointmentForm({
 
   const [isTimeOpen, setIsTimeOpen] = useState(false);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [availability, setAvailability] =
+    useState<Availability>(initialAvailability);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentDate = new Date().toISOString().split("T")[0];
 
@@ -116,7 +111,12 @@ export default function AppointmentForm({
     const fetchSlots = async () => {
       setIsLoadingSlots(true);
       try {
-        const busyData = await getBusySlots(psychologist.id);
+        const [busyData, availabilityData] = await Promise.all([
+          getBusySlots(psychologist.id),
+          getAvailability(psychologist.id),
+        ]);
+
+        setAvailability(availabilityData);
         setAppointments(
           busyData.map((slot) => ({
             ...slot,
@@ -152,15 +152,21 @@ export default function AppointmentForm({
   ) => {
     if (!user) return toast.error("Please log in first");
 
+    const selectedDate = values.date;
+    const selectedTime = normalizeTime(values.time);
+    const isDayClosed = Boolean(availability.closedDays[selectedDate]);
+    const isSlotClosed = Boolean(
+      availability.closedSlots[selectedDate]?.[timeKey(selectedTime)]
+    );
     const isBusy = appointments.some(
       (a) =>
         a.psychologistId === psychologist.id &&
-        a.time === values.time &&
-        a.date === currentDate
+        normalizeTime(a.time) === selectedTime &&
+        a.date === selectedDate
     );
 
-    if (isBusy) {
-      toast.error(`Time ${values.time} is already booked!`);
+    if (isDayClosed || isSlotClosed || isBusy) {
+      toast.error("Selected date and time are not available.");
       setSubmitting(false);
       return;
     }
@@ -169,25 +175,27 @@ export default function AppointmentForm({
       await createAppointment(user.uid, {
         ...values,
         psychologistId: psychologist.id,
-        date: currentDate,
+        date: selectedDate,
+        time: selectedTime,
       });
 
       addAppointment({
         psychologistId: psychologist.id,
-        time: values.time,
-        date: currentDate,
+        time: selectedTime,
+        date: selectedDate,
       });
 
       const initialValues = {
         name: "",
         email: "",
         phone: "+380",
+        date: "",
         time: "",
         comment: "",
       };
       setDraft(initialValues);
 
-      toast.success("Appointment booked! ✅");
+      toast.success("Appointment booked!");
       resetForm({ values: initialValues });
       onClose();
     } catch {
@@ -204,6 +212,7 @@ export default function AppointmentForm({
           name: draft.name || user?.displayName || "",
           email: draft.email || user?.email || "",
           phone: draft.phone || "+380",
+          date: draft.date || currentDate,
           time: draft.time || "",
           comment: draft.comment || "",
         }}
@@ -211,53 +220,86 @@ export default function AppointmentForm({
         validationSchema={schema}
         onSubmit={handleSubmit}
       >
-        {({ setFieldValue, isSubmitting }) => (
-          <Form className={css.form}>
-            <AutoSave onSave={setDraft} />
+        {({ setFieldValue, isSubmitting, values }) => {
+          const selectedDate = values.date || currentDate;
+          const isDayClosed = Boolean(availability.closedDays[selectedDate]);
 
-            <h2 className={css.title}>
-              Make an appointment with a psychologist
-            </h2>
-            <p className={css.text}>
-              You are on the verge of changing your life for the better. Fill
-              out the short form below to book your personal appointment with a
-              professional psychologist. We guarantee confidentiality and
-              respect for your privacy.
-            </p>
+          return (
+            <Form className={css.form}>
+              <AutoSave onSave={setDraft} />
 
-            <div className={css.psychologist}>
-              <PsychologistAvatar psychologist={psychologist} />
-              <div>
-                <p className={css.label}>Your psychologist</p>
-                <p className={css.name}>{psychologist.name}</p>
-              </div>
-            </div>
+              <h2 className={css.title}>
+                Make an appointment with a psychologist
+              </h2>
+              <p className={css.text}>
+                You are on the verge of changing your life for the better. Fill
+                out the short form below to book your personal appointment with
+                a professional psychologist. We guarantee confidentiality and
+                respect for your privacy.
+              </p>
 
-            <div className={css.fieldsWrapper}>
-              <div className={css.fieldBox}>
-                <Field name="name" placeholder="Name" className={css.input} />
-                <ErrorMessage
-                  name="name"
-                  component="div"
-                  className={css.error}
-                />
+              <div className={css.psychologist}>
+                <PsychologistAvatar psychologist={psychologist} />
+                <div>
+                  <p className={css.label}>Your psychologist</p>
+                  <p className={css.name}>{psychologist.name}</p>
+                </div>
               </div>
 
-              <div className={css.timeEmail}>
+              <div className={css.fieldsWrapper}>
                 <div className={css.fieldBox}>
-                  <Field name="phone" className={css.input} />
+                  <Field name="name" placeholder="Name" className={css.input} />
                   <ErrorMessage
-                    name="phone"
+                    name="name"
                     component="div"
                     className={css.error}
                   />
                 </div>
 
+                <div className={css.timeEmail}>
+                  <div className={css.fieldBox}>
+                    <Field name="phone" className={css.input} />
+                    <ErrorMessage
+                      name="phone"
+                      component="div"
+                      className={css.error}
+                    />
+                  </div>
+
+                  <div className={css.fieldBox}>
+                    <Field
+                      type="date"
+                      name="date"
+                      min={currentDate}
+                      className={css.input}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        setFieldValue("date", event.target.value);
+                        setFieldValue("time", "");
+                      }}
+                    />
+                    <ErrorMessage
+                      name="date"
+                      component="div"
+                      className={css.error}
+                    />
+                  </div>
+                </div>
+
+                {isDayClosed && (
+                  <p className={css.closedNotice}>
+                    This day is closed for booking.
+                  </p>
+                )}
+
                 <div className={css.timePicker} ref={dropdownRef}>
                   <div
                     className={css.timeInputWrapper}
                     onClick={() =>
-                      !isLoadingSlots && setIsTimeOpen(!isTimeOpen)
+                      !isLoadingSlots &&
+                      !isDayClosed &&
+                      setIsTimeOpen(!isTimeOpen)
                     }
                   >
                     <Field
@@ -265,6 +307,7 @@ export default function AppointmentForm({
                       placeholder={isLoadingSlots ? "Loading..." : "00:00"}
                       readOnly
                       className={css.input}
+                      disabled={isDayClosed}
                     />
                     <LuClock className={css.clockIcon} />
                   </div>
@@ -273,26 +316,40 @@ export default function AppointmentForm({
                     <div className={css.dropdown}>
                       <p className={css.dropdownTitle}>Meeting time</p>
                       <div className={css.timeList}>
-                        {TIMES.map((t) => {
+                        {TIMES.map((time) => {
                           const isBusy = appointments.some(
                             (a) =>
                               a.psychologistId === psychologist.id &&
-                              a.time === t &&
-                              a.date === currentDate
+                              normalizeTime(a.time) === time &&
+                              a.date === selectedDate
                           );
+                          const isClosed = Boolean(
+                            availability.closedSlots[selectedDate]?.[
+                              timeKey(time)
+                            ]
+                          );
+                          const isDisabled = isDayClosed || isClosed || isBusy;
+                          const title = isBusy
+                            ? "Booked"
+                            : isClosed
+                              ? "Closed by admin"
+                              : "";
+
                           return (
                             <div
-                              key={t}
+                              key={time}
+                              title={title}
                               className={clsx(
                                 css.timeItem,
-                                isBusy && css.timeItemDisabled
+                                isDisabled && css.timeItemDisabled
                               )}
                               onClick={() =>
-                                !isBusy &&
-                                (setFieldValue("time", t), setIsTimeOpen(false))
+                                !isDisabled &&
+                                (setFieldValue("time", time),
+                                setIsTimeOpen(false))
                               }
                             >
-                              {t}
+                              {time}
                             </div>
                           );
                         })}
@@ -305,34 +362,38 @@ export default function AppointmentForm({
                     className={css.error}
                   />
                 </div>
-              </div>
 
-              <div className={css.fieldBox}>
-                <Field name="email" placeholder="Email" className={css.input} />
-                <ErrorMessage
-                  name="email"
-                  component="div"
-                  className={css.error}
+                <div className={css.fieldBox}>
+                  <Field
+                    name="email"
+                    placeholder="Email"
+                    className={css.input}
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+
+                <Field
+                  as="textarea"
+                  name="comment"
+                  placeholder="Comment"
+                  className={css.textarea}
                 />
               </div>
 
-              <Field
-                as="textarea"
-                name="comment"
-                placeholder="Comment"
-                className={css.textarea}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className={css.submit}
-              disabled={isSubmitting || isLoadingSlots}
-            >
-              {isSubmitting ? "Sending..." : "Send"}
-            </button>
-          </Form>
-        )}
+              <button
+                type="submit"
+                className={css.submit}
+                disabled={isSubmitting || isLoadingSlots || isDayClosed}
+              >
+                {isSubmitting ? "Sending..." : "Send"}
+              </button>
+            </Form>
+          );
+        }}
       </Formik>
     </div>
   );

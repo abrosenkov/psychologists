@@ -2,7 +2,7 @@
   "rules": {
     "psychologists": {
       ".read": true,
-      ".write": false
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     },
     "users": {
       "$uid": {
@@ -20,9 +20,13 @@
       ".read": true,
       ".indexOn": ["psychologistId"],
       "$appointmentId": {
-        ".write": "auth != null && (!data.exists() ? newData.child('userId').val() === auth.uid : data.child('userId').val() === auth.uid)",
-        ".validate": "newData.hasChildren(['userId', 'psychologistId', 'date', 'time', 'name', 'email', 'phone', 'createdAt']) && newData.child('userId').val() === auth.uid"
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() ? newData.child('userId').val() === auth.uid : data.child('userId').val() === auth.uid))",
+        ".validate": "newData.hasChildren(['userId', 'psychologistId', 'date', 'time', 'name', 'email', 'phone', 'createdAt']) && (root.child('users').child(auth.uid).child('role').val() === 'admin' || newData.child('userId').val() === auth.uid)"
       }
+    },
+    "availability": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     }
   }
 }
