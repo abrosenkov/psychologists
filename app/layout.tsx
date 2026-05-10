@@ -54,7 +54,46 @@ export default function RootLayout({
           <AuthListener />
           <Header />
           {children}
-          <Toaster position="top-right" reverseOrder={false} />
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+            gutter={10}
+            containerClassName="toastContainer"
+            toastOptions={{
+              duration: 4200,
+              className: "appToast",
+              style: {
+                width: "min(420px, calc(100vw - 40px))",
+                maxWidth: "calc(100vw - 40px)",
+                background: "#ffffff",
+                color: "#191a15",
+                border: "1px solid rgba(25, 26, 21, 0.08)",
+                boxShadow: "0 18px 50px rgba(17, 24, 39, 0.14)",
+              },
+              success: {
+                className: "appToast appToastSuccess",
+                iconTheme: {
+                  primary: "#16a34a",
+                  secondary: "#ffffff",
+                },
+              },
+              error: {
+                className: "appToast appToastError",
+                duration: 5200,
+                iconTheme: {
+                  primary: "#dc2626",
+                  secondary: "#ffffff",
+                },
+              },
+              loading: {
+                className: "appToast appToastLoading",
+                iconTheme: {
+                  primary: "#54be96",
+                  secondary: "#ffffff",
+                },
+              },
+            }}
+          />
         </TanStackProvider>
       </body>
     </html>

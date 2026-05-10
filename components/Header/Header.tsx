@@ -25,6 +25,7 @@ export default function Header() {
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
   const role = useAuthStore((state) => state.role);
+  const isAdminActive = pathname === "/admin" || pathname.startsWith("/admin/");
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -114,11 +115,8 @@ export default function Header() {
                 <li>
                   <Link
                     href="/admin"
-                    className={clsx(
-                      css.link,
-                      pathname === "/admin" && css.active
-                    )}
-                    aria-current={pathname === "/admin" ? "page" : undefined}
+                    className={clsx(css.link, isAdminActive && css.active)}
+                    aria-current={isAdminActive ? "page" : undefined}
                   >
                     Admin
                   </Link>
@@ -188,8 +186,8 @@ export default function Header() {
               <Link
                 href="/admin"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={clsx(css.link, pathname === "/admin" && css.active)}
-                aria-current={pathname === "/admin" ? "page" : undefined}
+                className={clsx(css.link, isAdminActive && css.active)}
+                aria-current={isAdminActive ? "page" : undefined}
               >
                 Admin
               </Link>

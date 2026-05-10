@@ -5,7 +5,7 @@
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import css from "./PsychologistCard.module.css";
-import { FaHeart, FaStar, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaStar, FaRegHeart, FaRegStar } from "react-icons/fa";
 import { Button } from "../UI/Button/Button";
 import { Psychologist } from "@/types/psychologist";
 import AppointmentForm from "../AppointmentForm/AppointmentForm";
@@ -72,13 +72,34 @@ export default function PsychologistCard({
     setIsOpen(true);
   };
 
+  const handleReviewOpen = () => {
+    if (!user) {
+      toast.error("Please log in or register to leave a review.");
+      return;
+    }
+
+    setIsReviewOpen(true);
+  };
+
   const handleReviewSubmit = async () => {
+    if (!user) {
+      toast.error("Please log in or register to leave a review.");
+      return;
+    }
+
+    const trimmedComment = reviewForm.comment.trim();
+
+    if (!trimmedComment) {
+      toast.error("Please write your review before submitting.");
+      return;
+    }
+
     const reviewRef = push(ref(db, `psychologists/${psychologist.id}/reviews`));
 
     await set(reviewRef, {
       userName: user?.displayName || user?.email || "Anonymous",
       rating: Number(reviewForm.rating),
-      text: reviewForm.comment,
+      text: trimmedComment,
       status: "pending",
       createdAt: Date.now(),
     });
@@ -91,6 +112,7 @@ export default function PsychologistCard({
     });
 
     setIsReviewOpen(false);
+    toast.success("Review sent for moderation.");
   };
 
   const approvedReviews = useMemo(
@@ -203,7 +225,7 @@ export default function PsychologistCard({
               Make an appointment
             </Button>
             <Button
-              onClick={() => setIsReviewOpen(true)}
+              onClick={handleReviewOpen}
               className={css.reviewBtn}
               type="button"
             >
@@ -222,19 +244,31 @@ export default function PsychologistCard({
               <div className={css.reviewModal}>
                 <h2>Leave review</h2>
 
-                <input
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={reviewForm.rating}
-                  onChange={(e) =>
-                    setReviewForm({
-                      ...reviewForm,
-                      rating: e.target.value,
-                    })
-                  }
-                  placeholder="Rating"
-                />
+                <div className={css.ratingPicker} role="radiogroup" aria-label="Rating">
+                  {[1, 2, 3, 4, 5].map((value) => {
+                    const isSelected = Number(reviewForm.rating) >= value;
+
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        className={css.ratingStarButton}
+                        aria-label={`${value} star${value > 1 ? "s" : ""}`}
+                        aria-checked={Number(reviewForm.rating) === value}
+                        role="radio"
+                        onClick={() =>
+                          setReviewForm({
+                            ...reviewForm,
+                            rating: String(value),
+                          })
+                        }
+                      >
+                        {isSelected ? <FaStar /> : <FaRegStar />}
+                      </button>
+                    );
+                  })}
+                  <span className={css.ratingLabel}>{reviewForm.rating}/5</span>
+                </div>
 
                 <textarea
                   placeholder="Your review"

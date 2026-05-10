@@ -36,7 +36,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       onLogout();
       router.push("/");
 
-      toast.success("Logged out successfully 👋");
+      toast.success("You have been logged out.");
     } catch {
       toast.error("Failed to log out. Try again.");
     } finally {
