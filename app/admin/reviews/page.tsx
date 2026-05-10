@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { db } from "@/lib/firebase";
 import { get, ref, update } from "firebase/database";
 import css from "./page.module.css";
@@ -15,11 +15,19 @@ interface ReviewItem {
   rating: number;
   text: string;
   status: "pending" | "approved" | "rejected";
+  createdAt: number;
 }
+
+type ReviewStatusFilter = "all" | ReviewItem["status"];
+type ReviewSort = "newest" | "oldest" | "rating-desc" | "rating-asc" | "name";
 
 export default function AdminReviewsPage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<ReviewStatusFilter>("all");
+  const [psychologistFilter, setPsychologistFilter] = useState("all");
+  const [sort, setSort] = useState<ReviewSort>("newest");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     loadReviews();
@@ -53,6 +61,7 @@ export default function AdminReviewsPage() {
             rating: current.rating || 5,
             text: current.text || current.comment || "",
             status: current.status || "approved",
+            createdAt: current.createdAt || 0,
           });
         });
       });
@@ -84,6 +93,67 @@ export default function AdminReviewsPage() {
     );
   };
 
+  const psychologistOptions = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          items.map((item) => [
+            item.psychologistId,
+            {
+              id: item.psychologistId,
+              name: item.psychologistName,
+            },
+          ])
+        ).values()
+      ).sort((a, b) => a.name.localeCompare(b.name)),
+    [items]
+  );
+
+  const visibleItems = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return items
+      .filter((item) => {
+        if (statusFilter !== "all" && item.status !== statusFilter) {
+          return false;
+        }
+
+        if (
+          psychologistFilter !== "all" &&
+          item.psychologistId !== psychologistFilter
+        ) {
+          return false;
+        }
+
+        if (!normalizedQuery) return true;
+
+        return [
+          item.userName,
+          item.psychologistName,
+          item.text,
+          String(item.rating),
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery);
+      })
+      .sort((a, b) => {
+        switch (sort) {
+          case "oldest":
+            return a.createdAt - b.createdAt;
+          case "rating-desc":
+            return b.rating - a.rating;
+          case "rating-asc":
+            return a.rating - b.rating;
+          case "name":
+            return a.psychologistName.localeCompare(b.psychologistName);
+          case "newest":
+          default:
+            return b.createdAt - a.createdAt;
+        }
+      });
+  }, [items, psychologistFilter, query, sort, statusFilter]);
+
   if (loading) {
     return <Loader />;
   }
@@ -97,8 +167,70 @@ export default function AdminReviewsPage() {
         </div>
       </div>
 
+      <section className={css.controls} aria-label="Review filters">
+        <div className={css.searchBox}>
+          <span>Search</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Name, psychologist, review text"
+          />
+        </div>
+
+        <div className={css.filterGroup}>
+          <span>Status</span>
+          <div className={css.statusFilters}>
+            {["all", "pending", "approved", "rejected"].map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setStatusFilter(status as ReviewStatusFilter)}
+                className={
+                  statusFilter === status ? css.activeFilter : css.filterBtn
+                }
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <label className={css.controlField}>
+          Psychologist
+          <select
+            value={psychologistFilter}
+            onChange={(event) => setPsychologistFilter(event.target.value)}
+          >
+            <option value="all">All psychologists</option>
+            {psychologistOptions.map((psychologist) => (
+              <option key={psychologist.id} value={psychologist.id}>
+                {psychologist.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className={css.controlField}>
+          Sort by
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value as ReviewSort)}
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="rating-desc">Highest rating</option>
+            <option value="rating-asc">Lowest rating</option>
+            <option value="name">Psychologist name</option>
+          </select>
+        </label>
+      </section>
+
       <div className={css.list}>
-        {items.map((item) => (
+        {visibleItems.length === 0 && (
+          <div className={css.emptyState}>No reviews match these filters.</div>
+        )}
+
+        {visibleItems.map((item) => (
           <div key={item.psychologistId + item.id} className={css.card}>
             <div className={css.info}>
               <div className={css.headerRow}>

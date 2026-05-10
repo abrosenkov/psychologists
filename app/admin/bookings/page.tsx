@@ -6,6 +6,8 @@ import { get, ref, update } from "firebase/database";
 import toast from "react-hot-toast";
 import {
   LuCalendar,
+  LuCheck,
+  LuChevronDown,
   LuChevronLeft,
   LuChevronRight,
 } from "react-icons/lu";
@@ -113,6 +115,7 @@ export default function AdminBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [selectedPsychologistId, setSelectedPsychologistId] = useState("");
+  const [isPsychologistOpen, setIsPsychologistOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(today);
   const [isDateOpen, setIsDateOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => {
@@ -122,6 +125,7 @@ export default function AdminBookingsPage() {
   const [availability, setAvailability] =
     useState<Availability>(initialAvailability);
   const datePickerRef = useRef<HTMLLabelElement>(null);
+  const psychologistSelectRef = useRef<HTMLLabelElement>(null);
 
   useEffect(() => {
     loadBookings();
@@ -134,27 +138,37 @@ export default function AdminBookingsPage() {
   }, [selectedPsychologistId]);
 
   useEffect(() => {
-    if (!isDateOpen) return;
+    if (!isDateOpen && !isPsychologistOpen) return;
 
     const handleClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+
       if (
         datePickerRef.current &&
-        !datePickerRef.current.contains(event.target as Node)
+        !datePickerRef.current.contains(target)
       ) {
         setIsDateOpen(false);
+      }
+
+      if (
+        psychologistSelectRef.current &&
+        !psychologistSelectRef.current.contains(target)
+      ) {
+        setIsPsychologistOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClick);
 
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [isDateOpen]);
+  }, [isDateOpen, isPsychologistOpen]);
 
   const handleDateOpen = () => {
     const date = parseDateKey(selectedDate) ?? new Date();
 
     setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
     setIsDateOpen((isOpen) => !isOpen);
+    setIsPsychologistOpen(false);
   };
 
   const loadBookings = async () => {
@@ -291,6 +305,8 @@ export default function AdminBookingsPage() {
   const isSelectedDayClosed = Boolean(availability.closedDays[selectedDate]);
   const calendarDays = getCalendarDays(calendarMonth);
   const todayKey = today();
+  const selectedPsychologist =
+    psychologists.find((item) => item.id === selectedPsychologistId) || null;
 
   if (loading) {
     return <Loader />;
@@ -336,18 +352,45 @@ export default function AdminBookingsPage() {
         </div>
 
         <div className={css.availabilityControls}>
-          <label>
+          <label className={css.customSelect} ref={psychologistSelectRef}>
             Psychologist
-            <select
-              value={selectedPsychologistId}
-              onChange={(event) => setSelectedPsychologistId(event.target.value)}
+            <button
+              type="button"
+              className={css.selectButton}
+              onClick={() => {
+                setIsPsychologistOpen((isOpen) => !isOpen);
+                setIsDateOpen(false);
+              }}
+              aria-expanded={isPsychologistOpen}
             >
-              {psychologists.map((psychologist) => (
-                <option key={psychologist.id} value={psychologist.id}>
-                  {psychologist.name}
-                </option>
-              ))}
-            </select>
+              <span>{selectedPsychologist?.name || "Select psychologist"}</span>
+              <LuChevronDown className={css.selectIcon} />
+            </button>
+
+            {isPsychologistOpen && (
+              <div className={css.selectDropdown}>
+                {psychologists.map((psychologist) => {
+                  const isSelected = psychologist.id === selectedPsychologistId;
+
+                  return (
+                    <button
+                      key={psychologist.id}
+                      type="button"
+                      className={
+                        isSelected ? css.selectOptionActive : css.selectOption
+                      }
+                      onClick={() => {
+                        setSelectedPsychologistId(psychologist.id);
+                        setIsPsychologistOpen(false);
+                      }}
+                    >
+                      <span>{psychologist.name}</span>
+                      {isSelected && <LuCheck className={css.optionCheck} />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </label>
 
           <label className={css.datePicker} ref={datePickerRef}>

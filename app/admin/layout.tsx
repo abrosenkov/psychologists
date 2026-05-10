@@ -37,6 +37,16 @@ export default function AdminLayout({
     return null;
   }
 
+  const getLinkClassName = (href: string) => {
+    if (href === "/admin") {
+      return pathname === "/admin" ? css.activeLink : css.link;
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`)
+      ? css.activeLink
+      : css.link;
+  };
+
   return (
     <div className={css.wrapper}>
       <aside className={css.sidebar}>
@@ -45,32 +55,28 @@ export default function AdminLayout({
         <nav className={css.nav}>
           <Link
             href="/admin"
-            className={pathname === "/admin" ? css.activeLink : css.link}
+            className={getLinkClassName("/admin")}
           >
             Dashboard
           </Link>
 
           <Link
             href="/admin/psychologists"
-            className={
-              pathname === "/admin/psychologists" ? css.activeLink : css.link
-            }
+            className={getLinkClassName("/admin/psychologists")}
           >
             Psychologists
           </Link>
 
           <Link
             href="/admin/bookings"
-            className={
-              pathname === "/admin/bookings" ? css.activeLink : css.link
-            }
+            className={getLinkClassName("/admin/bookings")}
           >
             Bookings
           </Link>
 
           <Link
             href="/admin/reviews"
-            className={pathname === "/admin/reviews" ? css.activeLink : css.link}
+            className={getLinkClassName("/admin/reviews")}
           >
             Reviews
           </Link>
