@@ -8,7 +8,7 @@
 }
 
 .title {
-  font-size: 40px;
+  font-size: 28px;
   font-weight: 500;
   line-height: 1.2;
   color: #191a15;
@@ -19,14 +19,14 @@
   color: rgba(25, 26, 21, 0.5);
   font-size: 16px;
   line-height: 1.5;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .psychologist {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .avatar {
@@ -69,6 +69,7 @@
 .fieldBox {
   position: relative;
   width: 100%;
+  min-width: 0;
 }
 
 .timeEmail {
@@ -79,11 +80,14 @@
 
 .input, .textarea {
   width: 100%;
+  min-width: 0;
   padding: 16px 18px;
   border-radius: 12px;
   border: 1px solid rgba(25, 26, 21, 0.1);
   font-size: 16px;
+  line-height: 1.25;
   color: #191a15;
+  background: #ffffff;
   outline: none;
   transition: border-color 0.2s ease;
 }
@@ -110,6 +114,145 @@
 .timePicker {
   position: relative;
   width: 100%;
+}
+
+.dateButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 54px;
+  text-align: left;
+}
+
+.dateIcon {
+  flex: 0 0 auto;
+  color: #191a15;
+}
+
+.calendarDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 120;
+  width: min(328px, calc(100vw - 64px));
+  padding: 16px;
+  border: 1px solid rgba(25, 26, 21, 0.08);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 20px 69px rgba(0, 0, 0, 0.12);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.calendarTitle {
+  color: #191a15;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.calendarNav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 1px solid rgba(25, 26, 21, 0.08);
+  border-radius: 50%;
+  color: #191a15;
+  background: #ffffff;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.calendarNav:hover,
+.calendarNav:focus-visible {
+  border-color: #54be96;
+  color: #54be96;
+  outline: none;
+}
+
+.weekDays,
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.weekDays {
+  margin-bottom: 8px;
+}
+
+.weekDays span {
+  color: rgba(25, 26, 21, 0.45);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+}
+
+.calendarDay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 10px;
+  color: #191a15;
+  background: #f8f8f8;
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.calendarDay:hover:not(:disabled),
+.calendarDay:focus-visible:not(:disabled) {
+  color: #ffffff;
+  background: #54be96;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.calendarDayMuted {
+  color: rgba(25, 26, 21, 0.35);
+  background: #fbfbfb;
+}
+
+.calendarDaySelected {
+  color: #ffffff;
+  background: #54be96;
+}
+
+.calendarDayClosed {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.calendarDay:disabled {
+  color: rgba(25, 26, 21, 0.22);
+  background: #f3f3f3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.calendarDayClosed:disabled {
+  color: #ef4444;
+  background: #fef2f2;
+  opacity: 0.75;
 }
 
 .closedNotice {
@@ -227,7 +370,20 @@
 }
 
 @media screen and (min-width: 768px) {
+  .title {
+    font-size: 40px;
+  }
+
+  .text,
+  .psychologist {
+    margin-bottom: 40px;
+  }
+
   .timeEmail {
   flex-direction: row;
 }
+
+  .calendarDropdown {
+    width: 328px;
+  }
 }
