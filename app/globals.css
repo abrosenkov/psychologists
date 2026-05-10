@@ -81,11 +81,63 @@ h6 {
   color: #fff;
 }
 
+.toastContainer {
+  top: 20px !important;
+  right: 20px !important;
+  left: 20px !important;
+  pointer-events: none;
+}
+
+.appToast {
+  width: min(420px, calc(100vw - 40px));
+  max-width: calc(100vw - 40px);
+  min-height: 56px;
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+  font-family: var(--font-inter), sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: break-word;
+  word-break: normal;
+  pointer-events: auto;
+}
+
+.appToast > div:first-child {
+  flex: 0 0 auto;
+}
+
+.appToast [role="status"] {
+  flex: 1;
+  width: min(300px, calc(100vw - 104px));
+  min-width: min(240px, calc(100vw - 104px));
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.appToastSuccess {
+  border-left: 4px solid #16a34a !important;
+}
+
+.appToastError {
+  border-left: 4px solid #dc2626 !important;
+}
+
+.appToastLoading {
+  border-left: 4px solid #54be96 !important;
+}
+
 @media screen and (min-width: 768px) {
   .container {
   max-width: 768px;
   padding: 0 32px;
 }
+
+  .toastContainer {
+    left: auto !important;
+  }
 }
 
 @media screen and (min-width: 1440px) {

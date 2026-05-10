@@ -73,7 +73,7 @@ export default function PsychologistsListWrapper({
   const user = useAuthStore((state) => state.user);
 
   const handleGuestToggle = () => {
-    toast.error("Login first");
+    toast.error("Please log in to save psychologists to favorites.");
   };
 
   if (!user) {

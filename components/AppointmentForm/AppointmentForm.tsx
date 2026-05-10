@@ -231,7 +231,7 @@ export default function AppointmentForm({
     values: AppointmentFormValues,
     { setSubmitting, resetForm }: FormikHelpers<AppointmentFormValues>
   ) => {
-    if (!user) return toast.error("Please log in first");
+    if (!user) return toast.error("Please log in to book an appointment.");
 
     const selectedDate = values.date;
     const selectedTime = normalizeTime(values.time);
@@ -276,11 +276,11 @@ export default function AppointmentForm({
       };
       setDraft(initialValues);
 
-      toast.success("Appointment booked!");
+      toast.success("Appointment request sent successfully.");
       resetForm({ values: initialValues });
       onClose();
     } catch {
-      toast.error("Error booking");
+      toast.error("Failed to book the appointment. Please try again.");
     } finally {
       setSubmitting(false);
     }

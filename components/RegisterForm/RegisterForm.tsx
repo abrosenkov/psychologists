@@ -62,7 +62,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
               createdAt: Date.now(),
             });
 
-            toast.success("Account created successfully 🎉");
+            toast.success("Account created successfully.");
             onSuccess();
           } catch (error) {
             const authError = error as AuthError;
@@ -71,7 +71,8 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
               "auth/email-already-in-use": "This email is already registered",
               "auth/invalid-email": "Invalid email address",
               "auth/weak-password": "Password should be at least 8 characters",
-              "auth/too-many-requests": "Too many attempts. Try later",
+              "auth/too-many-requests":
+                "Too many attempts. Please try again later.",
             };
 
             toast.error(errorMap[authError.code] || "Registration failed");
