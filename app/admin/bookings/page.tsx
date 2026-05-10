@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { db } from "@/lib/firebase";
 import { get, ref, update } from "firebase/database";
 import toast from "react-hot-toast";
+import {
+  LuCalendar,
+  LuChevronLeft,
+  LuChevronRight,
+} from "react-icons/lu";
 import Loader from "@/components/Loader/Loader";
 import {
   getAvailability,
@@ -35,7 +40,56 @@ const initialAvailability: Availability = {
   closedSlots: {},
 };
 
-const today = () => new Date().toISOString().split("T")[0];
+const weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+const monthFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+});
+
+const selectedDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+const toDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const today = () => toDateKey(new Date());
+
+const parseDateKey = (value: string) => {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) return null;
+
+  return new Date(year, month - 1, day);
+};
+
+const getCalendarDays = (monthDate: Date) => {
+  const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const startDate = new Date(firstDay);
+
+  startDate.setDate(firstDay.getDate() - startOffset);
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + index);
+    return date;
+  });
+};
+
+const formatSelectedDate = (value: string) => {
+  const date = parseDateKey(value);
+
+  return date ? selectedDateFormatter.format(date) : "Select date";
+};
 
 const getFirebaseErrorMessage = (error: unknown) => {
   const code =
@@ -60,8 +114,14 @@ export default function AdminBookingsPage() {
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [selectedPsychologistId, setSelectedPsychologistId] = useState("");
   const [selectedDate, setSelectedDate] = useState(today);
+  const [isDateOpen, setIsDateOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const currentDate = new Date();
+    return new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  });
   const [availability, setAvailability] =
     useState<Availability>(initialAvailability);
+  const datePickerRef = useRef<HTMLLabelElement>(null);
 
   useEffect(() => {
     loadBookings();
@@ -72,6 +132,30 @@ export default function AdminBookingsPage() {
 
     loadAvailability(selectedPsychologistId);
   }, [selectedPsychologistId]);
+
+  useEffect(() => {
+    if (!isDateOpen) return;
+
+    const handleClick = (event: MouseEvent) => {
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(event.target as Node)
+      ) {
+        setIsDateOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClick);
+
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [isDateOpen]);
+
+  const handleDateOpen = () => {
+    const date = parseDateKey(selectedDate) ?? new Date();
+
+    setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    setIsDateOpen((isOpen) => !isOpen);
+  };
 
   const loadBookings = async () => {
     try {
@@ -205,6 +289,8 @@ export default function AdminBookingsPage() {
   );
 
   const isSelectedDayClosed = Boolean(availability.closedDays[selectedDate]);
+  const calendarDays = getCalendarDays(calendarMonth);
+  const todayKey = today();
 
   if (loading) {
     return <Loader />;
@@ -264,14 +350,101 @@ export default function AdminBookingsPage() {
             </select>
           </label>
 
-          <label>
+          <label className={css.datePicker} ref={datePickerRef}>
             Date
-            <input
-              type="date"
-              min={today()}
-              value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
-            />
+            <button
+              type="button"
+              className={css.dateButton}
+              onClick={handleDateOpen}
+              aria-expanded={isDateOpen}
+            >
+              <span>{formatSelectedDate(selectedDate)}</span>
+              <LuCalendar className={css.dateIcon} />
+            </button>
+
+            {isDateOpen && (
+              <div className={css.calendarDropdown}>
+                <div className={css.calendarHeader}>
+                  <button
+                    type="button"
+                    className={css.calendarNav}
+                    aria-label="Previous month"
+                    onClick={() =>
+                      setCalendarMonth(
+                        new Date(
+                          calendarMonth.getFullYear(),
+                          calendarMonth.getMonth() - 1,
+                          1
+                        )
+                      )
+                    }
+                  >
+                    <LuChevronLeft />
+                  </button>
+                  <p className={css.calendarTitle}>
+                    {monthFormatter.format(calendarMonth)}
+                  </p>
+                  <button
+                    type="button"
+                    className={css.calendarNav}
+                    aria-label="Next month"
+                    onClick={() =>
+                      setCalendarMonth(
+                        new Date(
+                          calendarMonth.getFullYear(),
+                          calendarMonth.getMonth() + 1,
+                          1
+                        )
+                      )
+                    }
+                  >
+                    <LuChevronRight />
+                  </button>
+                </div>
+
+                <div className={css.weekDays}>
+                  {weekDays.map((day) => (
+                    <span key={day}>{day}</span>
+                  ))}
+                </div>
+
+                <div className={css.calendarGrid}>
+                  {calendarDays.map((date) => {
+                    const dateKey = toDateKey(date);
+                    const isOutsideMonth =
+                      date.getMonth() !== calendarMonth.getMonth();
+                    const isPast = dateKey < todayKey;
+                    const isSelected = dateKey === selectedDate;
+                    const isClosed = Boolean(availability.closedDays[dateKey]);
+
+                    return (
+                      <button
+                        key={dateKey}
+                        type="button"
+                        className={
+                          [
+                            css.calendarDay,
+                            isOutsideMonth ? css.calendarDayMuted : "",
+                            isSelected ? css.calendarDaySelected : "",
+                            isClosed ? css.calendarDayClosed : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")
+                        }
+                        disabled={isPast}
+                        title={isClosed ? "Closed day" : undefined}
+                        onClick={() => {
+                          setSelectedDate(dateKey);
+                          setIsDateOpen(false);
+                        }}
+                      >
+                        {date.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </label>
         </div>
 
