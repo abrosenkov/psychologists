@@ -125,12 +125,12 @@ describe("filterPsychologists", () => {
 });
 
 describe("sortKeyForListing", () => {
-  it("maps popular to rating-desc", () => {
-    expect(sortKeyForListing("name-asc", "popular")).toBe("rating-desc");
+  it("keeps selected sort when rating filter is active", () => {
+    expect(sortKeyForListing("name-asc", "popular")).toBe("name-asc");
   });
 
-  it("maps not-popular to rating-asc", () => {
-    expect(sortKeyForListing("name-asc", "not-popular")).toBe("rating-asc");
+  it("uses default sort when URL sort is empty", () => {
+    expect(sortKeyForListing("", "not-popular")).toBe("name-asc");
   });
 
   it("uses URL sort when no rating filter", () => {

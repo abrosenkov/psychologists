@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { db } from "@/lib/firebase";
-import { get, ref, update } from "firebase/database";
+import { get, ref, remove, update } from "firebase/database";
 import css from "./page.module.css";
 import { recalculatePsychologistRating } from "@/lib/reviewRating";
 import Loader from "@/components/Loader/Loader";
+import Modal from "@/components/Modal/Modal";
+import toast from "react-hot-toast";
 
 interface ReviewItem {
   id: string;
@@ -28,6 +30,8 @@ export default function AdminReviewsPage() {
   const [psychologistFilter, setPsychologistFilter] = useState("all");
   const [sort, setSort] = useState<ReviewSort>("newest");
   const [query, setQuery] = useState("");
+  const [reviewToDelete, setReviewToDelete] = useState<ReviewItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadReviews();
@@ -91,6 +95,39 @@ export default function AdminReviewsPage() {
           : item
       )
     );
+  };
+
+  const deleteReview = async () => {
+    if (!reviewToDelete) return;
+
+    setIsDeleting(true);
+
+    try {
+      await remove(
+        ref(
+          db,
+          `psychologists/${reviewToDelete.psychologistId}/reviews/${reviewToDelete.id}`
+        )
+      );
+
+      await recalculatePsychologistRating(reviewToDelete.psychologistId);
+
+      setItems((prev) =>
+        prev.filter(
+          (item) =>
+            !(
+              item.id === reviewToDelete.id &&
+              item.psychologistId === reviewToDelete.psychologistId
+            )
+        )
+      );
+      setReviewToDelete(null);
+      toast.success("Review deleted.");
+    } catch {
+      toast.error("Failed to delete review.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const psychologistOptions = useMemo(
@@ -269,10 +306,51 @@ export default function AdminReviewsPage() {
               >
                 Reject
               </button>
+
+              <button
+                type="button"
+                onClick={() => setReviewToDelete(item)}
+                className={css.deleteBtn}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      <Modal
+        isOpen={Boolean(reviewToDelete)}
+        onCloseModal={() => !isDeleting && setReviewToDelete(null)}
+      >
+        <div className={css.confirmModal}>
+          <h2>Delete review?</h2>
+          <p>
+            This will permanently remove the review from{" "}
+            {reviewToDelete?.psychologistName}.
+          </p>
+
+          <div className={css.confirmActions}>
+            <button
+              type="button"
+              className={css.deleteConfirmBtn}
+              onClick={deleteReview}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+
+            <button
+              type="button"
+              className={css.cancelBtn}
+              onClick={() => setReviewToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

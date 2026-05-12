@@ -31,6 +31,38 @@ export default function Header() {
   const loading = useAuthStore((state) => state.loading);
   const role = useAuthStore((state) => state.role);
   const isAdminActive = pathname === "/admin" || pathname.startsWith("/admin/");
+  const shouldHideHeader = !isMobileMenuOpen && !isHeaderVisible;
+
+  useEffect(() => {
+    const updateHeaderOffset = () => {
+      const headerHeight = headerRef.current?.offsetHeight ?? 96;
+      const headerOffset = shouldHideHeader ? 0 : headerHeight;
+
+      document.documentElement.style.setProperty(
+        "--app-header-height",
+        `${headerHeight}px`
+      );
+      document.documentElement.style.setProperty(
+        "--app-header-visible-offset",
+        `${headerOffset}px`
+      );
+    };
+
+    updateHeaderOffset();
+    window.addEventListener("resize", updateHeaderOffset);
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined" && headerRef.current
+        ? new ResizeObserver(updateHeaderOffset)
+        : null;
+
+    resizeObserver?.observe(headerRef.current as HTMLDivElement);
+
+    return () => {
+      window.removeEventListener("resize", updateHeaderOffset);
+      resizeObserver?.disconnect();
+    };
+  }, [shouldHideHeader]);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -98,8 +130,6 @@ export default function Header() {
     setIsMobileMenuOpen(false);
   };
 
-  const shouldHideHeader = !isMobileMenuOpen && !isHeaderVisible;
-
   return (
     <div
       ref={headerRef}
@@ -159,20 +189,36 @@ export default function Header() {
               {loading
                 ? null
                 : user && (
-                    <li>
-                      <Link
-                        href="/favorites"
-                        className={clsx(
-                          css.link,
-                          pathname === "/favorites" && css.active
-                        )}
-                        aria-current={
-                          pathname === "/favorites" ? "page" : undefined
-                        }
-                      >
-                        Favorites
-                      </Link>
-                    </li>
+                    <>
+                      <li>
+                        <Link
+                          href="/favorites"
+                          className={clsx(
+                            css.link,
+                            pathname === "/favorites" && css.active
+                          )}
+                          aria-current={
+                            pathname === "/favorites" ? "page" : undefined
+                          }
+                        >
+                          Favorites
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/profile"
+                          className={clsx(
+                            css.link,
+                            pathname === "/profile" && css.active
+                          )}
+                          aria-current={
+                            pathname === "/profile" ? "page" : undefined
+                          }
+                        >
+                          Profile
+                        </Link>
+                      </li>
+                    </>
                   )}
               {!loading && user && role === "admin" && (
                 <li>
@@ -229,31 +275,50 @@ export default function Header() {
             {loading
               ? null
               : user && (
-                  <li>
-                    <Link
-                      href="/favorites"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={clsx(
-                        css.link,
-                        pathname === "/favorites" && css.active
-                      )}
-                      aria-current={
-                        pathname === "/favorites" ? "page" : undefined
-                      }
-                    >
-                      Favorites
-                    </Link>
-                  </li>
+                  <>
+                    <li>
+                      <Link
+                        href="/favorites"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={clsx(
+                          css.link,
+                          pathname === "/favorites" && css.active
+                        )}
+                        aria-current={
+                          pathname === "/favorites" ? "page" : undefined
+                        }
+                      >
+                        Favorites
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={clsx(
+                          css.link,
+                          pathname === "/profile" && css.active
+                        )}
+                        aria-current={
+                          pathname === "/profile" ? "page" : undefined
+                        }
+                      >
+                        Profile
+                      </Link>
+                    </li>
+                  </>
                 )}
             {!loading && user && role === "admin" && (
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={clsx(css.link, isAdminActive && css.active)}
-                aria-current={isAdminActive ? "page" : undefined}
-              >
-                Admin
-              </Link>
+              <li>
+                <Link
+                  href="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={clsx(css.link, isAdminActive && css.active)}
+                  aria-current={isAdminActive ? "page" : undefined}
+                >
+                  Admin
+                </Link>
+              </li>
             )}
           </ul>
         </nav>

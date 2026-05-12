@@ -4,15 +4,15 @@
   flex-direction: column;
   position: relative;
   background-color: #fbfbfb;
-  border-radius: 24px;
-  padding: 24px;
-  gap: 24px;
+  border-radius: 18px;
+  padding: 16px;
+  gap: 14px;
 }
 
 .avatarWrapper {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 92px;
+  height: 92px;
   flex: 0 0 auto;
 }
 
@@ -21,15 +21,15 @@
   align-items: center;
   justify-content: center;
   border: 2px solid rgba(84, 190, 150, 0.2);
-  border-radius: 30px;
-  width: 120px;
-  height: 120px;
+  border-radius: 22px;
+  width: 92px;
+  height: 92px;
 }
 
 .avatarImage {
-  width: 96px;
-  height: 96px;
-  border-radius: 15px;
+  width: 76px;
+  height: 76px;
+  border-radius: 13px;
   object-fit: cover;
 }
 
@@ -37,21 +37,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 96px;
-  height: 96px;
-  border-radius: 15px;
+  width: 76px;
+  height: 76px;
+  border-radius: 13px;
   background: rgba(84, 190, 150, 0.2);
   color: #54be96;
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 600;
 }
 
 .onlineBadge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 14px;
-  height: 14px;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
   background-color: #38cd3e;
   border: 2px solid #fbfbfb;
   border-radius: 50%;
@@ -66,31 +66,33 @@
   flex-direction: column-reverse;
   justify-content: space-between;
   align-items: start;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .metaInfo {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
+  padding-right: 40px;
 }
 
 .meta {
   font-weight: 500;
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.35;
   color: #191a15;
   display: flex;
   align-items: center;
-  gap: 5px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .metaRating {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .metaSeparator {
@@ -108,35 +110,35 @@
 .nameInfo {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .nameSubTitle {
   font-weight: 500;
-  font-size: 16px;
+  font-size: 14px;
   color: #8a8a89;
 }
 
 .name {
   font-weight: 500;
-  font-size: 24px;
+  font-size: 22px;
   color: #191a15;
 }
 
 .tags {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 4px;
-  margin-bottom: 24px;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .tag {
-  padding: 8px 16px;
+  padding: 8px 12px;
   background: #f3f3f3;
-  border-radius: 24px;
-  font-size: 16px;
+  border-radius: 14px;
+  font-size: 14px;
   color: #191a15;
-  line-height: 1.5;
+  line-height: 1.35;
   font-weight: 500;
 }
 
@@ -146,9 +148,9 @@
 
 .aboutText {
   font-weight: 400;
-  font-size: 16px;
+  font-size: 14px;
   color: rgba(25, 26, 21, 0.5);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .readMore {
@@ -159,8 +161,8 @@
   cursor: pointer;
   padding: 0;
   color: #191a15;
-  font-size: 16px;
-  margin-top: 14px;
+  font-size: 14px;
+  margin-top: 10px;
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -252,8 +254,8 @@
 }
 
 .favoriteButton {
-  top: 24px;
-  right:  24px;
+  top: 18px;
+  right:  18px;
   position: absolute;
   width: 26px;
   height: 26px;
@@ -321,7 +323,7 @@
 
 .reviewModal textarea {
   min-height: 120px;
-  resize: vertical;
+  resize: none;
 }
 
 .ratingPicker {
@@ -366,10 +368,102 @@
 @media screen and (min-width: 768px) {
   .card {
     flex-direction: row;
+    border-radius: 24px;
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .avatarWrapper,
+  .avatar {
+    width: 120px;
+    height: 120px;
+  }
+
+  .avatar {
+    border-radius: 30px;
+  }
+
+  .avatarImage,
+  .avatarPlaceholder {
+    width: 96px;
+    height: 96px;
+    border-radius: 15px;
+  }
+
+  .avatarPlaceholder {
+    font-size: 36px;
+  }
+
+  .onlineBadge {
+    top: 12px;
+    right: 12px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .cardHeader {
+    gap: 12px;
+    margin-bottom: 24px;
   }
 
   .meta {
+    flex-wrap: nowrap;
+    font-size: 16px;
+    line-height: 1.5;
     gap: 16px;
+  }
+
+  .metaRating {
+    gap: 8px;
+  }
+
+  .metaInfo {
+    gap: 28px;
+    padding-right: 0;
+  }
+
+  .nameInfo {
+    gap: 8px;
+  }
+
+  .nameSubTitle {
+    font-size: 16px;
+  }
+
+  .name {
+    font-size: 24px;
+  }
+
+  .tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 4px;
+    margin-bottom: 24px;
+  }
+
+  .tag {
+    padding: 8px 16px;
+    border-radius: 24px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .aboutText,
+  .readMore {
+    font-size: 16px;
+  }
+
+  .aboutText {
+    line-height: 1.5;
+  }
+
+  .readMore {
+    margin-top: 14px;
+  }
+
+  .favoriteButton {
+    top: 24px;
+    right: 24px;
   }
 
   .reviewBtn {

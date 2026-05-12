@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
   Formik,
   Form,
@@ -155,7 +155,14 @@ export default function AppointmentForm({
   onClose: () => void;
 }) {
   const user = useAuthStore((s) => s.user);
-  const { appointments, addAppointment, setAppointments, draft, setDraft } =
+  const {
+    appointments,
+    addAppointment,
+    setAppointments,
+    draft,
+    setDraft,
+    clearDraft,
+  } =
     useAppointmentStore();
 
   const [isTimeOpen, setIsTimeOpen] = useState(false);
@@ -170,6 +177,25 @@ export default function AppointmentForm({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const currentDate = getTodayKey();
+  const hasDraft = Boolean(
+    draft.name ||
+      draft.email ||
+      draft.phone !== "+380" ||
+      draft.date ||
+      draft.time ||
+      draft.comment
+  );
+  const initialFormValues = useMemo(
+    () => ({
+      name: hasDraft ? draft.name : user?.displayName || "",
+      email: hasDraft ? draft.email : user?.email || "",
+      phone: hasDraft ? draft.phone : "+380",
+      date: draft.date || currentDate,
+      time: draft.time || "",
+      comment: draft.comment || "",
+    }),
+    [currentDate, draft, hasDraft, user?.displayName, user?.email]
+  );
 
   useEffect(() => {
     const fetchSlots = async () => {
@@ -229,12 +255,19 @@ export default function AppointmentForm({
 
   const handleSubmit = async (
     values: AppointmentFormValues,
-    { setSubmitting, resetForm }: FormikHelpers<AppointmentFormValues>
+    { setSubmitting }: FormikHelpers<AppointmentFormValues>
   ) => {
     if (!user) return toast.error("Please log in to book an appointment.");
 
-    const selectedDate = values.date;
-    const selectedTime = normalizeTime(values.time);
+    const submissionValues = {
+      ...values,
+      name: values.name.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+      comment: values.comment.trim(),
+    };
+    const selectedDate = submissionValues.date;
+    const selectedTime = normalizeTime(submissionValues.time);
     const isDayClosed = Boolean(availability.closedDays[selectedDate]);
     const isSlotClosed = Boolean(
       availability.closedSlots[selectedDate]?.[timeKey(selectedTime)]
@@ -254,7 +287,7 @@ export default function AppointmentForm({
 
     try {
       await createAppointment(user.uid, {
-        ...values,
+        ...submissionValues,
         psychologistId: psychologist.id,
         date: selectedDate,
         time: selectedTime,
@@ -266,18 +299,9 @@ export default function AppointmentForm({
         date: selectedDate,
       });
 
-      const initialValues = {
-        name: "",
-        email: "",
-        phone: "+380",
-        date: "",
-        time: "",
-        comment: "",
-      };
-      setDraft(initialValues);
+      clearDraft();
 
       toast.success("Appointment request sent successfully.");
-      resetForm({ values: initialValues });
       onClose();
     } catch {
       toast.error("Failed to book the appointment. Please try again.");
@@ -289,14 +313,7 @@ export default function AppointmentForm({
   return (
     <div className={css.wrapper}>
       <Formik
-        initialValues={{
-          name: draft.name || user?.displayName || "",
-          email: draft.email || user?.email || "",
-          phone: draft.phone || "+380",
-          date: draft.date || currentDate,
-          time: draft.time || "",
-          comment: draft.comment || "",
-        }}
+        initialValues={initialFormValues}
         enableReinitialize={true}
         validationSchema={schema}
         onSubmit={handleSubmit}
