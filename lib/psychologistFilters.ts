@@ -122,12 +122,10 @@ export function sortPsychologists(
   return sorted;
 }
 
-/** Popular / not-popular filters imply sort by rating (high→low or low→high). */
+/** Catalog sort stays independent from active filters. */
 export function sortKeyForListing(
   sortFromUrl: string | undefined,
-  ratingFilter: string | undefined
+  _ratingFilter: string | undefined
 ): string {
-  if (ratingFilter === "popular") return "rating-desc";
-  if (ratingFilter === "not-popular") return "rating-asc";
   return sortFromUrl && sortFromUrl !== "" ? sortFromUrl : "name-asc";
 }

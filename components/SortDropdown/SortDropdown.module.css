@@ -1,94 +1,124 @@
-
 .wrapper {
-  position: relative;
-  width: 226px;
-  user-select: none;
+  width: 100%;
+  margin-bottom: 24px;
+  padding: 14px;
+  border: 1px solid rgba(25, 26, 21, 0.08);
+  border-radius: 16px;
+  background: #fbfbfb;
 }
 
-.labelTitle {
+.header {
   display: flex;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.3;
-  color: #8a8a89;
-  margin-bottom: 8px;
-}
-
-
-.selectHeader {
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.25;
-  color: #fbfbfb;
-  background-color: #54be96;
-  padding: 14px 18px;
-  border: none;
-  border-radius: 14px;
-  width: 226px;
-  cursor: pointer;
-  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title,
+.resetButton,
+.control span {
+  display: inline-flex;
   align-items: center;
-  text-align: left;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  gap: 6px;
 }
 
-.arrow {
+.title {
+  color: #191a15;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.title svg,
+.control span svg {
+  width: 16px;
+  height: 16px;
+}
+
+.resetButton {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #047857;
+  background: #ecfdf5;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.resetButton:hover:not(:disabled),
+.resetButton:focus-visible:not(:disabled) {
+  background: #d1fae5;
+  outline: none;
+}
+
+.resetButton:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.resetButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.control {
   display: flex;
-  align-items: center;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.arrowRotate {
-  transform: rotate(180deg);
-}
-
-.dropdown {
-  width: 226px;
-  display: flex;
-  gap: 8px;
+  min-width: 0;
   flex-direction: column;
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  border-radius: 14px;
-  box-shadow: 0 20px 69px 0 rgba(0, 0, 0, 0.07);
-  padding: 14px 18px;
-  list-style: none;
-  z-index: 100;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-15px);
-  transform-origin: top center;
-  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), visibility 0.3s;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.dropdownVisible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.option {
-  cursor: pointer;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 1.25;
-  color: rgba(25, 26, 21, 0.3);
-  transition: all 0.2s ease;
-}
-
-.option:hover {
+.control select {
+  width: 100%;
+  height: 44px;
+  padding: 0 38px 0 12px;
+  border: 1px solid rgba(25, 26, 21, 0.1);
+  border-radius: 12px;
+  appearance: none;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9L12 15L18 9' stroke='%23191A15' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
   color: #191a15;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.selected {
-  color: #191a15;
+.control select:focus {
+  border-color: #54be96;
+  box-shadow: 0 0 0 3px rgba(84, 190, 150, 0.14);
 }
 
-.selectHeader, .option {
-  -webkit-tap-highlight-color: transparent;
+@media screen and (min-width: 768px) {
+  .wrapper {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .wrapper {
+    margin-bottom: 32px;
+  }
 }

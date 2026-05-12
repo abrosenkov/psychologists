@@ -23,6 +23,7 @@ import {
 } from "firebase/database";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader/Loader";
+import Modal from "@/components/Modal/Modal";
 import { getPsychologistRating } from "@/lib/psychologistFilters";
 import {
   initialPsychologistFormDraft,
@@ -116,6 +117,9 @@ export default function AdminPsychologistsPage() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [psychologistToDelete, setPsychologistToDelete] =
+    useState<Psychologist | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { draft, setDraft, clearDraft } = usePsychologistFormStore();
 
@@ -197,17 +201,22 @@ export default function AdminPsychologistsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const confirmed = window.confirm("Delete psychologist?");
+  const handleDelete = async () => {
+    if (!psychologistToDelete) return;
 
-    if (!confirmed) return;
+    setIsDeleting(true);
 
     try {
-      await remove(databaseRef(db, `psychologists/${id}`));
-      setItems((prev) => prev.filter((item) => item.id !== id));
+      await remove(databaseRef(db, `psychologists/${psychologistToDelete.id}`));
+      setItems((prev) =>
+        prev.filter((item) => item.id !== psychologistToDelete.id)
+      );
+      setPsychologistToDelete(null);
       toast.success("Psychologist deleted.");
     } catch {
       toast.error("Failed to delete psychologist.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -274,7 +283,7 @@ export default function AdminPsychologistsPage() {
 
               <button
                 className={css.deleteBtn}
-                onClick={() => handleDelete(item.id)}
+                onClick={() => setPsychologistToDelete(item)}
               >
                 Delete
               </button>
@@ -283,8 +292,7 @@ export default function AdminPsychologistsPage() {
         ))}
       </div>
 
-      {isOpen && (
-        <div className={css.overlay}>
+      <Modal isOpen={isOpen} onCloseModal={closeModal}>
           <Formik
             key={editingId || "create"}
             initialValues={initialValues}
@@ -369,8 +377,40 @@ export default function AdminPsychologistsPage() {
               </Form>
             )}
           </Formik>
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(psychologistToDelete)}
+        onCloseModal={() => !isDeleting && setPsychologistToDelete(null)}
+      >
+        <div className={css.confirmModal}>
+          <h2>Delete psychologist?</h2>
+          <p>
+            This will permanently remove {psychologistToDelete?.name} and all
+            related reviews.
+          </p>
+
+          <div className={css.modalActions}>
+            <button
+              type="button"
+              className={css.deleteBtn}
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPsychologistToDelete(null)}
+              className={css.cancelBtn}
+              disabled={isDeleting}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

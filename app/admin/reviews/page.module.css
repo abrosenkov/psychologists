@@ -58,11 +58,20 @@
   padding: 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  background: #ffffff;
+  background-color: #ffffff;
   color: #191a15;
   font-size: 15px;
   outline: none;
   transition: border-color 0.2s ease;
+}
+
+.controlField select {
+  appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9L12 15L18 9' stroke='%23191A15' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
 }
 
 .searchBox input:focus,
@@ -171,7 +180,10 @@
 }
 
 .approveBtn,
-.rejectBtn {
+.rejectBtn,
+.deleteBtn,
+.deleteConfirmBtn,
+.cancelBtn {
   border: none;
   border-radius: 12px;
   padding: 10px 14px;
@@ -190,13 +202,30 @@
   color: #ef4444;
 }
 
+.deleteBtn,
+.deleteConfirmBtn {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.cancelBtn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
 .approveBtn:hover:not(:disabled),
-.rejectBtn:hover {
+.rejectBtn:hover:not(:disabled),
+.deleteBtn:hover:not(:disabled),
+.deleteConfirmBtn:hover:not(:disabled),
+.cancelBtn:hover:not(:disabled) {
   opacity: 0.92;
 }
 
 .approveBtn:disabled,
-.rejectBtn:disabled {
+.rejectBtn:disabled,
+.deleteBtn:disabled,
+.deleteConfirmBtn:disabled,
+.cancelBtn:disabled {
   opacity: 0.55;
   cursor: default;
 }
@@ -226,6 +255,33 @@
 .rejected {
   background: #fef2f2;
   color: #ef4444;
+}
+
+.confirmModal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.confirmModal h2 {
+  color: #191a15;
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.confirmModal p {
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.confirmActions button {
+  flex: 1;
 }
 
 @media screen and (max-width: 1280px) {
@@ -274,8 +330,16 @@
   }
 
   .approveBtn,
-  .rejectBtn {
+  .rejectBtn,
+  .deleteBtn {
     flex: 1;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .actions,
+  .confirmActions {
+    flex-direction: column;
   }
 }
 
