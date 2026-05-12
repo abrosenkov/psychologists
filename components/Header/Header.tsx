@@ -135,6 +135,7 @@ export default function Header() {
       ref={headerRef}
       className={clsx(
         css.headerWrapper,
+        isMobileMenuOpen && css.headerMenuOpen,
         shouldHideHeader && css.headerHidden
       )}
     >

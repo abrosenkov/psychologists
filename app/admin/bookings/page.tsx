@@ -12,6 +12,7 @@ import {
   LuChevronRight,
 } from "react-icons/lu";
 import Loader from "@/components/Loader/Loader";
+import Modal from "@/components/Modal/Modal";
 import {
   getAvailability,
   normalizeTime,
@@ -124,6 +125,7 @@ export default function AdminBookingsPage() {
   });
   const [availability, setAvailability] =
     useState<Availability>(initialAvailability);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const datePickerRef = useRef<HTMLLabelElement>(null);
   const psychologistSelectRef = useRef<HTMLLabelElement>(null);
 
@@ -238,6 +240,9 @@ export default function AdminBookingsPage() {
 
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status } : item))
+    );
+    setSelectedBooking((current) =>
+      current?.id === id ? { ...current, status } : current
     );
   };
 
@@ -511,9 +516,17 @@ export default function AdminBookingsPage() {
                       ? css.closedSlot
                       : css.openSlot
                 }
-                onClick={() => !booking && handleSlotToggle(time)}
-                disabled={Boolean(booking) || isSelectedDayClosed}
-                title={booking ? `Booked by ${booking.name}` : undefined}
+                onClick={() =>
+                  booking ? setSelectedBooking(booking) : handleSlotToggle(time)
+                }
+                disabled={!booking && isSelectedDayClosed}
+                title={
+                  booking
+                    ? `View booking for ${booking.name}`
+                    : isSelectedDayClosed
+                      ? "Day is closed"
+                      : undefined
+                }
               >
                 <span>{time}</span>
                 <small>
@@ -524,6 +537,72 @@ export default function AdminBookingsPage() {
           })}
         </div>
       </section>
+
+      <Modal
+        isOpen={Boolean(selectedBooking)}
+        onCloseModal={() => setSelectedBooking(null)}
+      >
+        {selectedBooking && (
+          <div className={css.bookingModal}>
+            <div className={css.bookingModalHeader}>
+              <div>
+                <span className={css.modalEyebrow}>Booking details</span>
+                <h2>{selectedBooking.name}</h2>
+              </div>
+              <span className={css[selectedBooking.status || "pending"]}>
+                {selectedBooking.status || "pending"}
+              </span>
+            </div>
+
+            <div className={css.detailGrid}>
+              <div>
+                <span>Psychologist</span>
+                <strong>{selectedBooking.psychologistName}</strong>
+              </div>
+              <div>
+                <span>Date</span>
+                <strong>
+                  {selectedBooking.date} at {normalizeTime(selectedBooking.time)}
+                </strong>
+              </div>
+              <div>
+                <span>Email</span>
+                <strong>{selectedBooking.email}</strong>
+              </div>
+              <div>
+                <span>Phone</span>
+                <strong>{selectedBooking.phone}</strong>
+              </div>
+            </div>
+
+            {selectedBooking.comment && (
+              <div className={css.modalComment}>
+                <span>Comment</span>
+                <p>{selectedBooking.comment}</p>
+              </div>
+            )}
+
+            <div className={css.modalActions}>
+              <button
+                type="button"
+                className={css.confirmBtn}
+                onClick={() => changeStatus(selectedBooking.id, "confirmed")}
+                disabled={selectedBooking.status === "confirmed"}
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                className={css.cancelBtn}
+                onClick={() => changeStatus(selectedBooking.id, "cancelled")}
+                disabled={selectedBooking.status === "cancelled"}
+              >
+                Cancel booking
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <div className={css.list}>
         {filteredItems.map((item) => {
