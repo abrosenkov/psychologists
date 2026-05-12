@@ -445,12 +445,17 @@
   border-color: #fde68a;
   background: #fffbeb;
   color: #b45309;
-  cursor: not-allowed;
+  cursor: pointer;
+}
+
+.bookedSlot:hover,
+.bookedSlot:focus-visible {
+  border-color: #f59e0b;
+  outline: none;
 }
 
 .openSlot:disabled,
-.closedSlot:disabled,
-.bookedSlot:disabled {
+.closedSlot:disabled {
   opacity: 0.62;
   cursor: not-allowed;
 }
@@ -589,6 +594,79 @@
   color: #ef4444;
 }
 
+.bookingModal {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bookingModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modalEyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #54be96;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bookingModalHeader h2 {
+  padding-right: 36px;
+  color: #191a15;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detailGrid div,
+.modalComment {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f8faf9;
+}
+
+.detailGrid span,
+.modalComment span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detailGrid strong,
+.modalComment p {
+  color: #191a15;
+  font-size: 15px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.modalComment p {
+  color: #374151;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+}
+
+.modalActions button {
+  flex: 1;
+}
+
 /* MOBILE */
 
 @media screen and (max-width: 768px) {
@@ -657,6 +735,24 @@
   .confirmBtn,
   .cancelBtn {
     flex: 1;
+  }
+
+  .bookingModalHeader,
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .bookingModalHeader h2 {
+    padding-right: 28px;
+    font-size: 24px;
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modalActions button {
+    width: 100%;
   }
 }
 

@@ -16,6 +16,10 @@
   transform: translateY(-100%);
 }
 
+.headerMenuOpen {
+  z-index: 140;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -90,7 +94,7 @@
   align-items: center;
   padding: 60px 20px;
   position: fixed;
-  z-index: 100;
+  z-index: 130;
   top: 76px;
   left: 0;
   width: 100%;

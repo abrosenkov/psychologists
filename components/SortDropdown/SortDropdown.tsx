@@ -59,6 +59,14 @@ export default function SortDropdown() {
     router.replace(pathname, { scroll: false });
   };
 
+  const handleSelectChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    key: "sort" | "price" | "rating"
+  ) => {
+    updateParam(key, event.target.value);
+    event.currentTarget.blur();
+  };
+
   return (
     <section className={styles.wrapper} aria-label="Catalog controls">
       <div className={styles.header}>
@@ -86,7 +94,7 @@ export default function SortDropdown() {
           </span>
           <select
             value={currentSort}
-            onChange={(event) => updateParam("sort", event.target.value)}
+            onChange={(event) => handleSelectChange(event, "sort")}
           >
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -100,7 +108,7 @@ export default function SortDropdown() {
           <span>Price</span>
           <select
             value={currentPrice}
-            onChange={(event) => updateParam("price", event.target.value)}
+            onChange={(event) => handleSelectChange(event, "price")}
           >
             {priceOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -114,7 +122,7 @@ export default function SortDropdown() {
           <span>Rating</span>
           <select
             value={currentRating}
-            onChange={(event) => updateParam("rating", event.target.value)}
+            onChange={(event) => handleSelectChange(event, "rating")}
           >
             {ratingOptions.map((option) => (
               <option key={option.value} value={option.value}>
