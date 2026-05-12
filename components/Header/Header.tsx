@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import css from "./Header.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AuthNavigation from "../AuthNavigation/AuthNavigation";
 import Modal from "../Modal/Modal";
 import RegisterForm from "../RegisterForm/RegisterForm";
@@ -22,6 +22,11 @@ export default function Header() {
   const pathname = usePathname();
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const lastScrollYRef = useRef(0);
+  const isHeaderVisibleRef = useRef(true);
+  const isAdjustingScrollRef = useRef(false);
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
   const role = useAuthStore((state) => state.role);
@@ -39,12 +44,70 @@ export default function Header() {
     };
   }, [isMobileMenuOpen]);
 
+  useEffect(() => {
+    isHeaderVisibleRef.current = isHeaderVisible;
+  }, [isHeaderVisible]);
+
+  useEffect(() => {
+    lastScrollYRef.current = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (isAdjustingScrollRef.current) {
+        lastScrollYRef.current = currentScrollY;
+        isAdjustingScrollRef.current = false;
+        return;
+      }
+
+      const scrollDelta = currentScrollY - lastScrollYRef.current;
+
+      if (currentScrollY <= 0 || isMobileMenuOpen) {
+        setIsHeaderVisible(true);
+        isHeaderVisibleRef.current = true;
+      } else if (scrollDelta > 8) {
+        setIsHeaderVisible(false);
+        isHeaderVisibleRef.current = false;
+      } else if (scrollDelta < -8) {
+        if (!isHeaderVisibleRef.current) {
+          const headerHeight = headerRef.current?.offsetHeight ?? 0;
+          isAdjustingScrollRef.current = headerHeight > 0;
+          window.scrollBy(0, -headerHeight);
+          lastScrollYRef.current = Math.max(0, currentScrollY - headerHeight);
+
+          setIsHeaderVisible(true);
+          isHeaderVisibleRef.current = true;
+          return;
+        }
+
+        setIsHeaderVisible(true);
+        isHeaderVisibleRef.current = true;
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isMobileMenuOpen]);
+
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const shouldHideHeader = !isMobileMenuOpen && !isHeaderVisible;
+
   return (
-    <div className={css.headerWrapper}>
+    <div
+      ref={headerRef}
+      className={clsx(
+        css.headerWrapper,
+        shouldHideHeader && css.headerHidden
+      )}
+    >
       <header className={css.header}>
         <div className={`${css.navWrapper} container`}>
           <Link className={css.logoLink} href="/" aria-label="Home">
