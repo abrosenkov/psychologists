@@ -27,6 +27,7 @@ import {
   createAppointment,
   getAvailability,
   getBusySlots,
+  isPastSlot,
   normalizeTime,
   TIMES,
   timeKey,
@@ -279,7 +280,7 @@ export default function AppointmentForm({
         a.date === selectedDate
     );
 
-    if (isDayClosed || isSlotClosed || isBusy) {
+    if (isDayClosed || isSlotClosed || isBusy || isPastSlot(selectedDate, selectedTime)) {
       toast.error("Selected date and time are not available.");
       setSubmitting(false);
       return;
@@ -509,11 +510,15 @@ export default function AppointmentForm({
                               timeKey(time)
                             ]
                           );
-                          const isDisabled = isDayClosed || isClosed || isBusy;
+                          const isPast = isPastSlot(selectedDate, time);
+                          const isDisabled =
+                            isDayClosed || isClosed || isBusy || isPast;
                           const title = isBusy
                             ? "Booked"
                             : isClosed
                               ? "Closed by admin"
+                              : isPast
+                                ? "This time has already passed"
                               : "";
 
                           return (

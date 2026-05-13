@@ -376,6 +376,11 @@
   background: #fbfbfb;
 }
 
+.calendarDayPast {
+  color: rgba(25, 26, 21, 0.32);
+  background: #f3f4f6;
+}
+
 .calendarDayClosed {
   color: #dc2626;
   background: #fef2f2;
@@ -428,7 +433,8 @@
 
 .openSlot,
 .closedSlot,
-.bookedSlot {
+.bookedSlot,
+.pastSlot {
   display: flex;
   min-height: 58px;
   flex-direction: column;
@@ -444,13 +450,15 @@
 
 .openSlot span,
 .closedSlot span,
-.bookedSlot span {
+.bookedSlot span,
+.pastSlot span {
   font-size: 15px;
 }
 
 .openSlot small,
 .closedSlot small,
-.bookedSlot small {
+.bookedSlot small,
+.pastSlot small {
   color: inherit;
   font-size: 11px;
   font-weight: 500;
@@ -480,14 +488,34 @@
   cursor: pointer;
 }
 
+.pastBookedSlot {
+  border-color: #d1d5db;
+  background: #f9fafb;
+  color: #6b7280;
+}
+
 .bookedSlot:hover,
 .bookedSlot:focus-visible {
   border-color: #f59e0b;
   outline: none;
 }
 
+.pastBookedSlot:hover,
+.pastBookedSlot:focus-visible {
+  border-color: #9ca3af;
+  background: #f3f4f6;
+}
+
+.pastSlot {
+  border-color: #e5e7eb;
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .openSlot:disabled,
-.closedSlot:disabled {
+.closedSlot:disabled,
+.pastSlot:disabled {
   opacity: 0.62;
   cursor: not-allowed;
 }
@@ -517,6 +545,11 @@
   min-width: 0;
 }
 
+.pastCard {
+  border-color: #e5e7eb;
+  background: #fafafa;
+}
+
 .info {
   flex: 1;
   min-width: 0;
@@ -530,6 +563,14 @@
   justify-content: space-between;
   align-items: center;
   gap: 14px;
+}
+
+.statusGroup {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
 }
 
 .headerRow h3 {
@@ -568,7 +609,9 @@
 }
 
 .confirmBtn,
-.cancelBtn {
+.cancelBtn,
+.deleteBtn,
+.cancelSecondaryBtn {
   min-width: 0;
   border: none;
   border-radius: 10px;
@@ -594,12 +637,26 @@
   color: white;
 }
 
-.cancelBtn:hover:not(:disabled) {
+.deleteBtn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.cancelSecondaryBtn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.cancelBtn:hover:not(:disabled),
+.deleteBtn:hover:not(:disabled),
+.cancelSecondaryBtn:hover:not(:disabled) {
   opacity: 0.9;
 }
 
 .confirmBtn:disabled,
-.cancelBtn:disabled {
+.cancelBtn:disabled,
+.deleteBtn:disabled,
+.cancelSecondaryBtn:disabled {
   opacity: 0.55;
   cursor: default;
 }
@@ -632,6 +689,16 @@
   color: #ef4444;
 }
 
+.pastBadge {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .bookingModal {
   display: flex;
   flex-direction: column;
@@ -661,6 +728,39 @@
   color: #191a15;
   font-size: 26px;
   line-height: 1.15;
+}
+
+.pastNotice {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.confirmModal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confirmModal h2 {
+  padding-right: 36px;
+  color: #191a15;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.confirmModal p {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.confirmModal strong {
+  color: #191a15;
 }
 
 .detailGrid {
@@ -821,6 +921,10 @@
     gap: 8px;
   }
 
+  .statusGroup {
+    flex-wrap: wrap;
+  }
+
   .headerRow h3 {
     font-size: 21px;
   }
@@ -842,7 +946,9 @@
   }
 
   .confirmBtn,
-  .cancelBtn {
+  .cancelBtn,
+  .deleteBtn,
+  .cancelSecondaryBtn {
     flex: 1;
   }
 
@@ -860,6 +966,11 @@
   }
 
   .bookingModalHeader h2 {
+    padding-right: 24px;
+    font-size: 22px;
+  }
+
+  .confirmModal h2 {
     padding-right: 24px;
     font-size: 22px;
   }

@@ -56,6 +56,29 @@ export const normalizeTime = (time: string) => time.replace(/\s/g, "");
 
 export const timeKey = (time: string) => normalizeTime(time).replace(":", "-");
 
+export const getSlotDateTime = (dateKey: string, time: string) => {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const [hours, minutes] = normalizeTime(time).split(":").map(Number);
+
+  if (
+    !year ||
+    !month ||
+    !day ||
+    !Number.isFinite(hours) ||
+    !Number.isFinite(minutes)
+  ) {
+    return null;
+  }
+
+  return new Date(year, month - 1, day, hours, minutes, 0, 0);
+};
+
+export const isPastSlot = (dateKey: string, time: string) => {
+  const slotDateTime = getSlotDateTime(dateKey, time);
+
+  return slotDateTime ? slotDateTime.getTime() <= Date.now() : false;
+};
+
 const emptyAvailability: Availability = {
   closedDays: {},
   closedSlots: {},

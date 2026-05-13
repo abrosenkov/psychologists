@@ -33,6 +33,10 @@ import {
 import type { Psychologist } from "@/types/psychologist";
 import css from "./page.module.css";
 
+const CLOUDINARY_CLOUD_NAME = "dxyikhan7";
+const CLOUDINARY_UPLOAD_PRESET = "pvmwu8uu";
+const CLOUDINARY_FOLDER = "psychologists";
+
 const psychologistSchema = Yup.object({
   name: Yup.string()
     .trim()
@@ -64,6 +68,35 @@ const psychologistSchema = Yup.object({
     .min(0, "Price cannot be negative")
     .required("Price is required"),
 });
+
+type PsychologistSort =
+  | "name-asc"
+  | "name-desc"
+  | "price-asc"
+  | "price-desc"
+  | "rating-desc";
+
+type ProfileFilter = "all" | "complete" | "incomplete";
+
+const SORT_OPTIONS: { value: PsychologistSort; label: string }[] = [
+  { value: "name-asc", label: "Name A-Z" },
+  { value: "name-desc", label: "Name Z-A" },
+  { value: "price-asc", label: "Price low-high" },
+  { value: "price-desc", label: "Price high-low" },
+  { value: "rating-desc", label: "Rating high-low" },
+];
+
+const isProfileComplete = (psychologist: Psychologist) =>
+  Boolean(
+    psychologist.name?.trim() &&
+      psychologist.specialization?.trim() &&
+      psychologist.avatar_url?.trim() &&
+      psychologist.experience?.trim() &&
+      psychologist.license?.trim() &&
+      psychologist.initial_consultation?.trim() &&
+      psychologist.about?.trim() &&
+      Number.isFinite(Number(psychologist.price_per_hour))
+  );
 
 const AutoSave = ({
   disabled,
@@ -127,6 +160,36 @@ const ValidationToast = () => {
   return null;
 };
 
+const uploadPsychologistImage = async (file: File) => {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Please select an image file.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  formData.append("folder", CLOUDINARY_FOLDER);
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = (await response.json()) as {
+    secure_url?: string;
+    error?: { message?: string };
+  };
+
+  if (!response.ok || !data.secure_url) {
+    throw new Error(data.error?.message || "Image upload failed.");
+  }
+
+  return data.secure_url;
+};
+
 export default function AdminPsychologistsPage() {
   const [items, setItems] = useState<Psychologist[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,6 +199,10 @@ export default function AdminPsychologistsPage() {
   const [psychologistToDelete, setPsychologistToDelete] =
     useState<Psychologist | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<PsychologistSort>("name-asc");
+  const [profileFilter, setProfileFilter] = useState<ProfileFilter>("all");
 
   const { draft, setDraft, clearDraft } = usePsychologistFormStore();
 
@@ -245,6 +312,42 @@ export default function AdminPsychologistsPage() {
   }
 
   const editingItem = items.find((item) => item.id === editingId);
+  const visibleItems = items
+    .filter((item) => {
+      const normalizedQuery = query.trim().toLowerCase();
+      const isComplete = isProfileComplete(item);
+
+      if (profileFilter === "complete" && !isComplete) return false;
+      if (profileFilter === "incomplete" && isComplete) return false;
+
+      if (!normalizedQuery) return true;
+
+      return [
+        item.name,
+        item.specialization,
+        item.license,
+        item.about,
+        String(item.price_per_hour),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    })
+    .sort((a, b) => {
+      switch (sort) {
+        case "name-desc":
+          return b.name.localeCompare(a.name);
+        case "price-asc":
+          return Number(a.price_per_hour) - Number(b.price_per_hour);
+        case "price-desc":
+          return Number(b.price_per_hour) - Number(a.price_per_hour);
+        case "rating-desc":
+          return (getPsychologistRating(b) ?? 0) - (getPsychologistRating(a) ?? 0);
+        case "name-asc":
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
   const initialValues: PsychologistFormDraft = editingItem
     ? {
         name: editingItem.name,
@@ -274,8 +377,59 @@ export default function AdminPsychologistsPage() {
         </button>
       </div>
 
+      <section className={css.controls} aria-label="Psychologist filters">
+        <label className={css.searchBox}>
+          Search
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Name, specialization, license"
+          />
+        </label>
+
+        <label className={css.controlField}>
+          Sort by
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value as PsychologistSort)}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className={css.filterGroup}>
+          <span>Profile</span>
+          <div className={css.statusFilters}>
+            {(["all", "complete", "incomplete"] as ProfileFilter[]).map(
+              (status) => (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => setProfileFilter(status)}
+                  className={
+                    profileFilter === status
+                      ? css.activeFilter
+                      : css.filterBtn
+                  }
+                >
+                  {status}
+                </button>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+
       <div className={css.table}>
-        {items.map((item) => (
+        {visibleItems.length === 0 && (
+          <div className={css.emptyState}>No psychologists match these filters.</div>
+        )}
+
+        {visibleItems.map((item) => (
           <div key={item.id} className={css.row}>
             <div className={css.main}>
               <div className={css.person}>
@@ -324,7 +478,7 @@ export default function AdminPsychologistsPage() {
             validationSchema={psychologistSchema}
             onSubmit={handleSave}
           >
-            {({ isSubmitting, values }) => (
+            {({ isSubmitting, values, setFieldValue }) => (
               <Form className={css.modal}>
                 <AutoSave disabled={Boolean(editingId)} onSave={setDraft} />
                 <ValidationToast />
@@ -357,6 +511,44 @@ export default function AdminPsychologistsPage() {
                     component="div"
                     className={css.error}
                   />
+                </div>
+
+                <div className={css.uploadField}>
+                  <label className={css.uploadButton}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className={css.fileInput}
+                      disabled={isUploadingImage || isSubmitting}
+                      onChange={async (event) => {
+                        const input = event.currentTarget;
+                        const file = input.files?.[0];
+
+                        if (!file) return;
+
+                        setIsUploadingImage(true);
+
+                        try {
+                          const imageUrl = await uploadPsychologistImage(file);
+                          await setFieldValue("avatar_url", imageUrl, true);
+                          toast.success("Image uploaded.");
+                        } catch (error) {
+                          toast.error(
+                            error instanceof Error
+                              ? error.message
+                              : "Image upload failed."
+                          );
+                        } finally {
+                          setIsUploadingImage(false);
+                          input.value = "";
+                        }
+                      }}
+                    />
+                    {isUploadingImage ? "Uploading..." : "Upload image"}
+                  </label>
+                  <span className={css.uploadHint}>
+                    Uploads to Cloudinary and fills Image URL automatically.
+                  </span>
                 </div>
 
                 <AvatarImage
@@ -471,9 +663,13 @@ export default function AdminPsychologistsPage() {
                   <button
                     type="submit"
                     className={css.saveBtn}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isUploadingImage}
                   >
-                    {isSubmitting ? "Saving..." : "Save"}
+                    {isSubmitting
+                      ? "Saving..."
+                      : isUploadingImage
+                        ? "Uploading..."
+                        : "Save"}
                   </button>
 
                   <button
