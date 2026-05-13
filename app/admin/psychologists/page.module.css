@@ -143,6 +143,19 @@
   background: #ffffff;
   max-width: 100%;
   min-width: 0;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.row:hover,
+.row:focus-visible {
+  border-color: rgba(84, 190, 150, 0.45);
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.08);
+  outline: none;
+  transform: translateY(-1px);
 }
 .main {
   flex: 1;
@@ -230,6 +243,105 @@
 .confirmModal p {
   color: #6b7280;
   line-height: 1.45;
+}
+
+.detailsModal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detailsHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 36px;
+  min-width: 0;
+}
+
+.detailsAvatar,
+.detailsAvatarPlaceholder {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  border-radius: 16px;
+}
+
+.detailsAvatar {
+  object-fit: cover;
+}
+
+.detailsAvatarPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(84, 190, 150, 0.2);
+  color: #047857;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.detailsEyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #54be96;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detailsHeader h2 {
+  color: #191a15;
+  font-size: 24px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.detailsHeader p {
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.detailsGrid div,
+.detailsAbout {
+  min-width: 0;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: #f8faf9;
+}
+
+.detailsWide {
+  grid-column: 1 / -1;
+}
+
+.detailsGrid span,
+.detailsAbout span {
+  display: block;
+  margin-bottom: 4px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detailsGrid strong,
+.detailsAbout p {
+  color: #191a15;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.detailsAbout p {
+  color: #374151;
 }
 .editBtn:hover,
 .deleteBtn:hover,
@@ -433,6 +545,11 @@
     border-radius: 14px;
   }
 
+  .row:hover,
+  .row:focus-visible {
+    transform: none;
+  }
+
   .person {
     gap: 12px;
   }
@@ -484,6 +601,27 @@
   .modalActions {
     gap: 8px;
     flex-direction: column;
+  }
+
+  .detailsHeader {
+    align-items: flex-start;
+    padding-right: 28px;
+  }
+
+  .detailsAvatar,
+  .detailsAvatarPlaceholder {
+    width: 60px;
+    height: 60px;
+    flex-basis: 60px;
+    border-radius: 14px;
+  }
+
+  .detailsHeader h2 {
+    font-size: 22px;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
   }
 }
 
