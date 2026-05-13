@@ -6,14 +6,18 @@
   width: 100%;
   border-bottom: 1px solid rgba(25, 26, 21, 0.1);
   min-height: 96px;
-  background: rgba(255, 255, 255, 0.96);
+  background: #fff;
+  transform: translate3d(0, 0, 0);
   transition:
     transform 240ms ease,
     background-color 200ms ease;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
 }
 
 .headerHidden {
-  transform: translateY(-100%);
+  transform: translate3d(0, calc(-100% - 1px), 0);
 }
 
 .headerMenuOpen {
@@ -95,20 +99,24 @@
   padding: 60px 20px;
   position: fixed;
   z-index: 130;
-  top: 76px;
+  top: var(--app-header-height, 96px);
   left: 0;
   width: 100%;
-  height: calc(100% - 76px);
+  height: calc(100dvh - var(--app-header-height, 96px));
+  min-height: calc(100vh - var(--app-header-height, 96px));
   display: flex;
   background-color: #fff;
-  transform: translateX(100%);
+  transform: translate3d(100%, 0, 0);
   opacity: 0;
   pointer-events: none;
   transition: transform 300ms ease-in-out, opacity 200ms ease-in-out;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .activeMenu {
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0);
   opacity: 1;
   pointer-events: auto;
 }

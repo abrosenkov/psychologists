@@ -5,6 +5,10 @@ export interface PsychologistFormDraft {
   name: string;
   avatar_url: string;
   specialization: string;
+  experience: string;
+  license: string;
+  initial_consultation: string;
+  about: string;
   price_per_hour: string;
 }
 
@@ -18,6 +22,10 @@ export const initialPsychologistFormDraft: PsychologistFormDraft = {
   name: "",
   avatar_url: "",
   specialization: "",
+  experience: "",
+  license: "",
+  initial_consultation: "",
+  about: "",
   price_per_hour: "",
 };
 

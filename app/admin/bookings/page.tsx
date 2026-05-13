@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { db } from "@/lib/firebase";
-import { get, ref, update } from "firebase/database";
+import { get, ref, remove, update } from "firebase/database";
 import toast from "react-hot-toast";
 import {
   LuCalendar,
@@ -15,6 +15,7 @@ import Loader from "@/components/Loader/Loader";
 import Modal from "@/components/Modal/Modal";
 import {
   getAvailability,
+  isPastSlot,
   normalizeTime,
   setClosedDay,
   setClosedSlot,
@@ -94,6 +95,10 @@ const formatSelectedDate = (value: string) => {
   return date ? selectedDateFormatter.format(date) : "Select date";
 };
 
+const isPastBooking = (booking: Pick<Booking, "date" | "time">) => {
+  return isPastSlot(booking.date, booking.time);
+};
+
 const getFirebaseErrorMessage = (error: unknown) => {
   const code =
     typeof error === "object" && error !== null && "code" in error
@@ -126,8 +131,10 @@ export default function AdminBookingsPage() {
   const [availability, setAvailability] =
     useState<Availability>(initialAvailability);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const datePickerRef = useRef<HTMLLabelElement>(null);
-  const psychologistSelectRef = useRef<HTMLLabelElement>(null);
+  const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+  const psychologistSelectRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadBookings();
@@ -142,7 +149,7 @@ export default function AdminBookingsPage() {
   useEffect(() => {
     if (!isDateOpen && !isPsychologistOpen) return;
 
-    const handleClick = (event: MouseEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
 
       if (
@@ -160,9 +167,9 @@ export default function AdminBookingsPage() {
       }
     };
 
-    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("pointerdown", handlePointerDown);
 
-    return () => document.removeEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isDateOpen, isPsychologistOpen]);
 
   const handleDateOpen = () => {
@@ -244,6 +251,35 @@ export default function AdminBookingsPage() {
     setSelectedBooking((current) =>
       current?.id === id ? { ...current, status } : current
     );
+  };
+
+  const requestDeleteBooking = (booking: Booking) => {
+    setSelectedBooking(null);
+    setBookingToDelete(booking);
+  };
+
+  const deleteBooking = async () => {
+    if (!bookingToDelete) return;
+
+    setIsDeleting(true);
+
+    try {
+      await remove(ref(db, `appointments/${bookingToDelete.id}`));
+
+      setItems((prev) =>
+        prev.filter((item) => item.id !== bookingToDelete.id)
+      );
+      setSelectedBooking((current) =>
+        current?.id === bookingToDelete.id ? null : current
+      );
+      setBookingToDelete(null);
+      toast.success("Booking deleted.");
+    } catch (error) {
+      console.error("Failed to delete booking:", error);
+      toast.error(getFirebaseErrorMessage(error));
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleDayToggle = async () => {
@@ -357,8 +393,8 @@ export default function AdminBookingsPage() {
         </div>
 
         <div className={css.availabilityControls}>
-          <label className={css.customSelect} ref={psychologistSelectRef}>
-            Psychologist
+          <div className={css.customSelect} ref={psychologistSelectRef}>
+            <span className={css.controlLabel}>Psychologist</span>
             <button
               type="button"
               className={css.selectButton}
@@ -396,10 +432,10 @@ export default function AdminBookingsPage() {
                 })}
               </div>
             )}
-          </label>
+          </div>
 
-          <label className={css.datePicker} ref={datePickerRef}>
-            Date
+          <div className={css.datePicker} ref={datePickerRef}>
+            <span className={css.controlLabel}>Date</span>
             <button
               type="button"
               className={css.dateButton}
@@ -473,13 +509,13 @@ export default function AdminBookingsPage() {
                           [
                             css.calendarDay,
                             isOutsideMonth ? css.calendarDayMuted : "",
+                            isPast ? css.calendarDayPast : "",
                             isSelected ? css.calendarDaySelected : "",
                             isClosed ? css.calendarDayClosed : "",
                           ]
                             .filter(Boolean)
                             .join(" ")
                         }
-                        disabled={isPast}
                         title={isClosed ? "Closed day" : undefined}
                         onClick={() => {
                           setSelectedDate(dateKey);
@@ -493,7 +529,7 @@ export default function AdminBookingsPage() {
                 </div>
               </div>
             )}
-          </label>
+          </div>
         </div>
 
         <div className={css.slotGrid}>
@@ -504,25 +540,36 @@ export default function AdminBookingsPage() {
             const isClosed = Boolean(
               availability.closedSlots[selectedDate]?.[timeKey(time)]
             );
+            const isPast = isPastSlot(selectedDate, time);
+            const isUnavailablePastSlot = isPast && !booking;
 
             return (
               <button
                 key={time}
                 type="button"
-                className={
+                className={[
                   booking
                     ? css.bookedSlot
-                    : isClosed
-                      ? css.closedSlot
-                      : css.openSlot
-                }
+                    : isUnavailablePastSlot
+                      ? css.pastSlot
+                      : isClosed
+                        ? css.closedSlot
+                        : css.openSlot,
+                  booking && isPast ? css.pastBookedSlot : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() =>
-                  booking ? setSelectedBooking(booking) : handleSlotToggle(time)
+                  booking
+                    ? setSelectedBooking(booking)
+                    : handleSlotToggle(time)
                 }
-                disabled={!booking && isSelectedDayClosed}
+                disabled={!booking && (isSelectedDayClosed || isPast)}
                 title={
                   booking
                     ? `View booking for ${booking.name}`
+                    : isPast
+                      ? "This time has already passed"
                     : isSelectedDayClosed
                       ? "Day is closed"
                       : undefined
@@ -530,7 +577,15 @@ export default function AdminBookingsPage() {
               >
                 <span>{time}</span>
                 <small>
-                  {booking ? "Booked" : isClosed ? "Closed" : "Open"}
+                  {booking
+                    ? isPast
+                      ? "Past booked"
+                      : "Booked"
+                    : isPast
+                      ? "Past"
+                      : isClosed
+                        ? "Closed"
+                        : "Open"}
                 </small>
               </button>
             );
@@ -553,6 +608,12 @@ export default function AdminBookingsPage() {
                 {selectedBooking.status || "pending"}
               </span>
             </div>
+
+            {isPastBooking(selectedBooking) && (
+              <div className={css.pastNotice}>
+                This booking time has already passed.
+              </div>
+            )}
 
             <div className={css.detailGrid}>
               <div>
@@ -599,6 +660,48 @@ export default function AdminBookingsPage() {
               >
                 Cancel booking
               </button>
+              <button
+                type="button"
+                className={css.deleteBtn}
+                onClick={() => requestDeleteBooking(selectedBooking)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(bookingToDelete)}
+        onCloseModal={() => !isDeleting && setBookingToDelete(null)}
+      >
+        {bookingToDelete && (
+          <div className={css.confirmModal}>
+            <h2>Delete booking?</h2>
+            <p>
+              This will permanently remove the booking for{" "}
+              <strong>{bookingToDelete.name}</strong> on {bookingToDelete.date}{" "}
+              at {normalizeTime(bookingToDelete.time)}.
+            </p>
+
+            <div className={css.modalActions}>
+              <button
+                type="button"
+                className={css.deleteBtn}
+                onClick={deleteBooking}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+              <button
+                type="button"
+                className={css.cancelSecondaryBtn}
+                onClick={() => setBookingToDelete(null)}
+                disabled={isDeleting}
+              >
+                Keep booking
+              </button>
             </div>
           </div>
         )}
@@ -607,14 +710,23 @@ export default function AdminBookingsPage() {
       <div className={css.list}>
         {filteredItems.map((item) => {
           const currentStatus = item.status || "pending";
+          const isPast = isPastBooking(item);
 
           return (
-            <div key={item.id} className={css.card}>
+            <div
+              key={item.id}
+              className={[css.card, isPast ? css.pastCard : ""]
+                .filter(Boolean)
+                .join(" ")}
+            >
               <div className={css.info}>
                 <div className={css.headerRow}>
                   <h3>{item.name}</h3>
 
-                  <span className={css[currentStatus]}>{currentStatus}</span>
+                  <div className={css.statusGroup}>
+                    {isPast && <span className={css.pastBadge}>Past</span>}
+                    <span className={css[currentStatus]}>{currentStatus}</span>
+                  </div>
                 </div>
 
                 <div className={css.meta}>
@@ -653,6 +765,14 @@ export default function AdminBookingsPage() {
                   disabled={currentStatus === "cancelled"}
                 >
                   Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => requestDeleteBooking(item)}
+                  className={css.deleteBtn}
+                >
+                  Delete
                 </button>
               </div>
             </div>
