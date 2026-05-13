@@ -196,6 +196,8 @@ export default function AdminPsychologistsPage() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedPsychologist, setSelectedPsychologist] =
+    useState<Psychologist | null>(null);
   const [psychologistToDelete, setPsychologistToDelete] =
     useState<Psychologist | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -430,7 +432,19 @@ export default function AdminPsychologistsPage() {
         )}
 
         {visibleItems.map((item) => (
-          <div key={item.id} className={css.row}>
+          <div
+            key={item.id}
+            className={css.row}
+            role="button"
+            tabIndex={0}
+            onClick={() => setSelectedPsychologist(item)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setSelectedPsychologist(item);
+              }
+            }}
+          >
             <div className={css.main}>
               <div className={css.person}>
                 <AvatarImage
@@ -455,13 +469,22 @@ export default function AdminPsychologistsPage() {
             </div>
 
             <div className={css.actions}>
-              <button className={css.editBtn} onClick={() => openEdit(item)}>
+              <button
+                className={css.editBtn}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openEdit(item);
+                }}
+              >
                 Edit
               </button>
 
               <button
                 className={css.deleteBtn}
-                onClick={() => setPsychologistToDelete(item)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setPsychologistToDelete(item);
+                }}
               >
                 Delete
               </button>
@@ -469,6 +492,84 @@ export default function AdminPsychologistsPage() {
           </div>
         ))}
       </div>
+
+      <Modal
+        isOpen={Boolean(selectedPsychologist)}
+        onCloseModal={() => setSelectedPsychologist(null)}
+      >
+        {selectedPsychologist && (
+          <div className={css.detailsModal}>
+            <div className={css.detailsHeader}>
+              <AvatarImage
+                className={css.detailsAvatar}
+                fallbackClassName={css.detailsAvatarPlaceholder}
+                src={selectedPsychologist.avatar_url}
+                alt={selectedPsychologist.name}
+              />
+
+              <div>
+                <span className={css.detailsEyebrow}>Psychologist profile</span>
+                <h2>{selectedPsychologist.name}</h2>
+                <p>{selectedPsychologist.specialization || "No specialization"}</p>
+              </div>
+            </div>
+
+            <div className={css.detailsGrid}>
+              <div>
+                <span>Price</span>
+                <strong>${selectedPsychologist.price_per_hour}</strong>
+              </div>
+              <div>
+                <span>Rating</span>
+                <strong>{getPsychologistRating(selectedPsychologist) ?? 0}</strong>
+              </div>
+              <div>
+                <span>Experience</span>
+                <strong>{selectedPsychologist.experience || "Not specified"}</strong>
+              </div>
+              <div>
+                <span>License</span>
+                <strong>{selectedPsychologist.license || "Not specified"}</strong>
+              </div>
+              <div className={css.detailsWide}>
+                <span>Initial consultation</span>
+                <strong>
+                  {selectedPsychologist.initial_consultation || "Not specified"}
+                </strong>
+              </div>
+            </div>
+
+            <div className={css.detailsAbout}>
+              <span>About</span>
+              <p>{selectedPsychologist.about || "No description yet."}</p>
+            </div>
+
+            <div className={css.modalActions}>
+              <button
+                type="button"
+                className={css.editBtn}
+                onClick={() => {
+                  const current = selectedPsychologist;
+                  setSelectedPsychologist(null);
+                  openEdit(current);
+                }}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                className={css.deleteBtn}
+                onClick={() => {
+                  setPsychologistToDelete(selectedPsychologist);
+                  setSelectedPsychologist(null);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <Modal isOpen={isOpen} onCloseModal={closeModal}>
           <Formik
