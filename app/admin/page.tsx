@@ -5,6 +5,8 @@ import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { get, ref } from "firebase/database";
 import Loader from "@/components/Loader/Loader";
+import { getSlotDateTime, isPastSlot, normalizeTime } from "@/lib/appointments";
+import type { Psychologist } from "@/types/psychologist";
 import css from "./page.module.css";
 
 interface AppointmentItem {
@@ -30,6 +32,9 @@ interface Stats {
   approvedReviews: number;
   rejectedReviews: number;
   recentBookings: AppointmentItem[];
+  upcomingBookings: AppointmentItem[];
+  pastBookings: AppointmentItem[];
+  incompleteProfiles: Array<Pick<Psychologist, "id" | "name" | "specialization">>;
 }
 
 const emptyStats: Stats = {
@@ -44,6 +49,9 @@ const emptyStats: Stats = {
   approvedReviews: 0,
   rejectedReviews: 0,
   recentBookings: [],
+  upcomingBookings: [],
+  pastBookings: [],
+  incompleteProfiles: [],
 };
 
 const statusLabels: Record<AppointmentItem["status"], string> = {
@@ -51,6 +59,18 @@ const statusLabels: Record<AppointmentItem["status"], string> = {
   confirmed: "Confirmed",
   cancelled: "Cancelled",
 };
+
+const isProfileComplete = (psychologist: Partial<Psychologist>) =>
+  Boolean(
+    psychologist.name?.trim() &&
+      psychologist.specialization?.trim() &&
+      psychologist.avatar_url?.trim() &&
+      psychologist.experience?.trim() &&
+      psychologist.license?.trim() &&
+      psychologist.initial_consultation?.trim() &&
+      psychologist.about?.trim() &&
+      Number.isFinite(Number(psychologist.price_per_hour))
+  );
 
 export default function AdminPage() {
   const [stats, setStats] = useState<Stats>(emptyStats);
@@ -74,11 +94,17 @@ export default function AdminPage() {
       const psychologistsData = psychologistsSnap.exists()
         ? (psychologistsSnap.val() as Record<
             string,
-            { name?: string; reviews?: Record<string, { status?: string }> }
+            Omit<Psychologist, "id">
           >)
         : {};
 
       const psychologists = Object.keys(psychologistsData).length;
+      const psychologistList: Psychologist[] = Object.entries(
+        psychologistsData
+      ).map(([id, value]) => ({
+        id,
+        ...value,
+      }));
 
       const appointmentsData = bookingsSnap.exists()
         ? (bookingsSnap.val() as Record<
@@ -110,6 +136,45 @@ export default function AdminPage() {
       }));
 
       const bookings = appointmentList.length;
+      const activeAppointments = appointmentList.filter(
+        (appointment) => appointment.status !== "cancelled"
+      );
+      const upcomingBookings = activeAppointments
+        .filter(
+          (appointment) =>
+            appointment.date &&
+            appointment.time &&
+            !isPastSlot(appointment.date, appointment.time)
+        )
+        .sort((a, b) => {
+          const aTime = getSlotDateTime(a.date, a.time)?.getTime() ?? 0;
+          const bTime = getSlotDateTime(b.date, b.time)?.getTime() ?? 0;
+
+          return aTime - bTime;
+        })
+        .slice(0, 5);
+      const pastBookings = activeAppointments
+        .filter(
+          (appointment) =>
+            appointment.date &&
+            appointment.time &&
+            isPastSlot(appointment.date, appointment.time)
+        )
+        .sort((a, b) => {
+          const aTime = getSlotDateTime(a.date, a.time)?.getTime() ?? 0;
+          const bTime = getSlotDateTime(b.date, b.time)?.getTime() ?? 0;
+
+          return bTime - aTime;
+        })
+        .slice(0, 5);
+      const incompleteProfiles = psychologistList
+        .filter((psychologist) => !isProfileComplete(psychologist))
+        .map((psychologist) => ({
+          id: psychologist.id,
+          name: psychologist.name || "Unnamed psychologist",
+          specialization: psychologist.specialization || "No specialization",
+        }))
+        .slice(0, 5);
 
       const users = usersSnap.exists()
         ? Object.keys(usersSnap.val()).length
@@ -156,6 +221,9 @@ export default function AdminPage() {
         pendingReviews,
         approvedReviews,
         rejectedReviews,
+        upcomingBookings,
+        pastBookings,
+        incompleteProfiles,
         recentBookings: appointmentList
           .sort((a, b) => b.createdAt - a.createdAt)
           .slice(0, 5),
@@ -198,6 +266,90 @@ export default function AdminPage() {
           <span>Total favorites</span>
           <strong>{stats.favorites}</strong>
         </div>
+      </div>
+
+      <div className={css.actionGrid}>
+        <section className={css.panel}>
+          <div className={css.panelHeader}>
+            <div>
+              <h2>Upcoming appointments</h2>
+              <p>Nearest active bookings that need attention</p>
+            </div>
+            <Link href="/admin/bookings">Open</Link>
+          </div>
+
+          {stats.upcomingBookings.length === 0 ? (
+            <div className={css.emptyState}>No upcoming bookings.</div>
+          ) : (
+            <div className={css.compactList}>
+              {stats.upcomingBookings.map((booking) => (
+                <article key={booking.id} className={css.compactItem}>
+                  <div>
+                    <h3>{booking.name}</h3>
+                    <p>{booking.psychologistName}</p>
+                  </div>
+                  <span>
+                    {booking.date} {normalizeTime(booking.time)}
+                  </span>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className={css.panel}>
+          <div className={css.panelHeader}>
+            <div>
+              <h2>Past bookings</h2>
+              <p>Recent completed time slots still stored in appointments</p>
+            </div>
+            <Link href="/admin/bookings">Clean up</Link>
+          </div>
+
+          {stats.pastBookings.length === 0 ? (
+            <div className={css.emptyState}>No past bookings.</div>
+          ) : (
+            <div className={css.compactList}>
+              {stats.pastBookings.map((booking) => (
+                <article key={booking.id} className={css.compactItem}>
+                  <div>
+                    <h3>{booking.name}</h3>
+                    <p>{booking.psychologistName}</p>
+                  </div>
+                  <span>
+                    {booking.date} {normalizeTime(booking.time)}
+                  </span>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className={css.panel}>
+          <div className={css.panelHeader}>
+            <div>
+              <h2>Incomplete profiles</h2>
+              <p>Psychologist cards missing required public information</p>
+            </div>
+            <Link href="/admin/psychologists">Fix</Link>
+          </div>
+
+          {stats.incompleteProfiles.length === 0 ? (
+            <div className={css.emptyState}>All profiles are complete.</div>
+          ) : (
+            <div className={css.compactList}>
+              {stats.incompleteProfiles.map((psychologist) => (
+                <article key={psychologist.id} className={css.compactItem}>
+                  <div>
+                    <h3>{psychologist.name}</h3>
+                    <p>{psychologist.specialization}</p>
+                  </div>
+                  <strong className={css.warningBadge}>Incomplete</strong>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
       <div className={css.insightsGrid}>

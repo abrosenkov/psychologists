@@ -67,6 +67,12 @@
   gap: 18px;
 }
 
+.actionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
 .panel {
   min-width: 0;
   padding: 24px;
@@ -189,7 +195,14 @@
   gap: 10px;
 }
 
-.recentItem {
+.compactList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recentItem,
+.compactItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -200,16 +213,39 @@
   background: #ffffff;
 }
 
-.recentItem h3 {
+.recentItem h3,
+.compactItem h3 {
   margin-bottom: 4px;
   color: #191a15;
   font-size: 17px;
+  overflow-wrap: anywhere;
 }
 
 .recentItem p,
-.recentMeta span {
+.recentMeta span,
+.compactItem p,
+.compactItem span {
   color: #6b7280;
   font-size: 14px;
+}
+
+.compactItem p {
+  overflow-wrap: anywhere;
+}
+
+.compactItem span {
+  flex: 0 0 auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.warningBadge {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #f59e0b;
+  font-size: 12px;
 }
 
 .recentMeta {
@@ -255,6 +291,10 @@
   .insightsGrid {
     grid-template-columns: 1fr;
   }
+
+  .actionGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media screen and (max-width: 767px) {
@@ -277,9 +317,14 @@
   }
 
   .panelHeader,
-  .recentItem {
+  .recentItem,
+  .compactItem {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .compactItem span {
+    text-align: left;
   }
 
   .recentMeta {

@@ -26,6 +26,14 @@
   line-height: 1.05;
 }
 
+.avatarPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
 .avatar {
   display: flex;
   align-items: center;
@@ -37,6 +45,59 @@
   color: #ffffff;
   font-size: 26px;
   font-weight: 700;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uploadAvatarBtn,
+.removeAvatarBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(84, 190, 150, 0.35);
+  border-radius: 999px;
+  color: #047857;
+  background: #ecfdf5;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.uploadAvatarBtn:hover {
+  border-color: #54be96;
+  background: #d1fae5;
+}
+
+.uploadAvatarBtn input {
+  display: none;
+}
+
+.removeAvatarBtn {
+  border-color: #fecaca;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.removeAvatarBtn:hover:not(:disabled) {
+  border-color: #ef4444;
+  background: #fee2e2;
+}
+
+.uploadAvatarBtn:has(input:disabled),
+.removeAvatarBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
 }
 
 .summary {
@@ -239,6 +300,12 @@
     height: 52px;
     border-radius: 14px;
     font-size: 22px;
+  }
+
+  .uploadAvatarBtn,
+  .removeAvatarBtn {
+    min-height: 30px;
+    padding: 0 9px;
   }
 
   .appointmentMain {

@@ -11,6 +11,8 @@ import toast from "react-hot-toast";
 
 interface ReviewItem {
   id: string;
+  userId?: string;
+  userPhotoURL?: string;
   psychologistId: string;
   psychologistName: string;
   userName: string;
@@ -30,6 +32,23 @@ const SORT_OPTIONS: { value: ReviewSort; label: string }[] = [
   { value: "rating-asc", label: "Lowest rating" },
   { value: "name", label: "Psychologist name" },
 ];
+
+const getInitial = (name?: string) => (name?.trim()[0] || "U").toUpperCase();
+
+function ReviewerAvatar({ item }: { item: ReviewItem }) {
+  if (item.userPhotoURL) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        className={css.reviewerAvatar}
+        src={item.userPhotoURL}
+        alt={item.userName}
+      />
+    );
+  }
+
+  return <div className={css.reviewerAvatar}>{getInitial(item.userName)}</div>;
+}
 
 export default function AdminReviewsPage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
@@ -75,7 +94,10 @@ export default function AdminReviewsPage() {
 
   const loadReviews = async () => {
     try {
-      const snapshot = await get(ref(db, "psychologists"));
+      const [snapshot, usersSnapshot] = await Promise.all([
+        get(ref(db, "psychologists")),
+        get(ref(db, "users")),
+      ]);
 
       if (!snapshot.exists()) {
         setItems([]);
@@ -83,6 +105,9 @@ export default function AdminReviewsPage() {
       }
 
       const data = snapshot.val();
+      const users = usersSnapshot.exists()
+        ? (usersSnapshot.val() as Record<string, { photoURL?: string }>)
+        : {};
       const reviews: ReviewItem[] = [];
 
       Object.entries(data).forEach(([psychologistId, psychologist]) => {
@@ -95,6 +120,10 @@ export default function AdminReviewsPage() {
 
           reviews.push({
             id: reviewId,
+            userId: current.userId,
+            userPhotoURL: current.userId
+              ? users[current.userId]?.photoURL
+              : undefined,
             psychologistId,
             psychologistName: psy.name,
             userName: current.userName || current.reviewer || "Anonymous",
@@ -377,7 +406,10 @@ export default function AdminReviewsPage() {
           <div key={item.psychologistId + item.id} className={css.card}>
             <div className={css.info}>
               <div className={css.headerRow}>
-                <h3>{item.userName}</h3>
+                <div className={css.reviewerTitle}>
+                  <ReviewerAvatar item={item} />
+                  <h3>{item.userName}</h3>
+                </div>
                 <span className={css[item.status]}>{item.status}</span>
               </div>
 

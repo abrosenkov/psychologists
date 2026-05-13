@@ -16,6 +16,7 @@ interface UserMenuProps {
 
 export default function UserMenu({ onLogout }: UserMenuProps) {
   const user = useAuthStore((state) => state.user);
+  const profilePhotoURL = useAuthStore((state) => state.profilePhotoURL);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
@@ -50,7 +51,12 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
     <div className={css.userBlock}>
       <div className={css.userInfo}>
         <div className={css.userAvatar}>
-          {user?.displayName?.[0]?.toUpperCase() || "U"}
+          {profilePhotoURL ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profilePhotoURL} alt={user.displayName || "User"} />
+          ) : (
+            user?.displayName?.[0]?.toUpperCase() || "U"
+          )}
         </div>
         <span className={css.userName}>{user?.displayName || "User"}</span>
       </div>

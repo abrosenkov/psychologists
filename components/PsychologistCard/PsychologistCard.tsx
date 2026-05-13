@@ -121,6 +121,7 @@ export default function PsychologistCard({
     const reviewRef = push(ref(db, `psychologists/${psychologist.id}/reviews`));
 
     await set(reviewRef, {
+      userId: user.uid,
       userName: user?.displayName || user?.email || "Anonymous",
       rating: Number(reviewForm.rating),
       text: trimmedComment,
