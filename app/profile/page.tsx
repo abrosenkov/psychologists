@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { updateProfile } from "firebase/auth";
 import { equalTo, get, orderByChild, query, ref, update } from "firebase/database";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader/Loader";
 import { db } from "@/lib/firebase";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { useAuthStore } from "@/stores/useAuthStore";
 import css from "./page.module.css";
 
@@ -44,11 +46,16 @@ function formatDate(value: string) {
 export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const profilePhotoURL = useAuthStore((state) => state.profilePhotoURL);
+  const setProfilePhotoURL = useAuthStore((state) => state.setProfilePhotoURL);
   const loadingAuth = useAuthStore((state) => state.loading);
 
   const [appointments, setAppointments] = useState<UserAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isRemovingAvatar, setIsRemovingAvatar] = useState(false);
 
   useEffect(() => {
     if (!loadingAuth && !user) {
@@ -143,6 +150,56 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!user) return;
+
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+
+    try {
+      const photoURL = await uploadImageToCloudinary(file, "users");
+
+      await updateProfile(user, { photoURL });
+      await user.reload();
+      await update(ref(db, `users/${user.uid}`), { photoURL });
+      setUser(user);
+      setProfilePhotoURL(photoURL);
+      toast.success("Profile photo updated.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload photo."
+      );
+    } finally {
+      setIsUploadingAvatar(false);
+      input.value = "";
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!user) return;
+
+    setIsRemovingAvatar(true);
+
+    try {
+      await updateProfile(user, { photoURL: null });
+      await user.reload();
+      await update(ref(db, `users/${user.uid}`), { photoURL: null });
+      setUser(user);
+      setProfilePhotoURL(null);
+      toast.success("Profile photo removed.");
+    } catch {
+      toast.error("Failed to remove photo.");
+    } finally {
+      setIsRemovingAvatar(false);
+    }
+  };
+
   if (loadingAuth || !user) {
     return (
       <main className={css.page}>
@@ -159,8 +216,34 @@ export default function ProfilePage() {
             <p className={css.eyebrow}>Personal area</p>
             <h1>Profile</h1>
           </div>
-          <div className={css.avatar}>
-            {(user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+          <div className={css.avatarPanel}>
+            <div className={css.avatar}>
+              {profilePhotoURL ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profilePhotoURL} alt={user.displayName || "User"} />
+              ) : (
+                (user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()
+              )}
+            </div>
+            <label className={css.uploadAvatarBtn}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={isUploadingAvatar || isRemovingAvatar}
+              />
+              {isUploadingAvatar ? "Uploading..." : "Change photo"}
+            </label>
+            {profilePhotoURL && (
+              <button
+                type="button"
+                className={css.removeAvatarBtn}
+                onClick={handleAvatarRemove}
+                disabled={isUploadingAvatar || isRemovingAvatar}
+              >
+                {isRemovingAvatar ? "Removing..." : "Remove photo"}
+              </button>
+            )}
           </div>
         </div>
 

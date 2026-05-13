@@ -28,9 +28,11 @@ import css from "./page.module.css";
 
 interface Booking {
   id: string;
+  userId?: string;
   name: string;
   email: string;
   phone: string;
+  userPhotoURL?: string;
   psychologistId: string;
   psychologistName: string;
   date: string;
@@ -112,6 +114,28 @@ const getFirebaseErrorMessage = (error: unknown) => {
   return "Firebase update failed.";
 };
 
+const getInitial = (name?: string, email?: string) =>
+  (name?.trim()[0] || email?.trim()[0] || "U").toUpperCase();
+
+function ClientAvatar({ booking }: { booking: Booking }) {
+  if (booking.userPhotoURL) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        className={css.clientAvatar}
+        src={booking.userPhotoURL}
+        alt={booking.name || "Client"}
+      />
+    );
+  }
+
+  return (
+    <div className={css.clientAvatar}>
+      {getInitial(booking.name, booking.email)}
+    </div>
+  );
+}
+
 export default function AdminBookingsPage() {
   const [items, setItems] = useState<Booking[]>([]);
   const [psychologists, setPsychologists] = useState<Psychologist[]>([]);
@@ -182,9 +206,10 @@ export default function AdminBookingsPage() {
 
   const loadBookings = async () => {
     try {
-      const [appointmentsSnap, psychologistsSnap] = await Promise.all([
+      const [appointmentsSnap, psychologistsSnap, usersSnap] = await Promise.all([
         get(ref(db, "appointments")),
         get(ref(db, "psychologists")),
+        get(ref(db, "users")),
       ]);
 
       const psychologistsData = psychologistsSnap.exists()
@@ -209,13 +234,20 @@ export default function AdminBookingsPage() {
         string,
         Omit<Booking, "id" | "psychologistName">
       >;
+      const usersData = usersSnap.exists()
+        ? (usersSnap.val() as Record<string, { photoURL?: string }>)
+        : {};
 
       const list = Object.entries(appointmentsData).map(([id, value]) => {
         const booking = value;
+        const userPhotoURL = booking.userId
+          ? usersData[booking.userId]?.photoURL
+          : undefined;
 
         return {
           id,
           ...booking,
+          userPhotoURL,
           psychologistName:
             psychologistsData[booking.psychologistId]?.name || "Unknown",
         };
@@ -600,9 +632,12 @@ export default function AdminBookingsPage() {
         {selectedBooking && (
           <div className={css.bookingModal}>
             <div className={css.bookingModalHeader}>
-              <div>
-                <span className={css.modalEyebrow}>Booking details</span>
-                <h2>{selectedBooking.name}</h2>
+              <div className={css.bookingTitle}>
+                <ClientAvatar booking={selectedBooking} />
+                <div>
+                  <span className={css.modalEyebrow}>Booking details</span>
+                  <h2>{selectedBooking.name}</h2>
+                </div>
               </div>
               <span className={css[selectedBooking.status || "pending"]}>
                 {selectedBooking.status || "pending"}
@@ -721,7 +756,10 @@ export default function AdminBookingsPage() {
             >
               <div className={css.info}>
                 <div className={css.headerRow}>
-                  <h3>{item.name}</h3>
+                  <div className={css.clientTitle}>
+                    <ClientAvatar booking={item} />
+                    <h3>{item.name}</h3>
+                  </div>
 
                   <div className={css.statusGroup}>
                     {isPast && <span className={css.pastBadge}>Past</span>}

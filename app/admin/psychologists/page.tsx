@@ -24,6 +24,7 @@ import {
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader/Loader";
 import Modal from "@/components/Modal/Modal";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { getPsychologistRating } from "@/lib/psychologistFilters";
 import {
   initialPsychologistFormDraft,
@@ -32,10 +33,6 @@ import {
 } from "@/stores/usePsychologistFormStore";
 import type { Psychologist } from "@/types/psychologist";
 import css from "./page.module.css";
-
-const CLOUDINARY_CLOUD_NAME = "dxyikhan7";
-const CLOUDINARY_UPLOAD_PRESET = "pvmwu8uu";
-const CLOUDINARY_FOLDER = "psychologists";
 
 const psychologistSchema = Yup.object({
   name: Yup.string()
@@ -158,36 +155,6 @@ const ValidationToast = () => {
   }, [errors, isValid, submitCount]);
 
   return null;
-};
-
-const uploadPsychologistImage = async (file: File) => {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Please select an image file.");
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-  formData.append("folder", CLOUDINARY_FOLDER);
-
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-  const data = (await response.json()) as {
-    secure_url?: string;
-    error?: { message?: string };
-  };
-
-  if (!response.ok || !data.secure_url) {
-    throw new Error(data.error?.message || "Image upload failed.");
-  }
-
-  return data.secure_url;
 };
 
 export default function AdminPsychologistsPage() {
@@ -630,7 +597,7 @@ export default function AdminPsychologistsPage() {
                         setIsUploadingImage(true);
 
                         try {
-                          const imageUrl = await uploadPsychologistImage(file);
+                          const imageUrl = await uploadImageToCloudinary(file);
                           await setFieldValue("avatar_url", imageUrl, true);
                           toast.success("Image uploaded.");
                         } catch (error) {

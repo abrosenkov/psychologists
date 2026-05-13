@@ -565,6 +565,30 @@
   gap: 14px;
 }
 
+.clientTitle,
+.bookingTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.clientAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #54be96;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  object-fit: cover;
+}
+
 .statusGroup {
   display: flex;
   flex: 0 0 auto;
@@ -712,6 +736,14 @@
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
+}
+
+.bookingTitle .clientAvatar {
+  width: 52px;
+  height: 52px;
+  flex-basis: 52px;
+  border-radius: 14px;
+  font-size: 20px;
 }
 
 .modalEyebrow {
@@ -919,6 +951,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .clientTitle {
+    align-items: flex-start;
   }
 
   .statusGroup {
