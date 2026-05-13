@@ -26,7 +26,6 @@ export default function Header() {
   const headerRef = useRef<HTMLDivElement>(null);
   const lastScrollYRef = useRef(0);
   const isHeaderVisibleRef = useRef(true);
-  const isAdjustingScrollRef = useRef(false);
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
   const role = useAuthStore((state) => state.role);
@@ -86,32 +85,15 @@ export default function Header() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      if (isAdjustingScrollRef.current) {
-        lastScrollYRef.current = currentScrollY;
-        isAdjustingScrollRef.current = false;
-        return;
-      }
-
       const scrollDelta = currentScrollY - lastScrollYRef.current;
 
-      if (currentScrollY <= 0 || isMobileMenuOpen) {
+      if (currentScrollY <= 16 || isMobileMenuOpen) {
         setIsHeaderVisible(true);
         isHeaderVisibleRef.current = true;
-      } else if (scrollDelta > 8) {
+      } else if (scrollDelta > 10 && currentScrollY > 120) {
         setIsHeaderVisible(false);
         isHeaderVisibleRef.current = false;
-      } else if (scrollDelta < -8) {
-        if (!isHeaderVisibleRef.current) {
-          const headerHeight = headerRef.current?.offsetHeight ?? 0;
-          isAdjustingScrollRef.current = headerHeight > 0;
-          window.scrollBy(0, -headerHeight);
-          lastScrollYRef.current = Math.max(0, currentScrollY - headerHeight);
-
-          setIsHeaderVisible(true);
-          isHeaderVisibleRef.current = true;
-          return;
-        }
-
+      } else if (scrollDelta < -10) {
         setIsHeaderVisible(true);
         isHeaderVisibleRef.current = true;
       }

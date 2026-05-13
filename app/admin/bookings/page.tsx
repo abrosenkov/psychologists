@@ -126,8 +126,8 @@ export default function AdminBookingsPage() {
   const [availability, setAvailability] =
     useState<Availability>(initialAvailability);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const datePickerRef = useRef<HTMLLabelElement>(null);
-  const psychologistSelectRef = useRef<HTMLLabelElement>(null);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+  const psychologistSelectRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadBookings();
@@ -142,7 +142,7 @@ export default function AdminBookingsPage() {
   useEffect(() => {
     if (!isDateOpen && !isPsychologistOpen) return;
 
-    const handleClick = (event: MouseEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
 
       if (
@@ -160,9 +160,9 @@ export default function AdminBookingsPage() {
       }
     };
 
-    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("pointerdown", handlePointerDown);
 
-    return () => document.removeEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isDateOpen, isPsychologistOpen]);
 
   const handleDateOpen = () => {
@@ -357,8 +357,8 @@ export default function AdminBookingsPage() {
         </div>
 
         <div className={css.availabilityControls}>
-          <label className={css.customSelect} ref={psychologistSelectRef}>
-            Psychologist
+          <div className={css.customSelect} ref={psychologistSelectRef}>
+            <span className={css.controlLabel}>Psychologist</span>
             <button
               type="button"
               className={css.selectButton}
@@ -396,10 +396,10 @@ export default function AdminBookingsPage() {
                 })}
               </div>
             )}
-          </label>
+          </div>
 
-          <label className={css.datePicker} ref={datePickerRef}>
-            Date
+          <div className={css.datePicker} ref={datePickerRef}>
+            <span className={css.controlLabel}>Date</span>
             <button
               type="button"
               className={css.dateButton}
@@ -493,7 +493,7 @@ export default function AdminBookingsPage() {
                 </div>
               </div>
             )}
-          </label>
+          </div>
         </div>
 
         <div className={css.slotGrid}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { db } from "@/lib/firebase";
 import { get, ref, remove, update } from "firebase/database";
 import css from "./page.module.css";
@@ -23,6 +23,14 @@ interface ReviewItem {
 type ReviewStatusFilter = "all" | ReviewItem["status"];
 type ReviewSort = "newest" | "oldest" | "rating-desc" | "rating-asc" | "name";
 
+const SORT_OPTIONS: { value: ReviewSort; label: string }[] = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "rating-desc", label: "Highest rating" },
+  { value: "rating-asc", label: "Lowest rating" },
+  { value: "name", label: "Psychologist name" },
+];
+
 export default function AdminReviewsPage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,10 +40,38 @@ export default function AdminReviewsPage() {
   const [query, setQuery] = useState("");
   const [reviewToDelete, setReviewToDelete] = useState<ReviewItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPsychologistOpen, setIsPsychologistOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const psychologistSelectRef = useRef<HTMLDivElement>(null);
+  const sortSelectRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadReviews();
   }, []);
+
+  useEffect(() => {
+    if (!isPsychologistOpen && !isSortOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+
+      if (
+        psychologistSelectRef.current &&
+        !psychologistSelectRef.current.contains(target)
+      ) {
+        setIsPsychologistOpen(false);
+      }
+
+      if (sortSelectRef.current && !sortSelectRef.current.contains(target)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () =>
+      document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isPsychologistOpen, isSortOpen]);
 
   const loadReviews = async () => {
     try {
@@ -191,6 +227,16 @@ export default function AdminReviewsPage() {
       });
   }, [items, psychologistFilter, query, sort, statusFilter]);
 
+  const selectedPsychologistLabel =
+    psychologistFilter === "all"
+      ? "All psychologists"
+      : psychologistOptions.find((item) => item.id === psychologistFilter)
+          ?.name || "All psychologists";
+
+  const selectedSortLabel =
+    SORT_OPTIONS.find((option) => option.value === sort)?.label ||
+    "Newest first";
+
   if (loading) {
     return <Loader />;
   }
@@ -232,34 +278,94 @@ export default function AdminReviewsPage() {
           </div>
         </div>
 
-        <label className={css.controlField}>
-          Psychologist
-          <select
-            value={psychologistFilter}
-            onChange={(event) => setPsychologistFilter(event.target.value)}
+        <div className={css.controlField} ref={psychologistSelectRef}>
+          <span>Psychologist</span>
+          <button
+            type="button"
+            className={css.selectButton}
+            aria-expanded={isPsychologistOpen}
+            onClick={() => {
+              setIsPsychologistOpen((isOpen) => !isOpen);
+              setIsSortOpen(false);
+            }}
           >
-            <option value="all">All psychologists</option>
-            {psychologistOptions.map((psychologist) => (
-              <option key={psychologist.id} value={psychologist.id}>
-                {psychologist.name}
-              </option>
-            ))}
-          </select>
-        </label>
+            <span>{selectedPsychologistLabel}</span>
+          </button>
 
-        <label className={css.controlField}>
-          Sort by
-          <select
-            value={sort}
-            onChange={(event) => setSort(event.target.value as ReviewSort)}
+          {isPsychologistOpen && (
+            <div className={css.selectDropdown}>
+              <button
+                type="button"
+                className={
+                  psychologistFilter === "all"
+                    ? css.selectOptionActive
+                    : css.selectOption
+                }
+                onClick={() => {
+                  setPsychologistFilter("all");
+                  setIsPsychologistOpen(false);
+                }}
+              >
+                All psychologists
+              </button>
+
+              {psychologistOptions.map((psychologist) => (
+                <button
+                  key={psychologist.id}
+                  type="button"
+                  className={
+                    psychologistFilter === psychologist.id
+                      ? css.selectOptionActive
+                      : css.selectOption
+                  }
+                  onClick={() => {
+                    setPsychologistFilter(psychologist.id);
+                    setIsPsychologistOpen(false);
+                  }}
+                >
+                  {psychologist.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={css.controlField} ref={sortSelectRef}>
+          <span>Sort by</span>
+          <button
+            type="button"
+            className={css.selectButton}
+            aria-expanded={isSortOpen}
+            onClick={() => {
+              setIsSortOpen((isOpen) => !isOpen);
+              setIsPsychologistOpen(false);
+            }}
           >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="rating-desc">Highest rating</option>
-            <option value="rating-asc">Lowest rating</option>
-            <option value="name">Psychologist name</option>
-          </select>
-        </label>
+            <span>{selectedSortLabel}</span>
+          </button>
+
+          {isSortOpen && (
+            <div className={css.selectDropdown}>
+              {SORT_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={
+                    sort === option.value
+                      ? css.selectOptionActive
+                      : css.selectOption
+                  }
+                  onClick={() => {
+                    setSort(option.value);
+                    setIsSortOpen(false);
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       <div className={css.list}>

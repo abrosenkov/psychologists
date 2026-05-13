@@ -45,6 +45,15 @@ function AvatarImage({ psychologist }: { psychologist: Psychologist }) {
   );
 }
 
+const getTextValue = (value: unknown) =>
+  typeof value === "string" ? value.trim() : "";
+
+const getPriceLabel = (value: unknown) => {
+  const price = Number(value);
+
+  return Number.isFinite(price) ? `${price}$` : "On request";
+};
+
 export default function PsychologistCard({
   psychologist,
   isFavorite,
@@ -62,6 +71,21 @@ export default function PsychologistCard({
 
   const user = useAuthStore((state) => state.user);
   const rating = getPsychologistRating(psychologist) ?? 0;
+  const characteristics = [
+    { label: "Experience", value: getTextValue(psychologist.experience) },
+    { label: "License", value: getTextValue(psychologist.license) },
+    {
+      label: "Specialization",
+      value: getTextValue(psychologist.specialization),
+    },
+    {
+      label: "Initial consultation",
+      value: getTextValue(psychologist.initial_consultation),
+    },
+  ].filter((item) => item.value);
+  const aboutText =
+    getTextValue(psychologist.about) ||
+    "Detailed profile information is not available yet.";
 
   const handleAppointmentOpen = () => {
     if (!user) {
@@ -151,7 +175,7 @@ export default function PsychologistCard({
               <div className={css.metaPrice}>
                 Price / 1 hour:{" "}
                 <span className={css.priceValue}>
-                  {psychologist.price_per_hour}$
+                  {getPriceLabel(psychologist.price_per_hour)}
                 </span>
               </div>
             </div>
@@ -168,23 +192,17 @@ export default function PsychologistCard({
           </div>
         </div>
 
-        <div className={css.tags}>
-          <div className={css.tag}>
-            <span>Experience:</span> {psychologist.experience}
+        {characteristics.length > 0 && (
+          <div className={css.tags}>
+            {characteristics.map((item) => (
+              <div className={css.tag} key={item.label}>
+                <span>{item.label}:</span> {item.value}
+              </div>
+            ))}
           </div>
-          <div className={css.tag}>
-            <span>License:</span> {psychologist.license}
-          </div>
-          <div className={css.tag}>
-            <span>Specialization:</span> {psychologist.specialization}
-          </div>
-          <div className={css.tag}>
-            <span>Initial_consultation:</span>{" "}
-            {psychologist.initial_consultation}
-          </div>
-        </div>
+        )}
 
-        <p className={css.aboutText}>{psychologist.about}</p>
+        <p className={css.aboutText}>{aboutText}</p>
 
         {!expanded ? (
           <button className={css.readMore} onClick={() => setExpanded(true)}>

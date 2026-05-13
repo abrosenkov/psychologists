@@ -42,6 +42,22 @@ const psychologistSchema = Yup.object({
     .trim()
     .min(2, "Minimum 2 characters")
     .required("Specialization is required"),
+  experience: Yup.string()
+    .trim()
+    .min(1, "Minimum 1 character")
+    .required("Experience is required"),
+  license: Yup.string()
+    .trim()
+    .min(2, "Minimum 2 characters")
+    .required("License is required"),
+  initial_consultation: Yup.string()
+    .trim()
+    .min(2, "Minimum 2 characters")
+    .required("Initial consultation is required"),
+  about: Yup.string()
+    .trim()
+    .min(20, "Minimum 20 characters")
+    .required("About is required"),
   avatar_url: Yup.string().trim().url("Invalid image URL"),
   price_per_hour: Yup.number()
     .typeError("Price must be a number")
@@ -175,6 +191,10 @@ export default function AdminPsychologistsPage() {
         name: values.name.trim(),
         avatar_url: values.avatar_url.trim(),
         specialization: values.specialization.trim(),
+        experience: values.experience.trim(),
+        license: values.license.trim(),
+        initial_consultation: values.initial_consultation.trim(),
+        about: values.about.trim(),
         price_per_hour: Number(values.price_per_hour),
       };
 
@@ -229,7 +249,11 @@ export default function AdminPsychologistsPage() {
     ? {
         name: editingItem.name,
         avatar_url: editingItem.avatar_url || "",
-        specialization: editingItem.specialization,
+        specialization: editingItem.specialization || "",
+        experience: editingItem.experience || "",
+        license: editingItem.license || "",
+        initial_consultation: editingItem.initial_consultation || "",
+        about: editingItem.about || "",
         price_per_hour: String(editingItem.price_per_hour),
       }
     : {
@@ -308,7 +332,10 @@ export default function AdminPsychologistsPage() {
                 <h2>{editingId ? "Edit psychologist" : "Add psychologist"}</h2>
 
                 <div className={css.fieldWrapper}>
-                  <Field name="name" placeholder="Name" />
+                  <label className={css.fieldLabel} htmlFor="name">
+                    Name
+                  </label>
+                  <Field id="name" name="name" placeholder="Dr. Amanda Davis" />
                   <ErrorMessage
                     name="name"
                     component="div"
@@ -340,7 +367,14 @@ export default function AdminPsychologistsPage() {
                 />
 
                 <div className={css.fieldWrapper}>
-                  <Field name="specialization" placeholder="Specialization" />
+                  <label className={css.fieldLabel} htmlFor="specialization">
+                    Specialization
+                  </label>
+                  <Field
+                    id="specialization"
+                    name="specialization"
+                    placeholder="Anxiety and Stress Management"
+                  />
                   <ErrorMessage
                     name="specialization"
                     component="div"
@@ -349,7 +383,83 @@ export default function AdminPsychologistsPage() {
                 </div>
 
                 <div className={css.fieldWrapper}>
-                  <Field name="price_per_hour" placeholder="Price" />
+                  <label className={css.fieldLabel} htmlFor="experience">
+                    Experience
+                  </label>
+                  <Field
+                    id="experience"
+                    name="experience"
+                    placeholder="8 years"
+                  />
+                  <ErrorMessage
+                    name="experience"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+
+                <div className={css.fieldWrapper}>
+                  <label className={css.fieldLabel} htmlFor="license">
+                    License
+                  </label>
+                  <Field
+                    id="license"
+                    name="license"
+                    placeholder="Licensed Psychologist (License #54321)"
+                  />
+                  <ErrorMessage
+                    name="license"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+
+                <div className={css.fieldWrapper}>
+                  <label
+                    className={css.fieldLabel}
+                    htmlFor="initial_consultation"
+                  >
+                    Initial consultation
+                  </label>
+                  <Field
+                    id="initial_consultation"
+                    name="initial_consultation"
+                    placeholder="Free 30-minute initial consultation"
+                  />
+                  <ErrorMessage
+                    name="initial_consultation"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+
+                <div className={css.fieldWrapper}>
+                  <label className={css.fieldLabel} htmlFor="about">
+                    About psychologist
+                  </label>
+                  <Field
+                    id="about"
+                    as="textarea"
+                    name="about"
+                    placeholder="Write a short professional description"
+                    className={css.textarea}
+                  />
+                  <ErrorMessage
+                    name="about"
+                    component="div"
+                    className={css.error}
+                  />
+                </div>
+
+                <div className={css.fieldWrapper}>
+                  <label className={css.fieldLabel} htmlFor="price_per_hour">
+                    Price per hour
+                  </label>
+                  <Field
+                    id="price_per_hour"
+                    name="price_per_hour"
+                    placeholder="170"
+                  />
                   <ErrorMessage
                     name="price_per_hour"
                     component="div"
