@@ -6,13 +6,14 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 
 - Responsive public catalog with filtering and sorting by name, price, and rating
 - Firebase Authentication with protected user and admin routes
-- Favorites, profile page, and personal appointment history
+- Favorites, profile page, personal appointment history, and user review history
 - Appointment booking with busy-slot checks, closed days, closed time slots, and past-time prevention
 - User profile photo upload/removal through Cloudinary
-- Review submission, moderation, deletion, and automatic psychologist rating recalculation
+- Review submission with pending moderation, user-visible review status, deletion, and automatic psychologist rating recalculation after admin moderation
 - Admin dashboard with booking pipeline, review queue, upcoming appointments, past bookings, incomplete profiles, and recent activity
 - Admin CRUD for psychologists with Cloudinary image upload and profile completeness filters
 - Booking management with status changes, availability controls, past booking markers, and delete confirmation
+- Admin user management with search, sorting, booking/review activity details, and database record deletion
 - Responsive admin UI for desktop and mobile
 - Form validation, persisted drafts, loading states, empty states, and toast feedback
 
@@ -28,6 +29,7 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 - Book available appointment slots
 - Leave reviews for moderation
 - Track appointment history in profile
+- Track submitted reviews and moderation status in profile
 - Cancel active appointments
 - Upload or remove profile photo
 
@@ -38,6 +40,7 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 - View past bookings and client details
 - Close full days or individual time slots
 - Approve, reject, or delete reviews
+- View registered users, inspect their bookings and reviews, and remove their database records
 - Monitor platform health from the dashboard
 
 ## Tech Stack
@@ -63,6 +66,7 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 - `/admin/psychologists` - specialist management
 - `/admin/bookings` - booking and availability management
 - `/admin/reviews` - review moderation
+- `/admin/users` - registered user management and activity details
 
 ## Product Workflow
 
@@ -71,8 +75,10 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 3. Booking checks prevent cancelled, closed, busy, and past slots from being selected.
 4. Bookings are stored with `pending`, `confirmed`, or `cancelled` statuses.
 5. Admins manage statuses, delete old bookings, and control availability by day or time slot.
-6. Users leave reviews, admins moderate them, and ratings are recalculated from non-rejected reviews.
-7. Users and psychologists can have uploaded photos stored in Cloudinary and referenced from Firebase.
+6. Users leave reviews with `pending` status and can see them in their profile.
+7. Admins approve, reject, or delete reviews, and ratings are recalculated from non-rejected reviews.
+8. Admins can inspect registered users, including their booking and review activity.
+9. Users and psychologists can have uploaded photos stored in Cloudinary and referenced from Firebase.
 
 ## Admin Access
 
@@ -91,6 +97,18 @@ Create a user in Firebase Authentication, copy the `uid`, then add a user record
 ```
 
 Regular users should have `role: "user"` or no admin role.
+
+Admin user deletion removes Realtime Database records only: `users`, `favorites`, related `appointments`, and related `reviews`. Deleting the Firebase Authentication account itself requires a backend with Firebase Admin SDK.
+
+## Firebase Rules
+
+The app expects Realtime Database rules from `database.rules.json`. Deploy or publish them after changes:
+
+```bash
+firebase deploy --only database
+```
+
+These rules allow users to create only their own pending reviews, while admins can moderate reviews and read/manage operational records.
 
 ## Local Setup
 
@@ -137,9 +155,10 @@ This project demonstrates:
 - role-based app flows;
 - Firebase Auth and Realtime Database operations;
 - protected client routes;
+- Firebase Realtime Database security rules for user and admin paths;
 - Cloudinary media uploads;
 - admin workflows and operational dashboards;
 - persisted form drafts with Zustand;
 - robust form handling and validation;
 - responsive product UI;
-- realistic edge cases such as past slots, moderation, cancellation, deletion, empty states, and rating recalculation.
+- realistic edge cases such as past slots, moderation, cancellation, protected deletion, empty states, and rating recalculation.
