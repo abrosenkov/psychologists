@@ -13,7 +13,6 @@ import Modal from "../Modal/Modal";
 import { push, ref, set } from "firebase/database";
 import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { recalculatePsychologistRating } from "@/lib/reviewRating";
 import { getPsychologistRating } from "@/lib/psychologistFilters";
 import toast from "react-hot-toast";
 
@@ -118,18 +117,23 @@ export default function PsychologistCard({
       return;
     }
 
-    const reviewRef = push(ref(db, `psychologists/${psychologist.id}/reviews`));
+    try {
+      const reviewRef = push(
+        ref(db, `psychologists/${psychologist.id}/reviews`)
+      );
 
-    await set(reviewRef, {
-      userId: user.uid,
-      userName: user?.displayName || user?.email || "Anonymous",
-      rating: Number(reviewForm.rating),
-      text: trimmedComment,
-      status: "pending",
-      createdAt: Date.now(),
-    });
-
-    await recalculatePsychologistRating(psychologist.id);
+      await set(reviewRef, {
+        userId: user.uid,
+        userName: user?.displayName || user?.email || "Anonymous",
+        rating: Number(reviewForm.rating),
+        text: trimmedComment,
+        status: "pending",
+        createdAt: Date.now(),
+      });
+    } catch {
+      toast.error("Failed to submit review.");
+      return;
+    }
 
     setReviewForm({
       rating: "5",

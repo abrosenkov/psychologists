@@ -25,10 +25,26 @@ interface UserAppointment {
   createdAt: number;
 }
 
+interface UserReview {
+  id: string;
+  psychologistId: string;
+  psychologistName: string;
+  rating: number;
+  text: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: number;
+}
+
 const statusLabels: Record<UserAppointment["status"], string> = {
   pending: "Pending",
   confirmed: "Confirmed",
   cancelled: "Cancelled",
+};
+
+const reviewStatusLabels: Record<UserReview["status"], string> = {
+  pending: "Pending",
+  approved: "Approved",
+  rejected: "Rejected",
 };
 
 function formatDate(value: string) {
@@ -52,6 +68,7 @@ export default function ProfilePage() {
   const loadingAuth = useAuthStore((state) => state.loading);
 
   const [appointments, setAppointments] = useState<UserAppointment[]>([]);
+  const [reviews, setReviews] = useState<UserReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -66,7 +83,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!user) return;
 
-    const loadAppointments = async () => {
+    const loadProfileData = async () => {
       setLoading(true);
 
       try {
@@ -82,41 +99,75 @@ export default function ProfilePage() {
         ]);
 
         const psychologists = psychologistsSnapshot.exists()
-          ? (psychologistsSnapshot.val() as Record<string, { name?: string }>)
+          ? (psychologistsSnapshot.val() as Record<
+              string,
+              {
+                name?: string;
+                reviews?: Record<
+                  string,
+                  {
+                    userId?: string;
+                    rating?: number;
+                    text?: string;
+                    comment?: string;
+                    status?: UserReview["status"];
+                    createdAt?: number;
+                  }
+                >;
+              }
+            >)
           : {};
 
         if (!appointmentsSnapshot.exists()) {
           setAppointments([]);
-          return;
+        } else {
+          const data = appointmentsSnapshot.val() as Record<
+            string,
+            Omit<UserAppointment, "id" | "psychologistName">
+          >;
+
+          const nextAppointments = Object.entries(data)
+            .map(([id, appointment]) => ({
+              ...appointment,
+              id,
+              status: appointment.status || "pending",
+              psychologistName:
+                psychologists[appointment.psychologistId]?.name ||
+                "Unknown specialist",
+            }))
+            .sort((a, b) => {
+              const byDate = b.date.localeCompare(a.date);
+              return byDate || b.time.localeCompare(a.time);
+            });
+
+          setAppointments(nextAppointments);
         }
 
-        const data = appointmentsSnapshot.val() as Record<
-          string,
-          Omit<UserAppointment, "id" | "psychologistName">
-        >;
+        const nextReviews = Object.entries(psychologists)
+          .flatMap(([psychologistId, psychologist]) =>
+            Object.entries(psychologist.reviews || {})
+              .filter(([, review]) => review.userId === user.uid)
+              .map(([id, review]) => ({
+                id,
+                psychologistId,
+                psychologistName: psychologist.name || "Unknown specialist",
+                rating: review.rating || 5,
+                text: review.text || review.comment || "",
+                status: review.status || "approved",
+                createdAt: review.createdAt || 0,
+              }))
+          )
+          .sort((a, b) => b.createdAt - a.createdAt);
 
-        const nextAppointments = Object.entries(data)
-          .map(([id, appointment]) => ({
-            ...appointment,
-            id,
-            status: appointment.status || "pending",
-            psychologistName:
-              psychologists[appointment.psychologistId]?.name || "Unknown specialist",
-          }))
-          .sort((a, b) => {
-            const byDate = b.date.localeCompare(a.date);
-            return byDate || b.time.localeCompare(a.time);
-          });
-
-        setAppointments(nextAppointments);
+        setReviews(nextReviews);
       } catch {
-        toast.error("Failed to load appointments.");
+        toast.error("Failed to load profile data.");
       } finally {
         setLoading(false);
       }
     };
 
-    loadAppointments();
+    loadProfileData();
   }, [user]);
 
   const activeCount = useMemo(
@@ -263,6 +314,11 @@ export default function ProfilePage() {
             <span>Total requests</span>
             <strong>{appointments.length}</strong>
           </div>
+
+          <div className={css.statCard}>
+            <span>Reviews</span>
+            <strong>{reviews.length}</strong>
+          </div>
         </section>
 
         <section className={css.appointmentsSection}>
@@ -321,6 +377,42 @@ export default function ProfilePage() {
                   </article>
                 );
               })}
+            </div>
+          )}
+        </section>
+
+        <section className={css.reviewsSection}>
+          <div className={css.sectionHeader}>
+            <h2>Reviews</h2>
+            <p>Check your submitted feedback and moderation status.</p>
+          </div>
+
+          {loading ? (
+            <Loader />
+          ) : reviews.length === 0 ? (
+            <div className={css.emptyState}>You have not left reviews yet.</div>
+          ) : (
+            <div className={css.reviewList}>
+              {reviews.map((review) => (
+                <article
+                  key={`${review.psychologistId}-${review.id}`}
+                  className={css.reviewCard}
+                >
+                  <div className={css.reviewMain}>
+                    <div>
+                      <h3>{review.psychologistName}</h3>
+                      <p>Rating: {review.rating}/5</p>
+                    </div>
+                    <span className={css[review.status]}>
+                      {reviewStatusLabels[review.status]}
+                    </span>
+                  </div>
+
+                  {review.text && (
+                    <p className={css.reviewText}>{review.text}</p>
+                  )}
+                </article>
+              ))}
             </div>
           )}
         </section>
