@@ -57,28 +57,40 @@ export default function AdminLayout({
             href="/admin"
             className={getLinkClassName("/admin")}
           >
-            Dashboard
+            <span className={css.fullLabel}>Dashboard</span>
+            <span className={css.shortLabel}>Home</span>
           </Link>
 
           <Link
             href="/admin/psychologists"
             className={getLinkClassName("/admin/psychologists")}
           >
-            Psychologists
+            <span className={css.fullLabel}>Psychologists</span>
+            <span className={css.shortLabel}>Psychs</span>
           </Link>
 
           <Link
             href="/admin/bookings"
             className={getLinkClassName("/admin/bookings")}
           >
-            Bookings
+            <span className={css.fullLabel}>Bookings</span>
+            <span className={css.shortLabel}>Books</span>
           </Link>
 
           <Link
             href="/admin/reviews"
             className={getLinkClassName("/admin/reviews")}
           >
-            Reviews
+            <span className={css.fullLabel}>Reviews</span>
+            <span className={css.shortLabel}>Reviews</span>
+          </Link>
+
+          <Link
+            href="/admin/users"
+            className={getLinkClassName("/admin/users")}
+          >
+            <span className={css.fullLabel}>Users</span>
+            <span className={css.shortLabel}>Users</span>
           </Link>
         </nav>
       </aside>
