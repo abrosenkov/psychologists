@@ -2,7 +2,15 @@
   "rules": {
     "psychologists": {
       ".read": true,
-      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      "$psychologistId": {
+        "reviews": {
+          "$reviewId": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && newData.child('userId').val() === auth.uid && newData.child('status').val() === 'pending'))",
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.hasChildren(['userId', 'userName', 'rating', 'text', 'status', 'createdAt']) && newData.child('userId').val() === auth.uid && newData.child('userName').isString() && newData.child('rating').isNumber() && newData.child('rating').val() >= 1 && newData.child('rating').val() <= 5 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('status').val() === 'pending' && newData.child('createdAt').isNumber())"
+          }
+        }
+      }
     },
     "users": {
       "$uid": {
