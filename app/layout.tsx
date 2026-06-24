@@ -6,6 +6,8 @@ import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/Header/Header";
 import AuthListener from "@/components/AuthListener/AuthListener";
+import Script from "next/script";
+import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +22,7 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Psychologists — find your specialist",
+    default: "Psychologists - find your specialist",
     template: "%s | Psychologists",
   },
   description:
@@ -48,12 +50,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
+      <head>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`
+            (function () {
+              try {
+                var savedTheme = localStorage.getItem("app-theme");
+                var legacyThemes = { mint: "green", ocean: "blue", berry: "green" };
+                var allowedThemes = ["green", "orange", "blue", "dark"];
+                if (legacyThemes[savedTheme]) {
+                  savedTheme = legacyThemes[savedTheme];
+                  localStorage.setItem("app-theme", savedTheme);
+                }
+                if (allowedThemes.indexOf(savedTheme) === -1) {
+                  savedTheme = null;
+                }
+                var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                var theme = savedTheme || (prefersDark ? "dark" : "green");
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
+              } catch (error) {
+                document.documentElement.dataset.theme = "green";
+              }
+            })();
+          `}
+        </Script>
+      </head>
       <body className={inter.variable}>
         <TanStackProvider>
           <AuthListener />
           <Header />
           {children}
+          <ThemeSwitcher />
           <Toaster
             position="top-right"
             reverseOrder={false}
@@ -65,10 +94,10 @@ export default function RootLayout({
               style: {
                 width: "min(420px, calc(100vw - 40px))",
                 maxWidth: "calc(100vw - 40px)",
-                background: "#ffffff",
-                color: "#191a15",
-                border: "1px solid rgba(25, 26, 21, 0.08)",
-                boxShadow: "0 18px 50px rgba(17, 24, 39, 0.14)",
+                background: "var(--color-surface-raised)",
+                color: "var(--color-text)",
+                border: "1px solid var(--color-border)",
+                boxShadow: "var(--shadow-soft)",
               },
               success: {
                 className: "appToast appToastSuccess",
@@ -88,8 +117,8 @@ export default function RootLayout({
               loading: {
                 className: "appToast appToastLoading",
                 iconTheme: {
-                  primary: "#54be96",
-                  secondary: "#ffffff",
+                  primary: "var(--color-accent)",
+                  secondary: "var(--color-surface-raised)",
                 },
               },
             }}

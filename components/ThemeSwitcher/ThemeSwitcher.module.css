@@ -1,0 +1,138 @@
+.switcher {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 120;
+  display: inline-flex;
+  align-items: center;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-surface-raised) 76%, transparent);
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+  opacity: 0.72;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.trigger:hover,
+.trigger:focus-visible,
+.trigger[aria-expanded="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-surface-raised);
+  opacity: 1;
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.currentSwatch,
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--theme-swatch);
+}
+
+.currentSwatch {
+  width: 16px;
+  height: 16px;
+  color: #ffffff;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  transition: transform 180ms ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.options {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 121;
+  display: grid;
+  gap: 4px;
+  width: 132px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-modal);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.optionsOpen {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  outline: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.option:hover,
+.option:focus-visible,
+.active {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.optionLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media screen and (min-width: 768px) {
+  .switcher {
+    right: 22px;
+    bottom: 22px;
+  }
+}
