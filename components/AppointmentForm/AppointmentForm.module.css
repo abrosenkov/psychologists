@@ -11,12 +11,12 @@
   font-size: 28px;
   font-weight: 500;
   line-height: 1.2;
-  color: #191a15;
+  color: var(--color-text);
   margin-bottom: 20px;
 }
 
 .text {
-  color: rgba(25, 26, 21, 0.5);
+  color: var(--color-muted);
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 28px;
@@ -43,21 +43,21 @@
   width: 44px;
   height: 44px;
   border-radius: 15px;
-  background: rgba(84, 190, 150, 0.2);
-  color: #54be96;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   font-weight: 600;
 }
 
 .label {
   font-size: 12px;
-  color: #8a8a89;
+  color: var(--color-subtle);
   margin-bottom: 4px;
 }
 
 .name {
   font-size: 16px;
   font-weight: 500;
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .fieldsWrapper {
@@ -83,17 +83,17 @@
   min-width: 0;
   padding: 16px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(25, 26, 21, 0.1);
+  border: 1px solid var(--color-border);
   font-size: 16px;
   line-height: 1.25;
-  color: #191a15;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
   outline: none;
   transition: border-color 0.2s ease;
 }
 
 .input:focus, .textarea:focus {
-  border-color: #54be96;
+  border-color: var(--color-accent);
 }
 
 .input:disabled {
@@ -108,7 +108,7 @@
 }
 
 .textarea::placeholder {
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .timePicker {
@@ -127,7 +127,7 @@
 
 .dateIcon {
   flex: 0 0 auto;
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .calendarDropdown {
@@ -137,9 +137,9 @@
   z-index: 120;
   width: min(328px, calc(100vw - 64px));
   padding: 16px;
-  border: 1px solid rgba(25, 26, 21, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: #ffffff;
+  background: var(--color-surface-raised);
   box-shadow: 0 20px 69px rgba(0, 0, 0, 0.12);
 }
 
@@ -152,7 +152,7 @@
 }
 
 .calendarTitle {
-  color: #191a15;
+  color: var(--color-text);
   font-size: 16px;
   font-weight: 600;
   line-height: 1.25;
@@ -166,10 +166,10 @@
   width: 34px;
   height: 34px;
   flex: 0 0 34px;
-  border: 1px solid rgba(25, 26, 21, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  color: #191a15;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -178,8 +178,8 @@
 
 .calendarNav:hover,
 .calendarNav:focus-visible {
-  border-color: #54be96;
-  color: #54be96;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
   outline: none;
 }
 
@@ -209,7 +209,7 @@
   aspect-ratio: 1;
   min-width: 0;
   border-radius: 10px;
-  color: #191a15;
+  color: var(--color-text);
   background: #f8f8f8;
   font-size: 14px;
   font-weight: 500;
@@ -221,20 +221,20 @@
 
 .calendarDay:hover:not(:disabled),
 .calendarDay:focus-visible:not(:disabled) {
-  color: #ffffff;
-  background: #54be96;
+  color: var(--color-surface-raised);
+  background: var(--color-accent);
   outline: none;
   transform: translateY(-1px);
 }
 
 .calendarDayMuted {
   color: rgba(25, 26, 21, 0.35);
-  background: #fbfbfb;
+  background: var(--color-surface);
 }
 
 .calendarDaySelected {
-  color: #ffffff;
-  background: #54be96;
+  color: var(--color-surface-raised);
+  background: var(--color-accent);
 }
 
 .calendarDayClosed {
@@ -244,7 +244,7 @@
 
 .calendarDay:disabled {
   color: rgba(25, 26, 21, 0.22);
-  background: #f3f3f3;
+  background: var(--color-page);
   cursor: not-allowed;
   transform: none;
 }
@@ -274,7 +274,7 @@
   right: 18px;
   top: 50%;
   transform: translateY(-50%);
-  color: #191a15;
+  color: var(--color-text);
   pointer-events: none;
 }
 
@@ -282,7 +282,7 @@
   position: absolute;
   top: calc(100% + 4px);
   right: 0;
-  background: #ffffff;
+  background: var(--color-surface-raised);
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0px 20px 69px 0px rgba(0, 0, 0, 0.07);
@@ -295,7 +295,7 @@
 .dropdownTitle {
   font-size: 16px;
   font-weight: 500;
-  color: #191a15;
+  color: var(--color-text);
   margin-bottom: 16px;
 }
 
@@ -314,7 +314,7 @@
 }
 
 .timeItem:hover {
-  color: #191a15;
+  color: var(--color-text);
 }
 
 
@@ -336,8 +336,8 @@
 
 .submit {
   margin-top: 24px;
-  background: #54be96;
-  color: #ffffff;
+  background: var(--color-accent);
+  color: var(--color-surface-raised);
   padding: 16px;
   border-radius: 30px;
   border: none;
@@ -348,7 +348,7 @@
 }
 
 .submit:hover {
-  background: #36a379;
+  background: var(--color-accent-hover);
 }
 
 .submit:disabled {

@@ -19,6 +19,7 @@ export const Button = ({
   onClick,
   type = "button",
   className,
+  disabled = false,
 }: ButtonProps) => {
   const rootClassName = clsx(css.ctaButton, className);
 
@@ -31,7 +32,12 @@ export const Button = ({
   }
 
   return (
-    <button type={type} onClick={onClick} className={rootClassName}>
+    <button
+      type={type}
+      onClick={onClick}
+      className={rootClassName}
+      disabled={disabled}
+    >
       {children}
     </button>
   );

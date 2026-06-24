@@ -4,14 +4,14 @@
   align-items: center;
   justify-content: center;
   padding: 10px 32px;
-  background-color: #54be96;
+  background-color: var(--color-accent);
   width: 100%; 
   max-width: 225px;
   font-weight: 500;
   font-size: 14px;
   line-height: 1.25;
   letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--color-surface-raised);
   border-radius: 30px;
   border: none;
   outline: none;
@@ -23,7 +23,14 @@
 
 .ctaButton:hover, 
 .ctaButton:focus {
-  background-color: #36a379;
+  background-color: var(--color-accent-hover);
+}
+
+.ctaButton:disabled,
+.ctaButton[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  background-color: var(--color-muted);
 }
 
 @media screen and (min-width: 1440px) {

@@ -8,7 +8,7 @@
   width: 100%;
   display: flex;
   padding: 120px 0 50px;
-  background: linear-gradient(135deg, #ffffff 0%, rgba(84, 190, 150, 0.2)100%);
+  background: var(--color-hero-gradient);
 }
 
 .heroWrapper {
@@ -22,12 +22,12 @@
   font-weight: 600;
   font-size: 40px;
   margin-bottom: 20px;
-  color: #191a15;
+  color: var(--color-text);
   line-height: 1.025;
 }
 
 .title span {
-  color: #54be96;
+  color: var(--color-accent);
   font-style: italic;
 }
 
@@ -37,7 +37,7 @@
   line-height: 1.33;
   margin-bottom: 40px;
   letter-spacing: -0.02em;
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .ctaButton {
@@ -46,19 +46,19 @@
   align-items: center;
   justify-content: center;
   padding: 18px 50px;
-  background-color: #54be96;
+  background-color: var(--color-accent);
   max-width: 235px;
   font-weight: 500;
   font-size: 16px;
   letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--color-surface-raised);
   border-radius: 200px;
   cursor: pointer;
   transition:  background-color 250ms ease-in-out;
 }
 
 .ctaButton:hover, .ctaButton:focus {
-  background-color: #36a379;
+  background-color: var(--color-accent-hover);
 }
 
 .wrapper {
@@ -89,7 +89,7 @@
 }
 
 .imgIcon {
-  color: #fbfbfb;
+  color: var(--color-surface);
   width: 40px;
   height: 40px;
   display: flex;
@@ -142,7 +142,7 @@
   left: 2.5%;
   padding: 15px;
   border-radius: 20px;
-  background-color: #54be96;
+  background-color: var(--color-accent);
 }
 
 .infoIcon {
@@ -152,11 +152,11 @@
   width: 54px;
   height: 54px;
   border-radius: 13px;
-  background-color: #fbfbfb;
+  background-color: var(--color-surface);
 }
 
 .feCheck {
-  fill: #54be96;
+  fill: var(--color-accent);
 }
 
 .infoWrapper {
@@ -174,26 +174,26 @@
 .infoCount {
   font-weight: 700;
   font-size: 24px;
-  color: #fbfbfb;
+  color: var(--color-surface);
 }
 
 .titleNotFound {
   font-size: 120px;
   font-weight: 700;
-  color: #54be96;
+  color: var(--color-accent);
   margin: 0;
   line-height: 1;
 }
 
 .subtitleNotFound {
   font-size: 32px;
-  color: #101828;
+  color: var(--color-text);
   margin-bottom:20px;
 }
 
 .descriptionNotFound {
   font-size: 18px;
-  color: #475467;
+  color: var(--color-muted);
   max-width: 480px;
   margin-bottom: 24px;
 }
@@ -201,7 +201,7 @@
 .backBtn {
   display: inline-block;
   padding: 16px 40px;
-  background-color: #54be96;
+  background-color: var(--color-accent);
   color: #f7f7f7;
   border-radius: 200px;
   font-weight: 500;
@@ -210,7 +210,7 @@
 }
 
 .backBtn:hover {
-  background-color: #36a379;
+  background-color: var(--color-accent-hover);
 }
 
 @media screen and (min-width: 768px) {

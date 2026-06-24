@@ -15,6 +15,7 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 - Booking management with status changes, availability controls, past booking markers, and delete confirmation
 - Admin user management with search, sorting, booking/review activity details, and database record deletion
 - Responsive admin UI for desktop and mobile
+- Theme switcher with green, orange, blue, and dark modes
 - Form validation, persisted drafts, loading states, empty states, and toast feedback
 
 ## User Roles
@@ -100,6 +101,58 @@ Regular users should have `role: "user"` or no admin role.
 
 Admin user deletion removes Realtime Database records only: `users`, `favorites`, related `appointments`, and related `reviews`. Deleting the Firebase Authentication account itself requires a backend with Firebase Admin SDK.
 
+## Demo Accounts
+
+For a local or demo Firebase project, create two Firebase Authentication users:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Test user | `test-user@example.com` | `TestUser123!` |
+| Test admin | `test-admin@example.com` | `TestAdmin123!` |
+
+Do not use these credentials in a real production Firebase project. For production, create private test accounts and rotate passwords after QA.
+
+After creating the accounts, copy their Firebase Auth `uid` values and add user records in Realtime Database:
+
+```json
+{
+  "users": {
+    "PASTE_TEST_USER_UID_HERE": {
+      "name": "Test User",
+      "email": "test-user@example.com",
+      "role": "user"
+    },
+    "PASTE_TEST_ADMIN_UID_HERE": {
+      "name": "Test Admin",
+      "email": "test-admin@example.com",
+      "role": "admin"
+    }
+  }
+}
+```
+
+## Manual QA Checklist
+
+**Visitor flow**
+- Open `/` and switch between green, orange, blue, and dark themes.
+- Open `/psychologists`, sort and filter specialists, expand a specialist card, and check reviews.
+- Try saving a favorite while logged out and confirm the login-required toast appears.
+
+**Test user flow**
+- Log in as `test-user@example.com`.
+- Save and remove a psychologist from favorites.
+- Book an available appointment slot and verify it appears in `/profile`.
+- Submit a review and confirm it appears with pending moderation status.
+- Cancel an active appointment from the profile page.
+
+**Test admin flow**
+- Log in as `test-admin@example.com`.
+- Open `/admin` and confirm dashboard cards load.
+- Open `/admin/bookings`, confirm/cancel a booking, close a day or time slot, and verify dark theme styling.
+- Open `/admin/reviews`, approve or reject the test user's pending review.
+- Open `/admin/psychologists`, create/edit a psychologist profile and upload/remove a photo if Cloudinary is configured.
+- Open `/admin/users`, search for the test user and inspect their bookings/reviews.
+
 ## Firebase Rules
 
 The app expects Realtime Database rules from `database.rules.json`. Deploy or publish them after changes:
@@ -144,8 +197,8 @@ Cloudinary uses unsigned uploads from the client. Do not expose `API Secret` in 
 
 ```bash
 npm run lint
-npm run build
 npm test
+npm run build
 ```
 
 ## Portfolio Focus

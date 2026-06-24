@@ -3,7 +3,7 @@
   position: relative;
   flex-direction: column;
   position: relative;
-  background-color: #fbfbfb;
+  background-color: var(--color-surface);
   border-radius: 18px;
   padding: 16px;
   gap: 14px;
@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(84, 190, 150, 0.2);
+  border: 2px solid var(--color-accent-soft);
   border-radius: 22px;
   width: 92px;
   height: 92px;
@@ -40,8 +40,8 @@
   width: 76px;
   height: 76px;
   border-radius: 13px;
-  background: rgba(84, 190, 150, 0.2);
-  color: #54be96;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   font-size: 30px;
   font-weight: 600;
 }
@@ -53,7 +53,7 @@
   width: 12px;
   height: 12px;
   background-color: #38cd3e;
-  border: 2px solid #fbfbfb;
+  border: 2px solid var(--color-surface);
   border-radius: 50%;
 }
 
@@ -82,7 +82,7 @@
   font-weight: 500;
   font-size: 14px;
   line-height: 1.35;
-  color: #191a15;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -96,11 +96,11 @@
 }
 
 .metaSeparator {
-  color: rgba(25, 26, 21, 0.2);
+  color: var(--color-border-strong);
 }
 
 .priceValue {
-  color: #38cd3e;
+  color: var(--color-accent);
 }
 
 .starIcon {
@@ -116,13 +116,13 @@
 .nameSubTitle {
   font-weight: 500;
   font-size: 14px;
-  color: #8a8a89;
+  color: var(--color-subtle);
 }
 
 .name {
   font-weight: 500;
   font-size: 22px;
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .tags {
@@ -134,22 +134,22 @@
 
 .tag {
   padding: 8px 12px;
-  background: #f3f3f3;
+  background: var(--color-page);
   border-radius: 14px;
   font-size: 14px;
-  color: #191a15;
+  color: var(--color-text);
   line-height: 1.35;
   font-weight: 500;
 }
 
 .tag span {
-  color: #8a8a89;
+  color: var(--color-subtle);
 }
 
 .aboutText {
   font-weight: 400;
   font-size: 14px;
-  color: rgba(25, 26, 21, 0.5);
+  color: var(--color-muted);
   line-height: 1.45;
 }
 
@@ -160,7 +160,7 @@
   font-weight: 500;
   cursor: pointer;
   padding: 0;
-  color: #191a15;
+  color: var(--color-text);
   font-size: 14px;
   margin-top: 10px;
   outline: none;
@@ -194,8 +194,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(84, 190, 150, 0.2);
-  color: #54be96;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,7 +213,7 @@
   font-weight: 500;
   font-size: 16px;
   line-height: 1.25;
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .reviewRating {
@@ -229,17 +229,17 @@
   font-weight: 500;
   font-size: 14px;
   line-height: 1.28571;
-  color: #191a15;
+  color: var(--color-text);
 }
 
 .reviewText {
-  color: rgba(25, 26, 21, 0.5);
+  color: var(--color-muted);
   line-height: 1.25;
 }
 
 .appointmentBtn {
-  background: #54be96;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface-raised);
   padding: 14px 40px;
   border-radius: 30px;
   border: none;
@@ -250,7 +250,7 @@
 }
 
 .appointmentBtn:hover {
-  background: #36a379;
+  background: var(--color-accent-hover);
 }
 
 .favoriteButton {
@@ -263,32 +263,32 @@
   background: transparent;
   cursor: pointer;
   font-size: 20px;
-  color: #191a15;
+  color: var(--color-text);
   outline: none;
   -webkit-tap-highlight-color: transparent;
   transition: color 200ms ease;
 }
 
 .favoriteButton:hover {
-  color: #54be96;
+  color: var(--color-accent);
 }
 
 .favoriteActive {
-  color: #54be96;
+  color: var(--color-accent);
 }
 
 .reviewBtn {
   margin-top: 12px;
   background: transparent;
-  color: #54be96;
-  border: 1px solid #54be96;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
   transition: 0.2s ease;
   height: 48px;
 }
 
 .reviewBtn:hover {
-  background: #54be96;
-  color: #ffffff;
+  background: var(--color-accent);
+  color: var(--color-surface-raised);
 }
 
 .reviewModal {
@@ -307,18 +307,18 @@
 .reviewModal textarea {
   width: 100%;
   max-width: 100%;
-  border: 1px solid #ececec;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 12px;
   font: inherit;
-  color: #191a15;
+  color: var(--color-text);
   outline: none;
   transition: border-color 200ms ease;
 }
 
 .reviewModal input:focus,
 .reviewModal textarea:focus {
-  border-color: #54be96;
+  border-color: var(--color-accent);
 }
 
 .reviewModal textarea {
@@ -359,7 +359,7 @@
   margin-left: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(25, 26, 21, 0.6);
+  color: var(--color-muted);
   white-space: nowrap;
 }
 

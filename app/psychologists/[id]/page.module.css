@@ -24,12 +24,12 @@
 
 .subtitle {
   font-size: 32px;
-  color: #101828;
+  color: var(--color-text);
 }
 
 .description {
   font-size: 18px;
-  color: #475467;
+  color: var(--color-muted);
   max-width: 480px;
   margin-bottom: 24px;
 }

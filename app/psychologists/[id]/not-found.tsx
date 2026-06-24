@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: "https://campers-el18.vercel.app/not-found",
     images: [
       {
-        url: "/hero/hero-bg.webp",
+        url: "/hero/hero.webp",
         width: 1200,
         height: 630,
         alt: "TravelTrucks image",
