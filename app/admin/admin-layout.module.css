@@ -1,6 +1,6 @@
 .wrapper {
   display: flex;
-  min-height: calc(100vh - 96px);
+  min-height: 100vh;
   padding-top: var(--app-header-height, 96px);
   background: var(--color-page);
   max-width: 100%;
