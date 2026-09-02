@@ -230,6 +230,14 @@ h6 {
   }
 }
 
+@media screen and (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+    padding-right: 48px;
+    padding-left: 48px;
+  }
+}
+
 @media screen and (min-width: 1440px) {
   .container {
   max-width: 1440px;
