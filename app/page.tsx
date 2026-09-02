@@ -77,6 +77,8 @@ export default function Home() {
               height={526}
               src="/hero/hero.webp"
               alt="Experienced psychologists"
+              sizes="(min-width: 1024px) 464px, (min-width: 768px) 464px, calc(100vw - 40px)"
+              priority
             />
             <div className={css.imageInfo}>
               <div className={css.infoIcon}>
