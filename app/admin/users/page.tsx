@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import Loader from "@/components/Loader/Loader";
 import Modal from "@/components/Modal/Modal";
 import { db } from "@/lib/firebase";
+import { getBookingSlotPath } from "@/lib/appointments";
+import { recalculatePsychologistRating } from "@/lib/reviewRating";
 import { useAuthStore } from "@/stores/useAuthStore";
 import css from "./page.module.css";
 
@@ -104,11 +106,12 @@ export default function AdminUsersPage() {
     setLoading(true);
 
     try {
-      const [usersSnap, appointmentsSnap, psychologistsSnap] =
+      const [usersSnap, appointmentsSnap, psychologistsSnap, submissionsSnap] =
         await Promise.all([
           get(ref(db, "users")),
           get(ref(db, "appointments")),
           get(ref(db, "psychologists")),
+          get(ref(db, "reviewSubmissions")),
         ]);
 
       const usersData = usersSnap.exists()
@@ -190,6 +193,43 @@ export default function AdminUsersPage() {
         }
       );
 
+      if (submissionsSnap.exists()) {
+        const submissions = submissionsSnap.val() as Record<
+          string,
+          Record<
+            string,
+            {
+              psychologistId: string;
+              rating: number;
+              text: string;
+              status: ReviewStatus;
+              createdAt?: number;
+            }
+          >
+        >;
+
+        Object.entries(submissions).forEach(([userId, userReviews]) => {
+          const legacyIds = new Set(
+            (reviewsByUser[userId] || []).map((review) => review.id)
+          );
+
+          Object.entries(userReviews || {}).forEach(([id, review]) => {
+            if (legacyIds.has(id)) return;
+
+            reviewsByUser[userId] = [
+              ...(reviewsByUser[userId] || []),
+              {
+                ...review,
+                id,
+                psychologistName:
+                  psychologistsData[review.psychologistId]?.name ||
+                  "Unknown specialist",
+              },
+            ];
+          });
+        });
+      }
+
       const nextItems = Object.entries(usersData).map(([id, user]) => ({
         id,
         name: user.name,
@@ -269,10 +309,21 @@ export default function AdminUsersPage() {
       const updates: Record<string, null> = {
         [`users/${userToDelete.id}`]: null,
         [`favorites/${userToDelete.id}`]: null,
+        [`reviewSubmissions/${userToDelete.id}`]: null,
       };
 
       userToDelete.appointments.forEach((appointment) => {
         updates[`appointments/${appointment.id}`] = null;
+
+        if (appointment.psychologistId && appointment.date && appointment.time) {
+          updates[
+            getBookingSlotPath(
+              appointment.psychologistId,
+              appointment.date,
+              appointment.time
+            )
+          ] = null;
+        }
       });
 
       userToDelete.reviews.forEach((review) => {
@@ -281,6 +332,12 @@ export default function AdminUsersPage() {
       });
 
       await update(ref(db), updates);
+
+      await Promise.all(
+        Array.from(
+          new Set(userToDelete.reviews.map((review) => review.psychologistId))
+        ).map(recalculatePsychologistRating)
+      );
 
       setItems((prev) => prev.filter((item) => item.id !== userToDelete.id));
       setUserToDelete(null);

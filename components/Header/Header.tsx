@@ -237,7 +237,7 @@ export default function Header() {
           isMobileMenuOpen ? css.activeMenu : null
         )}
       >
-        <nav className={css.mobileMenu} aria-label="Mobile Navigation">
+        <nav aria-label="Mobile Navigation">
           <ul className={css.mobileNavigation}>
             {NAV_LINKS.map(({ name, href }) => {
               const isActive = pathname === href && pathname !== "/";

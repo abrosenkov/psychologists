@@ -4,7 +4,7 @@ export interface Review {
   rating: number;
   text?: string;
   comment?: string;
-  status: "pending" | "approved" | "rejected";
+  status?: "pending" | "approved" | "rejected";
   createdAt?: number;
 }
 
@@ -19,5 +19,5 @@ export interface Psychologist {
   price_per_hour: number;
   initial_consultation: string;
   about: string;
-  reviews?: Record<string, Review>;
+  reviews?: Record<string, Review> | Review[];
 }

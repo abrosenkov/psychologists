@@ -8,7 +8,9 @@ export function getRatingReviews(reviews: ReviewsValue): Review[] {
 
   const reviewList = Array.isArray(reviews) ? reviews : Object.values(reviews);
 
-  return reviewList.filter((review) => review.status !== "rejected");
+  return reviewList.filter(
+    (review) => !review.status || review.status === "approved"
+  );
 }
 
 export function calculateReviewsRating(reviews: ReviewsValue): number | null {

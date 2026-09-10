@@ -33,7 +33,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className={css.wrapper}>
+    <div>
       <h2 className={css.title}>Registration</h2>
 
       <p className={css.subtitle}>
@@ -84,7 +84,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
         {({ isSubmitting }) => (
           <Form className={css.form}>
             <div className={css.fieldsWrapper}>
-              <div className={css.fieldWrapper}>
+              <div>
                 <Field
                   name="name"
                   type="text"
@@ -98,7 +98,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
                 />
               </div>
 
-              <div className={css.fieldWrapper}>
+              <div>
                 <Field
                   name="email"
                   type="email"
@@ -112,7 +112,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
                 />
               </div>
 
-              <div className={css.fieldWrapper}>
+              <div>
                 <div className={css.passwordWrapper}>
                   <Field
                     name="password"

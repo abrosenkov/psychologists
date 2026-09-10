@@ -119,11 +119,11 @@ export default function PsychologistCard({
 
     try {
       const reviewRef = push(
-        ref(db, `psychologists/${psychologist.id}/reviews`)
+        ref(db, `reviewSubmissions/${user.uid}`)
       );
 
       await set(reviewRef, {
-        userId: user.uid,
+        psychologistId: psychologist.id,
         userName: user?.displayName || user?.email || "Anonymous",
         rating: Number(reviewForm.rating),
         text: trimmedComment,
@@ -177,7 +177,7 @@ export default function PsychologistCard({
                 <span>Rating: {rating}</span>
               </div>
               <span className={css.metaSeparator}>|</span>
-              <div className={css.metaPrice}>
+              <div>
                 Price / 1 hour:{" "}
                 <span className={css.priceValue}>
                   {getPriceLabel(psychologist.price_per_hour)}
@@ -191,6 +191,11 @@ export default function PsychologistCard({
                 isFavorite && css.favoriteActive
               )}
               onClick={onToggleFavorite}
+              aria-label={
+                isFavorite
+                  ? `Remove ${psychologist.name} from favorites`
+                  : `Add ${psychologist.name} to favorites`
+              }
             >
               {isFavorite ? <FaHeart size={26} /> : <FaRegHeart size={26} />}
             </button>

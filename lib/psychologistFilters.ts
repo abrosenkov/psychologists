@@ -11,7 +11,7 @@ export function parseNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Average of non-rejected reviews, with top-level `rating` as legacy fallback. */
+/** Average of published reviews, with top-level `rating` as legacy fallback. */
 export function getPsychologistRating(p: Psychologist): number | null {
   const reviews = p.reviews;
 
@@ -23,7 +23,7 @@ export function getPsychologistRating(p: Psychologist): number | null {
     let sum = 0;
     let count = 0;
     for (const r of reviewList) {
-      if (r.status === "rejected") continue;
+      if (r.status && r.status !== "approved") continue;
 
       const x = parseNumber(r.rating);
       if (x !== null) {

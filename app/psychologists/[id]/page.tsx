@@ -1,51 +1,49 @@
-// export async function generateMetadata({
-//   params,
-// }: CamperDetailsPageProps): Promise<Metadata> {
-//   const { id } = await params;
+import { cache } from "react";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { get, ref } from "firebase/database";
+import PsychologistsListWrapper from "@/components/PsychologistsListWrapper/PsychologistsListWrapper";
+import { db } from "@/lib/firebase";
+import type { Psychologist } from "@/types/psychologist";
+import css from "./page.module.css";
 
-//   try {
-//     const camper = await getCamperById(id);
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-//     if (!camper) {
-//       return {
-//         title: "Camper Not Found | TravelTrucks",
-//       };
-//     }
+const getPsychologist = cache(async (id: string): Promise<Psychologist | null> => {
+  const snapshot = await get(ref(db, `psychologists/${id}`));
 
-//     const title = `${camper.name} | TravelTrucks`;
-//     const description = camper.description
-//       ? camper.description.slice(0, 160)
-//       : "Book this amazing campervan for your next trip.";
+  if (!snapshot.exists()) return null;
 
-//     return {
-//       title,
-//       description,
-//       alternates: {
-//         canonical: `${BASE_URL}/catalog/${id}`,
-//       },
-//       openGraph: {
-//         title,
-//         description,
-//         type: "website",
-//         url: `${BASE_URL}/catalog/${id}`,
-//         images: [
-//           {
-//             url:
-//               camper.gallery?.[0]?.original || camper.gallery?.[0]?.thumb || "",
-//             width: 1200,
-//             height: 630,
-//             alt: camper.name,
-//           },
-//         ],
-//       },
-//     };
-//   } catch {
-//     return {
-//       title: "Camper Details | TravelTrucks",
-//     };
-//   }
-// }
+  return { id, ...(snapshot.val() as Omit<Psychologist, "id">) };
+});
 
-export default async function PsychologistDetailsPage() {
-  return <div>PsychologistDetailsPage</div>;
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const psychologist = await getPsychologist(id);
+
+  if (!psychologist) return { title: "Psychologist not found" };
+
+  return {
+    title: psychologist.name,
+    description:
+      psychologist.about?.slice(0, 160) ||
+      `View the profile of ${psychologist.name}.`,
+  };
+}
+
+export default async function PsychologistDetailsPage({ params }: PageProps) {
+  const { id } = await params;
+  const psychologist = await getPsychologist(id);
+
+  if (!psychologist) notFound();
+
+  return (
+    <main className={css.detailsPage}>
+      <div className="container">
+        <PsychologistsListWrapper psychologists={[psychologist]} />
+      </div>
+    </main>
+  );
 }

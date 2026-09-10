@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import Loader from "@/components/Loader/Loader";
 import { db } from "@/lib/firebase";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { getBookingSlotPath } from "@/lib/appointments";
 import { useAuthStore } from "@/stores/useAuthStore";
 import css from "./page.module.css";
 
@@ -93,10 +94,12 @@ export default function ProfilePage() {
           equalTo(user.uid)
         );
 
-        const [appointmentsSnapshot, psychologistsSnapshot] = await Promise.all([
-          get(appointmentsQuery),
-          get(ref(db, "psychologists")),
-        ]);
+        const [appointmentsSnapshot, psychologistsSnapshot, submissionsSnapshot] =
+          await Promise.all([
+            get(appointmentsQuery),
+            get(ref(db, "psychologists")),
+            get(ref(db, `reviewSubmissions/${user.uid}`)),
+          ]);
 
         const psychologists = psychologistsSnapshot.exists()
           ? (psychologistsSnapshot.val() as Record<
@@ -143,10 +146,34 @@ export default function ProfilePage() {
           setAppointments(nextAppointments);
         }
 
-        const nextReviews = Object.entries(psychologists)
+        const submissionReviews: UserReview[] = submissionsSnapshot.exists()
+          ? Object.entries(
+              submissionsSnapshot.val() as Record<
+                string,
+                {
+                  psychologistId: string;
+                  rating: number;
+                  text: string;
+                  status: UserReview["status"];
+                  createdAt: number;
+                }
+              >
+            ).map(([id, review]) => ({
+              ...review,
+              id,
+              psychologistName:
+                psychologists[review.psychologistId]?.name ||
+                "Unknown specialist",
+            }))
+          : [];
+        const submissionIds = new Set(submissionReviews.map((review) => review.id));
+        const legacyReviews = Object.entries(psychologists)
           .flatMap(([psychologistId, psychologist]) =>
             Object.entries(psychologist.reviews || {})
-              .filter(([, review]) => review.userId === user.uid)
+              .filter(
+                ([id, review]) =>
+                  review.userId === user.uid && !submissionIds.has(id)
+              )
               .map(([id, review]) => ({
                 id,
                 psychologistId,
@@ -156,7 +183,8 @@ export default function ProfilePage() {
                 status: review.status || "approved",
                 createdAt: review.createdAt || 0,
               }))
-          )
+          );
+        const nextReviews = [...submissionReviews, ...legacyReviews]
           .sort((a, b) => b.createdAt - a.createdAt);
 
         setReviews(nextReviews);
@@ -179,12 +207,25 @@ export default function ProfilePage() {
   );
 
   const cancelAppointment = async (appointmentId: string) => {
+    const appointment = appointments.find((item) => item.id === appointmentId);
+    if (!appointment) return;
+
     setCancellingId(appointmentId);
 
     try {
-      await update(ref(db, `appointments/${appointmentId}`), {
-        status: "cancelled",
-      });
+      const slotPath = getBookingSlotPath(
+        appointment.psychologistId,
+        appointment.date,
+        appointment.time
+      );
+      const slotSnapshot = await get(ref(db, slotPath));
+      const updates: Record<string, string | null> = {
+        [`appointments/${appointmentId}/status`]: "cancelled",
+      };
+
+      if (slotSnapshot.exists()) updates[slotPath] = null;
+
+      await update(ref(db), updates);
 
       setAppointments((prev) =>
         prev.map((appointment) =>

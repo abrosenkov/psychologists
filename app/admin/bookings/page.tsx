@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { db } from "@/lib/firebase";
-import { get, ref, remove, update } from "firebase/database";
+import { get, ref, update } from "firebase/database";
 import toast from "react-hot-toast";
 import {
   LuCalendar,
@@ -15,6 +15,7 @@ import Loader from "@/components/Loader/Loader";
 import Modal from "@/components/Modal/Modal";
 import {
   getAvailability,
+  getBookingSlotPath,
   isPastSlot,
   normalizeTime,
   setClosedDay,
@@ -272,16 +273,33 @@ export default function AdminBookingsPage() {
   };
 
   const changeStatus = async (
-    id: string,
+    booking: Booking,
     status: "confirmed" | "cancelled"
   ) => {
-    await update(ref(db, `appointments/${id}`), { status });
+    if (booking.status === "cancelled" && status === "confirmed") {
+      toast.error("A cancelled booking cannot be confirmed.");
+      return;
+    }
+
+    const updates: Record<string, string | null> = {
+      [`appointments/${booking.id}/status`]: status,
+    };
+
+    if (status === "cancelled") {
+      updates[
+        getBookingSlotPath(booking.psychologistId, booking.date, booking.time)
+      ] = null;
+    }
+
+    await update(ref(db), updates);
 
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item))
+      prev.map((item) =>
+        item.id === booking.id ? { ...item, status } : item
+      )
     );
     setSelectedBooking((current) =>
-      current?.id === id ? { ...current, status } : current
+      current?.id === booking.id ? { ...current, status } : current
     );
   };
 
@@ -296,7 +314,14 @@ export default function AdminBookingsPage() {
     setIsDeleting(true);
 
     try {
-      await remove(ref(db, `appointments/${bookingToDelete.id}`));
+      await update(ref(db), {
+        [`appointments/${bookingToDelete.id}`]: null,
+        [getBookingSlotPath(
+          bookingToDelete.psychologistId,
+          bookingToDelete.date,
+          bookingToDelete.time
+        )]: null,
+      });
 
       setItems((prev) =>
         prev.filter((item) => item.id !== bookingToDelete.id)
@@ -682,15 +707,18 @@ export default function AdminBookingsPage() {
               <button
                 type="button"
                 className={css.confirmBtn}
-                onClick={() => changeStatus(selectedBooking.id, "confirmed")}
-                disabled={selectedBooking.status === "confirmed"}
+                onClick={() => changeStatus(selectedBooking, "confirmed")}
+                disabled={
+                  selectedBooking.status === "confirmed" ||
+                  selectedBooking.status === "cancelled"
+                }
               >
                 Confirm
               </button>
               <button
                 type="button"
                 className={css.cancelBtn}
-                onClick={() => changeStatus(selectedBooking.id, "cancelled")}
+                onClick={() => changeStatus(selectedBooking, "cancelled")}
                 disabled={selectedBooking.status === "cancelled"}
               >
                 Cancel booking
@@ -790,15 +818,17 @@ export default function AdminBookingsPage() {
 
               <div className={css.actions}>
                 <button
-                  onClick={() => changeStatus(item.id, "confirmed")}
+                  onClick={() => changeStatus(item, "confirmed")}
                   className={css.confirmBtn}
-                  disabled={currentStatus === "confirmed"}
+                  disabled={
+                    currentStatus === "confirmed" || currentStatus === "cancelled"
+                  }
                 >
                   Confirm
                 </button>
 
                 <button
-                  onClick={() => changeStatus(item.id, "cancelled")}
+                  onClick={() => changeStatus(item, "cancelled")}
                   className={css.cancelBtn}
                   disabled={currentStatus === "cancelled"}
                 >

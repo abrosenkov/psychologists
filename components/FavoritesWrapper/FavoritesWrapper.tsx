@@ -22,9 +22,12 @@ export default function FavoritesWrapper({
   useEffect(() => {
     const fetchFavorites = async () => {
       if (!user) {
+        setFavoriteIds([]);
         setIsLoading(false);
         return;
       }
+
+      setIsLoading(true);
 
       try {
         const snapshot = await get(ref(db, `favorites/${user.uid}`));
