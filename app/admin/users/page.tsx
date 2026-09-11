@@ -106,12 +106,19 @@ export default function AdminUsersPage() {
     setLoading(true);
 
     try {
+      const submissionsRequest = get(ref(db, "reviewSubmissions")).catch(
+        (error) => {
+          console.warn("Failed to load review submissions.", error);
+          return null;
+        }
+      );
+
       const [usersSnap, appointmentsSnap, psychologistsSnap, submissionsSnap] =
         await Promise.all([
           get(ref(db, "users")),
           get(ref(db, "appointments")),
           get(ref(db, "psychologists")),
-          get(ref(db, "reviewSubmissions")),
+          submissionsRequest,
         ]);
 
       const usersData = usersSnap.exists()
@@ -193,7 +200,7 @@ export default function AdminUsersPage() {
         }
       );
 
-      if (submissionsSnap.exists()) {
+      if (submissionsSnap?.exists()) {
         const submissions = submissionsSnap.val() as Record<
           string,
           Record<
