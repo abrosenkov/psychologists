@@ -8,6 +8,7 @@ import {
   orderByChild,
   equalTo,
   remove,
+  update,
 } from "firebase/database";
 
 interface Appointment {
@@ -17,6 +18,11 @@ interface Appointment {
   userId: string;
   createdAt: number;
   status?: "pending" | "confirmed" | "cancelled";
+}
+
+interface BookingSlot {
+  appointmentId: string;
+  userId: string;
 }
 
 export interface BusySlot {
@@ -88,14 +94,29 @@ export const createAppointment = async (
   userId: string,
   data: Record<string, unknown>
 ) => {
-  const appointmentsRef = ref(db, "appointments");
-  const newRef = push(appointmentsRef);
+  const psychologistId = String(data.psychologistId || "");
+  const date = String(data.date || "");
+  const time = normalizeTime(String(data.time || ""));
+  const newRef = push(ref(db, "appointments"));
 
-  await set(newRef, {
-    ...data,
-    userId,
-    status: "pending",
-    createdAt: Date.now(),
+  if (!newRef.key || !psychologistId || !date || !time) {
+    throw new Error("Invalid appointment data.");
+  }
+
+  await update(ref(db), {
+    [`appointments/${newRef.key}`]: {
+      ...data,
+      psychologistId,
+      date,
+      time,
+      userId,
+      status: "pending",
+      createdAt: Date.now(),
+    },
+    [`bookingSlots/${psychologistId}/${date}/${timeKey(time)}`]: {
+      appointmentId: newRef.key,
+      userId,
+    },
   });
 };
 
@@ -121,8 +142,9 @@ export const getBusySlots = async (psychologistId: string) => {
     equalTo(psychologistId)
   );
 
-  const [appointmentsSnapshot, availability] = await Promise.all([
+  const [appointmentsSnapshot, slotsSnapshot, availability] = await Promise.all([
     get(appointmentsQuery),
+    get(ref(db, `bookingSlots/${psychologistId}`)),
     getAvailability(psychologistId),
   ]);
 
@@ -133,13 +155,30 @@ export const getBusySlots = async (psychologistId: string) => {
 
     busySlots.push(
       ...Object.values(data)
-        .filter((app: Appointment) => app.status !== "cancelled")
-        .map((app: Appointment) => ({
-          time: normalizeTime(app.time),
-          date: app.date,
+        .filter((appointment) => appointment.status !== "cancelled")
+        .map((appointment) => ({
+          time: normalizeTime(appointment.time),
+          date: appointment.date,
           source: "appointment" as const,
         }))
     );
+  }
+
+  if (slotsSnapshot.exists()) {
+    const data = slotsSnapshot.val() as Record<
+      string,
+      Record<string, BookingSlot>
+    >;
+
+    Object.entries(data).forEach(([date, slots]) => {
+      Object.keys(slots || {}).forEach((key) => {
+        busySlots.push({
+          date,
+          time: key.replace("-", ":"),
+          source: "appointment",
+        });
+      });
+    });
   }
 
   Object.entries(availability.closedSlots).forEach(([date, slots]) => {
@@ -156,6 +195,12 @@ export const getBusySlots = async (psychologistId: string) => {
 
   return busySlots;
 };
+
+export const getBookingSlotPath = (
+  psychologistId: string,
+  date: string,
+  time: string
+) => `bookingSlots/${psychologistId}/${date}/${timeKey(time)}`;
 
 export const setClosedDay = async (
   psychologistId: string,

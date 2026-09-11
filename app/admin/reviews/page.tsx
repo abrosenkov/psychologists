@@ -20,6 +20,7 @@ interface ReviewItem {
   text: string;
   status: "pending" | "approved" | "rejected";
   createdAt: number;
+  source: "legacy" | "submission";
 }
 
 type ReviewStatusFilter = "all" | ReviewItem["status"];
@@ -94,9 +95,10 @@ export default function AdminReviewsPage() {
 
   const loadReviews = async () => {
     try {
-      const [snapshot, usersSnapshot] = await Promise.all([
+      const [snapshot, usersSnapshot, submissionsSnapshot] = await Promise.all([
         get(ref(db, "psychologists")),
         get(ref(db, "users")),
+        get(ref(db, "reviewSubmissions")),
       ]);
 
       if (!snapshot.exists()) {
@@ -108,6 +110,27 @@ export default function AdminReviewsPage() {
       const users = usersSnapshot.exists()
         ? (usersSnapshot.val() as Record<string, { photoURL?: string }>)
         : {};
+      const submissions = submissionsSnapshot.exists()
+        ? (submissionsSnapshot.val() as Record<
+            string,
+            Record<
+              string,
+              {
+                psychologistId: string;
+                userName: string;
+                rating: number;
+                text: string;
+                status: ReviewItem["status"];
+                createdAt: number;
+              }
+            >
+          >)
+        : {};
+      const submissionIds = new Set(
+        Object.values(submissions).flatMap((userReviews) =>
+          Object.keys(userReviews || {})
+        )
+      );
       const reviews: ReviewItem[] = [];
 
       Object.entries(data).forEach(([psychologistId, psychologist]) => {
@@ -116,6 +139,8 @@ export default function AdminReviewsPage() {
         if (!psy.reviews) return;
 
         Object.entries(psy.reviews).forEach(([reviewId, review]) => {
+          if (submissionIds.has(reviewId)) return;
+
           const current = review as any;
 
           reviews.push({
@@ -131,31 +156,68 @@ export default function AdminReviewsPage() {
             text: current.text || current.comment || "",
             status: current.status || "approved",
             createdAt: current.createdAt || 0,
+            source: "legacy",
           });
         });
       });
 
-      setItems(reviews.reverse());
+      if (submissionsSnapshot.exists()) {
+        Object.entries(submissions).forEach(([userId, userReviews]) => {
+          Object.entries(userReviews || {}).forEach(([reviewId, review]) => {
+            reviews.push({
+              ...review,
+              id: reviewId,
+              userId,
+              userPhotoURL: users[userId]?.photoURL,
+              psychologistName:
+                (data[review.psychologistId] as { name?: string } | undefined)
+                  ?.name || "Unknown specialist",
+              source: "submission",
+            });
+          });
+        });
+      }
+
+      setItems(reviews.sort((a, b) => b.createdAt - a.createdAt));
     } finally {
       setLoading(false);
     }
   };
 
   const changeReviewStatus = async (
-    psychologistId: string,
-    reviewId: string,
+    targetItem: ReviewItem,
     status: "approved" | "rejected"
   ) => {
-    await update(
-      ref(db, `psychologists/${psychologistId}/reviews/${reviewId}`),
-      { status }
-    );
+    if (targetItem.source === "submission" && targetItem.userId) {
+      await update(ref(db), {
+        [`reviewSubmissions/${targetItem.userId}/${targetItem.id}/status`]: status,
+        [`psychologists/${targetItem.psychologistId}/reviews/${targetItem.id}`]:
+          status === "approved"
+            ? {
+                userName: targetItem.userName,
+                rating: targetItem.rating,
+                text: targetItem.text,
+                status: "approved",
+                createdAt: targetItem.createdAt,
+              }
+            : null,
+      });
+    } else {
+      await update(
+        ref(
+          db,
+          `psychologists/${targetItem.psychologistId}/reviews/${targetItem.id}`
+        ),
+        { status }
+      );
+    }
 
-    await recalculatePsychologistRating(psychologistId);
+    await recalculatePsychologistRating(targetItem.psychologistId);
 
     setItems((prev) =>
       prev.map((item) =>
-        item.id === reviewId && item.psychologistId === psychologistId
+        item.id === targetItem.id &&
+        item.psychologistId === targetItem.psychologistId
           ? { ...item, status }
           : item
       )
@@ -168,12 +230,19 @@ export default function AdminReviewsPage() {
     setIsDeleting(true);
 
     try {
-      await remove(
-        ref(
-          db,
-          `psychologists/${reviewToDelete.psychologistId}/reviews/${reviewToDelete.id}`
-        )
-      );
+      if (reviewToDelete.source === "submission" && reviewToDelete.userId) {
+        await update(ref(db), {
+          [`reviewSubmissions/${reviewToDelete.userId}/${reviewToDelete.id}`]: null,
+          [`psychologists/${reviewToDelete.psychologistId}/reviews/${reviewToDelete.id}`]: null,
+        });
+      } else {
+        await remove(
+          ref(
+            db,
+            `psychologists/${reviewToDelete.psychologistId}/reviews/${reviewToDelete.id}`
+          )
+        );
+      }
 
       await recalculatePsychologistRating(reviewToDelete.psychologistId);
 
@@ -427,7 +496,7 @@ export default function AdminReviewsPage() {
             <div className={css.actions}>
               <button
                 onClick={() =>
-                  changeReviewStatus(item.psychologistId, item.id, "approved")
+                  changeReviewStatus(item, "approved")
                 }
                 className={css.approveBtn}
                 disabled={item.status === "approved"}
@@ -437,7 +506,7 @@ export default function AdminReviewsPage() {
 
               <button
                 onClick={() =>
-                  changeReviewStatus(item.psychologistId, item.id, "rejected")
+                  changeReviewStatus(item, "rejected")
                 }
                 className={css.rejectBtn}
                 disabled={item.status === "rejected"}

@@ -1,7 +1,6 @@
 import "normalize.css";
 import "./globals.css";
 import type { Metadata } from "next";
-import TanStackProvider from "../components/TanStackProvider/TanStackProvider";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/Header/Header";
@@ -78,12 +77,11 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={inter.variable}>
-        <TanStackProvider>
-          <AuthListener />
-          <Header />
-          {children}
-          <ThemeSwitcher />
-          <Toaster
+        <AuthListener />
+        <Header />
+        {children}
+        <ThemeSwitcher />
+        <Toaster
             position="top-right"
             reverseOrder={false}
             gutter={10}
@@ -122,8 +120,7 @@ export default function RootLayout({
                 },
               },
             }}
-          />
-        </TanStackProvider>
+        />
       </body>
     </html>
   );

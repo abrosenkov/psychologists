@@ -1,6 +1,11 @@
 "use client";
-import css from "./page.module.css"
+import css from "./page.module.css";
 
-export default function Error() {
-  return <p className={css.error}>Could not fetch camper details.</p>;
+export default function Error({ reset }: { reset: () => void }) {
+  return (
+    <div className={css.wrapper}>
+      <p>Could not fetch psychologist details.</p>
+      <button type="button" onClick={reset}>Try again</button>
+    </div>
+  );
 }

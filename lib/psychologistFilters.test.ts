@@ -45,7 +45,7 @@ describe("parseNumber", () => {
 });
 
 describe("getPsychologistRating", () => {
-  it("uses reviews average before legacy top-level rating", () => {
+  it("uses published reviews average before legacy top-level rating", () => {
     const p = {
       ...base,
       rating: 5,
@@ -55,7 +55,7 @@ describe("getPsychologistRating", () => {
       },
     } as Psychologist;
 
-    expect(getPsychologistRating(p)).toBe(3.5);
+    expect(getPsychologistRating(p)).toBe(3);
   });
 
   it("uses reviews average when top-level rating is missing", () => {
@@ -165,14 +165,14 @@ describe("sortPsychologists", () => {
 });
 
 describe("calculateReviewsRating", () => {
-  it("recalculates rating from non-rejected review records", () => {
+  it("recalculates rating from published review records", () => {
     expect(
       calculateReviewsRating({
         pending: { userName: "A", rating: 5, status: "pending" },
         approved: { userName: "B", rating: 4, status: "approved" },
         rejected: { userName: "C", rating: 1, status: "rejected" },
       })
-    ).toBe(4.5);
+    ).toBe(4);
   });
 
   it("returns null when every review is rejected", () => {

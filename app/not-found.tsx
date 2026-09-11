@@ -5,19 +5,16 @@ import { Button } from "@/components/UI/Button/Button";
 
 export const metadata: Metadata = {
   title: "Page not found",
-  description:
-    "Page not found. Return to TravelTrucks and keep your notes organized.",
+  description: "Page not found. Return to Psychologists Services.",
   openGraph: {
     title: "Page not found",
-    description:
-      "Page not found. Return to TravelTrucks and keep your notes organized.",
-    url: "https://campers-el18.vercel.app/not-found",
+    description: "Page not found. Return to Psychologists Services.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/hero/hero.webp",
         width: 1200,
         height: 630,
-        alt: "TravelTrucks image",
+        alt: "Psychologists Services",
       },
     ],
   },

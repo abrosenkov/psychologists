@@ -77,7 +77,7 @@ Full-featured portfolio project for finding psychologists, saving favorites, boo
 4. Bookings are stored with `pending`, `confirmed`, or `cancelled` statuses.
 5. Admins manage statuses, delete old bookings, and control availability by day or time slot.
 6. Users leave reviews with `pending` status and can see them in their profile.
-7. Admins approve, reject, or delete reviews, and ratings are recalculated from non-rejected reviews.
+7. Admins approve, reject, or delete reviews, and ratings are recalculated from published reviews.
 8. Admins can inspect registered users, including their booking and review activity.
 9. Users and psychologists can have uploaded photos stored in Cloudinary and referenced from Firebase.
 
@@ -161,7 +161,10 @@ The app expects Realtime Database rules from `database.rules.json`. Deploy or pu
 firebase deploy --only database
 ```
 
-These rules allow users to create only their own pending reviews, while admins can moderate reviews and read/manage operational records.
+Pending reviews are stored under `reviewSubmissions` and are visible only to
+their author and administrators. Approval publishes a sanitized copy in the
+psychologist profile. Appointment details are limited to authenticated,
+query-scoped access, while `bookingSlots` provides atomic slot reservation.
 
 ## Local Setup
 
@@ -184,6 +187,8 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+NEXT_PUBLIC_FIREBASE_APP_CHECK_SITE_KEY=your_recaptcha_v3_site_key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
@@ -192,6 +197,10 @@ NEXT_PUBLIC_CLOUDINARY_FOLDER=psychologists
 ```
 
 Cloudinary uses unsigned uploads from the client. Do not expose `API Secret` in the frontend.
+
+Enable Firebase App Check enforcement for Realtime Database in the Firebase
+console after configuring the reCAPTCHA v3 site key. Deploy the database rules
+from this repository together with the application release.
 
 ## Quality Checks
 

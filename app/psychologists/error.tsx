@@ -1,17 +1,10 @@
 "use client";
 
-import css from "./page.module.css";
-
-interface Props {
-  error: Error;
-}
-
-export default function Error({ error }: Props) {
+export default function Error({ reset }: { reset: () => void }) {
   return (
     <div className="container">
-      <p className={css.error}>
-        Could not fetch the list of campers. {error.message}
-      </p>
+      <p>Could not fetch the list of psychologists.</p>
+      <button type="button" onClick={reset}>Try again</button>
     </div>
   );
 }

@@ -3,6 +3,14 @@ const CLOUDINARY_UPLOAD_PRESET =
   process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 const CLOUDINARY_FOLDER =
   process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER || "psychologists";
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/avif",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 export const uploadImageToCloudinary = async (
   file: File,
@@ -12,8 +20,12 @@ export const uploadImageToCloudinary = async (
     throw new Error("Cloudinary upload is not configured.");
   }
 
-  if (!file.type.startsWith("image/")) {
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     throw new Error("Please select an image file.");
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error("Image must be 5 MB or smaller.");
   }
 
   const formData = new FormData();

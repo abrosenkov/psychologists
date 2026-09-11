@@ -6,9 +6,20 @@
       "$psychologistId": {
         "reviews": {
           "$reviewId": {
-            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && newData.child('userId').val() === auth.uid && newData.child('status').val() === 'pending'))",
-            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.hasChildren(['userId', 'userName', 'rating', 'text', 'status', 'createdAt']) && newData.child('userId').val() === auth.uid && newData.child('userName').isString() && newData.child('rating').isNumber() && newData.child('rating').val() >= 1 && newData.child('rating').val() <= 5 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('status').val() === 'pending' && newData.child('createdAt').isNumber())"
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+            ".validate": "!newData.exists() || (newData.hasChildren(['userName', 'rating', 'text', 'status', 'createdAt']) && newData.child('userName').isString() && newData.child('userName').val().length <= 100 && newData.child('rating').isNumber() && newData.child('rating').val() >= 1 && newData.child('rating').val() <= 5 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 2000 && (newData.child('status').val() === 'pending' || newData.child('status').val() === 'approved' || newData.child('status').val() === 'rejected') && newData.child('createdAt').isNumber())"
           }
+        }
+      }
+    },
+    "reviewSubmissions": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        "$reviewId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || ($uid === auth.uid && !data.exists() && newData.child('status').val() === 'pending'))",
+          ".validate": "!newData.exists() || (newData.hasChildren(['psychologistId', 'userName', 'rating', 'text', 'status', 'createdAt']) && newData.child('psychologistId').isString() && newData.child('userName').isString() && newData.child('userName').val().length <= 100 && newData.child('rating').isNumber() && newData.child('rating').val() >= 1 && newData.child('rating').val() <= 5 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 2000 && (newData.child('status').val() === 'pending' || newData.child('status').val() === 'approved' || newData.child('status').val() === 'rejected') && newData.child('createdAt').isNumber())"
         }
       }
     },
@@ -16,22 +27,37 @@
       ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || ($uid === auth.uid && newData.exists() && (newData.child('role').val() === data.child('role').val() || (!data.child('role').exists() && (!newData.child('role').exists() || newData.child('role').val() === 'user')))))"
       }
     },
     "favorites": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        "$psychologistId": {
+          ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
       }
     },
     "appointments": {
-      ".read": true,
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (query.orderByChild === 'userId' && query.equalTo === auth.uid) || query.orderByChild === 'psychologistId')",
       ".indexOn": ["psychologistId", "userId"],
       "$appointmentId": {
-        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() ? newData.child('userId').val() === auth.uid : data.child('userId').val() === auth.uid))",
-        ".validate": "newData.hasChildren(['userId', 'psychologistId', 'date', 'time', 'name', 'email', 'phone', 'createdAt']) && (root.child('users').child(auth.uid).child('role').val() === 'admin' || newData.child('userId').val() === auth.uid)"
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && newData.child('userId').val() === auth.uid && newData.child('status').val() === 'pending') || (data.exists() && newData.exists() && data.child('userId').val() === auth.uid && newData.child('userId').val() === auth.uid && newData.child('status').val() === 'cancelled' && newData.child('psychologistId').val() === data.child('psychologistId').val() && newData.child('date').val() === data.child('date').val() && newData.child('time').val() === data.child('time').val() && newData.child('name').val() === data.child('name').val() && newData.child('email').val() === data.child('email').val() && newData.child('phone').val() === data.child('phone').val() && newData.child('createdAt').val() === data.child('createdAt').val()))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['userId', 'psychologistId', 'date', 'time', 'name', 'email', 'phone', 'createdAt', 'status']) && newData.child('userId').isString() && newData.child('psychologistId').isString() && newData.child('date').isString() && newData.child('time').isString() && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 100 && newData.child('email').isString() && newData.child('email').val().length <= 254 && newData.child('phone').isString() && newData.child('phone').val().length <= 30 && newData.child('createdAt').isNumber() && (newData.child('status').val() === 'pending' || newData.child('status').val() === 'confirmed' || newData.child('status').val() === 'cancelled') && (!newData.child('comment').exists() || (newData.child('comment').isString() && newData.child('comment').val().length <= 500)))"
+      }
+    },
+    "bookingSlots": {
+      ".read": "auth != null",
+      "$psychologistId": {
+        "$date": {
+          "$time": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && newData.child('userId').val() === auth.uid) || (data.child('userId').val() === auth.uid && !newData.exists()))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['appointmentId', 'userId']) && newData.child('appointmentId').isString() && newData.child('userId').isString())"
+          }
+        }
       }
     },
     "availability": {

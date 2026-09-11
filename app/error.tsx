@@ -1,9 +1,12 @@
 "use client";
 
-interface Props {
-  error: Error;
-}
-
-export default function Error({ error }: Props) {
-  return <p>Could not fetch the list of campers. {error.message}</p>;
+export default function Error({ reset }: { reset: () => void }) {
+  return (
+    <main>
+      <p>We could not load this page.</p>
+      <button type="button" onClick={reset}>
+        Try again
+      </button>
+    </main>
+  );
 }

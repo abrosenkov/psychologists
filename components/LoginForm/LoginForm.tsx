@@ -30,7 +30,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const setRole = useAuthStore((state) => state.setRole);
 
   return (
-    <div className={css.wrapper}>
+    <div>
       <h2 className={css.title}>Log In</h2>
 
       <p className={css.subtitle}>
@@ -91,7 +91,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         {({ isSubmitting }) => (
           <Form className={css.form}>
             <div className={css.fieldsWrapper}>
-              <div className={css.fieldWrapper}>
+              <div>
                 <Field
                   name="email"
                   type="email"
@@ -105,7 +105,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 />
               </div>
 
-              <div className={css.fieldWrapper}>
+              <div>
                 <div className={css.passwordWrapper}>
                   <Field
                     name="password"

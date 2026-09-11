@@ -5,19 +5,16 @@ import { Button } from "@/components/UI/Button/Button";
 
 export const metadata: Metadata = {
   title: "Page not found",
-  description:
-    "Page not found. Return to TravelTrucks and keep your notes organized.",
+  description: "The requested psychologist could not be found.",
   openGraph: {
     title: "Page not found",
-    description:
-      "Page not found. Return to TravelTrucks and keep your notes organized.",
-    url: "https://campers-el18.vercel.app/not-found",
+    description: "The requested psychologist could not be found.",
     images: [
       {
         url: "/hero/hero.webp",
         width: 1200,
         height: 630,
-        alt: "TravelTrucks image",
+        alt: "Psychologists Services",
       },
     ],
   },
@@ -31,12 +28,12 @@ export default function notFound() {
           <h1 className={css.title}>404</h1>
           <h2 className={css.subtitle}>Whoops! Page not found</h2>
           <p className={css.description}>
-            The campervan you are looking for might have been booked or the link
-            is broken. Don&apos;t let that stop your journey!
+            The psychologist you are looking for is unavailable or the link is
+            incorrect.
           </p>
 
-          <Button href="/catalog" className={css.backBtn}>
-            Back to Catalog
+          <Button href="/psychologists" className={css.backBtn}>
+            Back to psychologists
           </Button>
         </div>
       </div>
