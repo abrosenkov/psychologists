@@ -94,11 +94,18 @@ export default function ProfilePage() {
           equalTo(user.uid)
         );
 
+        const submissionsRequest = get(
+          ref(db, `reviewSubmissions/${user.uid}`)
+        ).catch((error) => {
+          console.warn("Failed to load review submissions.", error);
+          return null;
+        });
+
         const [appointmentsSnapshot, psychologistsSnapshot, submissionsSnapshot] =
           await Promise.all([
             get(appointmentsQuery),
             get(ref(db, "psychologists")),
-            get(ref(db, `reviewSubmissions/${user.uid}`)),
+            submissionsRequest,
           ]);
 
         const psychologists = psychologistsSnapshot.exists()
@@ -146,7 +153,7 @@ export default function ProfilePage() {
           setAppointments(nextAppointments);
         }
 
-        const submissionReviews: UserReview[] = submissionsSnapshot.exists()
+        const submissionReviews: UserReview[] = submissionsSnapshot?.exists()
           ? Object.entries(
               submissionsSnapshot.val() as Record<
                 string,
