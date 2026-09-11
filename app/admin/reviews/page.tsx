@@ -95,10 +95,17 @@ export default function AdminReviewsPage() {
 
   const loadReviews = async () => {
     try {
+      const submissionsRequest = get(ref(db, "reviewSubmissions")).catch(
+        (error) => {
+          console.warn("Failed to load review submissions.", error);
+          return null;
+        }
+      );
+
       const [snapshot, usersSnapshot, submissionsSnapshot] = await Promise.all([
         get(ref(db, "psychologists")),
         get(ref(db, "users")),
-        get(ref(db, "reviewSubmissions")),
+        submissionsRequest,
       ]);
 
       if (!snapshot.exists()) {
@@ -110,7 +117,7 @@ export default function AdminReviewsPage() {
       const users = usersSnapshot.exists()
         ? (usersSnapshot.val() as Record<string, { photoURL?: string }>)
         : {};
-      const submissions = submissionsSnapshot.exists()
+      const submissions = submissionsSnapshot?.exists()
         ? (submissionsSnapshot.val() as Record<
             string,
             Record<
@@ -161,7 +168,7 @@ export default function AdminReviewsPage() {
         });
       });
 
-      if (submissionsSnapshot.exists()) {
+      if (submissionsSnapshot?.exists()) {
         Object.entries(submissions).forEach(([userId, userReviews]) => {
           Object.entries(userReviews || {}).forEach(([reviewId, review]) => {
             reviews.push({
